@@ -323,8 +323,6 @@ export type ChatConnectionState = "connecting" | "open" | "reconnecting" | "unav
 // Historical Performance Analytics (GET /api/v1/analytics/me/performance)
 // ============================================================
 
-export type ChipType = "TRIPLE_CAPTAIN" | "BENCH_BOOST" | "FREE_HIT" | "WILDCARD";
-
 export interface GameweekPerformance {
   gameweekId: number;
   gameweekFplId: number;
@@ -372,6 +370,9 @@ export interface PerformanceAnalytics {
   summary: PerformanceSummary;
   history: GameweekPerformance[];
   chips: Array<{ chipType: ChipType; gameweekId: number; gameweekName: string }>;
+}
+
+// ============================================================
 // Global Leaderboard (GET /api/v1/leaderboard)
 // ============================================================
 

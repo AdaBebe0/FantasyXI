@@ -274,7 +274,7 @@ export class SorobanContractClient {
           }
 
           if (rpc.Api.isSimulationRestore(simulation)) {
-            const restored = await this.restoreFootprint(keypair, simulation.restorePreamble);
+            const restored = await this.restoreFootprint(sourceSecret, simulation.restorePreamble);
             if (!restored.success) {
               return this.failure(`Footprint restoration failed: ${restored.error}`, restored.txHash);
             }

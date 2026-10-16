@@ -52,7 +52,7 @@
     "ioredis": "^6.0.0",
     "jsonwebtoken": "^9.0.3",
     "pg-boss": "^10.4.2",
-    "ws": "^8.22.0"
+    "ws": "^8.22.0",
     "pino": "^10.3.1"
   },
   "devDependencies": {

@@ -1,4 +1,5 @@
 #![no_std]
+#![allow(clippy::too_many_arguments)]
 use soroban_sdk::{
     contract, contracterror, contractimpl, contracttype, symbol_short, token, Address, BytesN, Env,
     Symbol, Vec,
@@ -34,10 +35,10 @@ pub enum EscrowError {
     NotPaused = 16,
     TimelockNotElapsed = 17,
     NoDeposit = 18,
-    InvalidProof = 14,
-    InvalidMultisig = 15,
-    InvalidGameweekResult = 16,
-    GameweekResultConflict = 17,
+    InvalidProof = 19,
+    InvalidMultisig = 20,
+    InvalidGameweekResult = 21,
+    GameweekResultConflict = 22,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -352,10 +353,8 @@ impl FantasyXIEscrow {
             PERSISTENT_LIFETIME_THRESHOLD,
             PERSISTENT_BUMP_AMOUNT,
         );
-        env.events().publish(
-            (symbol_short!("gw_result"), gameweek_id),
-            result_hash,
-        );
+        env.events()
+            .publish((symbol_short!("gw_result"), gameweek_id), result_hash);
         Ok(())
     }
 
@@ -378,7 +377,6 @@ impl FantasyXIEscrow {
         if Self::is_paused(&env) {
             return Err(EscrowError::ContractPaused);
         }
-        Self::settle_with_affiliate(
         let mut approvals = Vec::new(&env);
         approvals.push_back(admin);
         Self::settle_internal(
@@ -1543,6 +1541,9 @@ mod test {
         );
         client.unpause(&admin);
         assert_eq!(client.try_unpause(&admin), Err(Ok(EscrowError::NotPaused)));
+    }
+
+    #[test]
     fn test_settle_with_affiliate_payout() {
         let (env, admin, token_addr, client) = setup_test();
         let token_admin_client = token::StellarAssetClient::new(&env, &token_addr);

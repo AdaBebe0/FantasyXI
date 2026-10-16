@@ -251,7 +251,6 @@ model Gameweek {
   leaguesEnding   League[]              @relation("LeagueEndGW")
   chipUsages      SquadChipUsage[]
   leagueFixtures  LeagueFixture[]
-  squadTransfers  SquadTransfer[]
 
   @@map("gameweeks")
 }
@@ -325,7 +324,6 @@ model Squad {
   transfers      SquadTransfer[]
   memberships    LeagueMember[]
   chipUsages     SquadChipUsage[]
-  squadTransfers SquadTransfer[]
 
   @@map("squads")
 }
