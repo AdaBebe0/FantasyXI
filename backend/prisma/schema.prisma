@@ -119,6 +119,8 @@ enum FinancialAuditAction {
   PAYOUT_RETRY_SUCCEEDED
   PAYOUT_RETRY_FAILED
   PAYOUT_DISCARDED
+  RECONCILIATION_BALANCED
+  RECONCILIATION_DISCREPANCY
 }
 
 // ============================================================
