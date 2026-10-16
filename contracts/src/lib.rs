@@ -961,7 +961,11 @@ impl FantasyXIEscrow {
     /// Returns the total number of participant pages allocated for a league.
     pub fn get_participant_pages_count(env: Env, league_id: u64) -> u32 {
         let league_key = DataKey::League(league_id);
-        if let Some(league) = env.storage().persistent().get::<_, LeagueState>(&league_key) {
+        if let Some(league) = env
+            .storage()
+            .persistent()
+            .get::<_, LeagueState>(&league_key)
+        {
             env.storage().persistent().extend_ttl(
                 &league_key,
                 PERSISTENT_LIFETIME_THRESHOLD,
@@ -1787,7 +1791,10 @@ mod test {
         // Verify total participant count and deposit tally
         let league = client.get_league(&league_id).unwrap();
         assert_eq!(league.participant_count, total_participants);
-        assert_eq!(league.total_deposited, (total_participants as i128) * entry_fee);
+        assert_eq!(
+            league.total_deposited,
+            (total_participants as i128) * entry_fee
+        );
 
         // Verify pagination across storage buckets
         // 520 participants with 50 per page -> 11 pages (10 full pages of 50, 1 partial page of 20)
