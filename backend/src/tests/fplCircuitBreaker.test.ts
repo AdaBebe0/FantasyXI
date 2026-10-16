@@ -43,7 +43,7 @@ class MockRedisClient implements IRedisCacheClient {
   }
 
   async keys(pattern: string): Promise<string[]> {
-    const prefix = pattern.replace("*", "");
+    const prefix = pattern.replaceAll("*", "");
     return Array.from(this.store.keys()).filter((k) => k.startsWith(prefix));
   }
 }
