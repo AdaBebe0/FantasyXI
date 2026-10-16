@@ -14,6 +14,7 @@ import {
   listH2HAnomalies,
 } from "../controllers/leagueAdmin.controller.js";
 import { listSecurityAnomalies } from "../controllers/securityAdmin.controller.js";
+import { verifyAuditChainHandler } from "../controllers/audit.controller.js";
 import { requireAuth, requirePermission } from "../middleware/authMiddleware.js";
 import { Permission } from "../types/index.js";
 
@@ -40,6 +41,9 @@ router.post("/payouts/dead-letter/:id/discard", requirePermission(Permission.PAY
 
 // GET /api/v1/admin/audit/financial (ADMIN only: exposes every user's ledger history)
 router.get("/audit/financial", requirePermission(Permission.FINANCIAL_AUDIT_READ), listFinancialAuditLog);
+
+// GET /api/v1/admin/audit/verify (ADMIN only: verifies SHA-256 hash chain and flags anomalies)
+router.get("/audit/verify", requirePermission(Permission.FINANCIAL_AUDIT_READ), verifyAuditChainHandler);
 
 // GET /api/v1/admin/security/anomalies (issue #117): failed-login spikes and
 // new-device/new-IP logins detected across all accounts, for admin review.
