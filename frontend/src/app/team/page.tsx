@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { api, ApiError } from "@/lib/api";
-import { Squad, Player, Position, SQUAD_RULES } from "@/types";
+import { isOfflineError, loadSquadSnapshot, saveSquadSnapshot } from "@/lib/offlineStore";
+import { useOnlineStatus } from "@/lib/useOnlineStatus";
+import { Squad, Player, Position, SQUAD_RULES, ChipType, SquadChipUsage } from "@/types";
 import { Pitch } from "@/components/pitch/Pitch";
 import { Bench } from "@/components/pitch/Bench";
 import { BudgetBar } from "@/components/team/BudgetBar";
@@ -19,40 +21,52 @@ import {
 } from "@/components/ui/Icons";
 import { Button } from "@/components/ui/Button";
 import { PositionBadge } from "@/components/ui/Badge";
+import { useToast } from "@/context/ToastContext";
+import {
+  DndContext,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+  DragStartEvent,
+  DragOverlay,
+} from "@dnd-kit/core";
 
-interface LocalSquadPlayer {
-  id?: number | string;
-  playerId: number;
-  player: Player;
-  isStarter: boolean;
-  isCaptain: boolean;
-  isViceCaptain: boolean;
-  positionOrder: number;
-}
+import { useTeamStore, LocalSquadPlayer } from "@/store/teamStore";
+import { PlayerCard } from "@/components/pitch/PlayerCard";
 
 export default function TeamPage() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { toast } = useToast();
 
-  const [squadId, setSquadId] = useState<string | null>(null);
-  const [squadName, setSquadName] = useState<string>("My Fantasy XI");
-  const [players, setPlayers] = useState<LocalSquadPlayer[]>([]);
+  const { 
+    squadId, setSquadId, 
+    squadName, setSquadName, 
+    players, setPlayers, 
+    selectedPlayerId, setSelectedPlayerId,
+    activeDragPlayer, setActiveDragPlayer,
+    substitutionFeedback, setSubstitutionFeedback,
+    activeModalState, setActiveModalState,
+    handleSwap, handleSetCaptain, handleSetViceCaptain
+  } = useTeamStore();
+
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  // Active interaction states
-  const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(null);
-  const [activeModalState, setActiveModalState] = useState<{
-    isOpen: boolean;
-    requiredPosition: Position | null;
-    replacingPlayer: Player | null;
-  }>({
-    isOpen: false,
-    requiredPosition: null,
-    replacingPlayer: null,
-  });
+  const isOnline = useOnlineStatus();
+  // When set, the pitch shows the squad saved on this device at that time
+  const [offlineSnapshotAt, setOfflineSnapshotAt] = useState<string | null>(null);
+  const showingSnapshot = useRef(false);
+  const userId = user?.id;
+  
+  // Wildcard chip state
+  const [isWildcardActive, setIsWildcardActive] = useState<boolean>(false);
+  const [currentGameweek, setCurrentGameweek] = useState<{ id: number; name: string; deadline: string } | null>(null);
+  const [chipUsages, setChipUsages] = useState<SquadChipUsage[]>([]);
+  const [isActivatingChip, setIsActivatingChip] = useState<boolean>(false);
 
   // Load existing squad
   useEffect(() => {
@@ -60,43 +74,93 @@ export default function TeamPage() {
       router.replace("/login?returnTo=/team");
       return;
     }
+    if (!isAuthenticated || !userId) return;
+
+    let cancelled = false;
+
+    const applySquads = (squads: Squad[]) => {
+      if (squads.length === 0) return;
+      const s = squads[0];
+      setSquadId(s.id);
+      setSquadName(s.name);
+
+      if (s.players && s.players.length > 0) {
+        const mapped: LocalSquadPlayer[] = s.players
+          .filter((sp) => sp.player)
+          .map((sp) => ({
+            id: sp.id,
+            playerId: sp.playerId,
+            player: sp.player!,
+            isStarter: sp.isStarter,
+            isCaptain: sp.isCaptain,
+            isViceCaptain: sp.isViceCaptain,
+            positionOrder: sp.positionOrder,
+          }));
+        setPlayers(mapped);
+      }
+    };
 
     async function loadSquad() {
-      if (!isAuthenticated) return;
       setIsLoading(true);
       try {
-        const res = await api.get<{ success: boolean; data: Squad[] }>("/api/v1/squads/me");
-        if (res?.data && res.data.length > 0) {
-          const s = res.data[0];
-          setSquadId(s.id);
-          setSquadName(s.name);
-
-          if (s.players && s.players.length > 0) {
-            const mapped: LocalSquadPlayer[] = s.players
-              .filter((sp) => sp.player)
-              .map((sp) => ({
-                id: sp.id,
-                playerId: sp.playerId,
-                player: sp.player!,
-                isStarter: sp.isStarter,
-                isCaptain: sp.isCaptain,
-                isViceCaptain: sp.isViceCaptain,
-                positionOrder: sp.positionOrder,
-              }));
-            setPlayers(mapped);
+        const [squadRes, gameweekRes] = await Promise.all([
+          api.get<{ success: boolean; data: Squad[] }>("/api/v1/squads/me"),
+          api.get<{ success: boolean; data: { id: number; name: string; deadline: string } | null }>("/api/v1/gameweeks/current"),
+        ]);
+        if (cancelled) return;
+        
+        if (squadRes?.data) {
+          saveSquadSnapshot(userId!, squadRes.data);
+          applySquads(squadRes.data);
+          
+          // Load chip usages if squad has them
+          if (squadRes.data[0]?.chipUsages) {
+            setChipUsages(squadRes.data[0].chipUsages);
           }
         }
+        
+        if (gameweekRes?.data) {
+          setCurrentGameweek({
+            id: gameweekRes.data.id,
+            name: gameweekRes.data.name,
+            deadline: gameweekRes.data.deadline,
+          });
+        }
+        
+        showingSnapshot.current = false;
+        setOfflineSnapshotAt(null);
       } catch (err) {
-        console.error("Failed to load user squad:", err);
+        if (cancelled) return;
+        const snapshot = isOfflineError(err) ? loadSquadSnapshot(userId!) : null;
+        if (snapshot) {
+          applySquads(snapshot.squads);
+          showingSnapshot.current = true;
+          setOfflineSnapshotAt(snapshot.savedAt);
+        } else if (isOfflineError(err)) {
+          setErrorMessage("You are offline and this device has no saved copy of your squad yet.");
+        } else {
+          console.error("Failed to load user squad:", err);
+        }
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     }
 
-    if (isAuthenticated) {
-      loadSquad();
-    }
-  }, [isAuthenticated, authLoading, router]);
+    loadSquad();
+
+    // Swap the saved copy for live data as soon as the connection returns
+    const handleOnline = () => {
+      if (showingSnapshot.current) {
+        setErrorMessage(null);
+        loadSquad();
+      }
+    };
+    window.addEventListener("online", handleOnline);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("online", handleOnline);
+    };
+  }, [isAuthenticated, authLoading, router, userId, setSquadId, setSquadName, setPlayers]);
 
   // Derived state
   const starters = players
@@ -125,6 +189,45 @@ export default function TeamPage() {
   // Selected player object
   const selectedPlayer = players.find((p) => p.playerId === selectedPlayerId);
 
+  // DND Handlers
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        distance: 10,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    })
+  );
+
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    const player = players.find((p) => String(p.playerId) === String(active.id));
+    if (player) {
+      setActiveDragPlayer(player);
+      setSubstitutionFeedback(null);
+    }
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    setActiveDragPlayer(null);
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const activeIdNum = Number(active.id);
+      const overIdNum = Number(over.id);
+      
+      if (!isNaN(activeIdNum) && !isNaN(overIdNum)) {
+        handleSwap(activeIdNum, overIdNum);
+      }
+      setSelectedPlayerId(null);
+    }
+  };
+
   // Auto-pick balanced squad logic
   const handleAutoPick = async () => {
     setIsLoading(true);
@@ -136,9 +239,12 @@ export default function TeamPage() {
         data: { players: Player[] } | Player[];
       }>("/api/v1/players?limit=100&sortBy=totalPoints&sortOrder=desc");
 
-      const pool: Player[] = Array.isArray(res?.data)
-        ? res.data
-        : (res?.data as any)?.players || [];
+      const data = res?.data;
+      const pool: Player[] = Array.isArray(data)
+        ? data
+        : data && typeof data === "object" && "players" in data && Array.isArray((data as { players: Player[] }).players)
+          ? (data as { players: Player[] }).players
+          : [];
 
       if (pool.length < 15) {
         setErrorMessage("Not enough players in database to auto-draft a squad.");
@@ -257,10 +363,13 @@ export default function TeamPage() {
 
         setPlayers(newPlayers);
         setSelectedPlayerId(null);
+        toast.info("Auto-drafted a balanced squad! Review tactics before saving.");
       }
     } catch (err) {
       console.error("Auto-pick error:", err);
-      setErrorMessage("Failed to auto-generate squad. Please try picking manually.");
+      const msg = "Failed to auto-generate squad. Please try picking manually.";
+      setErrorMessage(msg);
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
@@ -289,75 +398,6 @@ export default function TeamPage() {
     setSelectedPlayerId(selectedPlayerId === clickedPlayer.id ? null : clickedPlayer.id);
   };
 
-  // Swap logic between two players
-  const handleSwap = (playerAId: number, playerBId: number) => {
-    setPlayers((prev) => {
-      const idxA = prev.findIndex((p) => p.playerId === playerAId);
-      const idxB = prev.findIndex((p) => p.playerId === playerBId);
-      if (idxA === -1 || idxB === -1) return prev;
-
-      const clone = [...prev];
-      const a = { ...clone[idxA] };
-      const b = { ...clone[idxB] };
-
-      // Swap starter / bench status & positionOrder
-      const tempStarter = a.isStarter;
-      const tempOrder = a.positionOrder;
-
-      a.isStarter = b.isStarter;
-      a.positionOrder = b.positionOrder;
-
-      b.isStarter = tempStarter;
-      b.positionOrder = tempOrder;
-
-      // Handle captaincy if starter moves to bench
-      if (!a.isStarter && a.isCaptain) {
-        a.isCaptain = false;
-        b.isCaptain = true;
-      }
-      if (!a.isStarter && a.isViceCaptain) {
-        a.isViceCaptain = false;
-        b.isViceCaptain = true;
-      }
-      if (!b.isStarter && b.isCaptain) {
-        b.isCaptain = false;
-        a.isCaptain = true;
-      }
-      if (!b.isStarter && b.isViceCaptain) {
-        b.isViceCaptain = false;
-        a.isViceCaptain = true;
-      }
-
-      clone[idxA] = a;
-      clone[idxB] = b;
-      return clone;
-    });
-  };
-
-  // Set Captain
-  const handleSetCaptain = (playerId: number) => {
-    setPlayers((prev) =>
-      prev.map((p) => ({
-        ...p,
-        isCaptain: p.playerId === playerId,
-        // If they were vice-captain, clear vice-captain
-        isViceCaptain: p.playerId === playerId ? false : p.isViceCaptain,
-      }))
-    );
-  };
-
-  // Set Vice-Captain
-  const handleSetViceCaptain = (playerId: number) => {
-    setPlayers((prev) =>
-      prev.map((p) => ({
-        ...p,
-        isViceCaptain: p.playerId === playerId,
-        // If they were captain, clear captain
-        isCaptain: p.playerId === playerId ? false : p.isCaptain,
-      }))
-    );
-  };
-
   // Transfer player (replace with someone from picker)
   const handleReplacePlayer = (newPlayer: Player) => {
     const replacing = activeModalState.replacingPlayer;
@@ -379,9 +419,13 @@ export default function TeamPage() {
     setSelectedPlayerId(null);
   };
 
-  // Save changes to backend
+  // Save changes to backend with optimistic rollback
   const handleSaveSquad = async () => {
     if (!canSave) return;
+    if (!isOnline) {
+      setErrorMessage("You are offline. Reconnect to save your squad or make transfers.");
+      return;
+    }
     setIsSaving(true);
     setErrorMessage(null);
     setSaveSuccessMsg(null);
@@ -397,228 +441,407 @@ export default function TeamPage() {
       })),
     };
 
+    // Snapshot current state for rollback
+    const previousPlayers = players.map((p) => ({ ...p, player: p.player ? { ...p.player } : undefined }));
+
     try {
       if (squadId) {
-        // Update existing squad
-        await api.put(`/api/v1/squads/${squadId}`, payload);
-        setSaveSuccessMsg("Squad lineup and tactics updated successfully!");
+        // Optimistic update: assume success, rollback on failure
+        let rollback = false;
+        try {
+          await api.put(`/api/v1/squads/${squadId}`, payload);
+          const msg = "Squad lineup and tactics updated successfully!";
+          setSaveSuccessMsg(msg);
+          toast.success(msg);
+        } catch (err: unknown) {
+          rollback = true;
+          const msg =
+            err instanceof ApiError
+              ? err.message || "Failed to save squad."
+              : err instanceof Error
+                ? err.message
+                : "An unexpected error occurred while saving squad.";
+          setPlayers(previousPlayers);
+          setErrorMessage(msg);
+          toast.error(msg);
+        }
       } else {
         // Create new squad
         const createPayload = {
           ...payload,
           userId: user?.id,
         };
-        const res = await api.post<{ success: boolean; data: Squad }>(
-          "/api/v1/squads",
-          createPayload
-        );
-        if (res?.data?.id) {
-          setSquadId(res.data.id);
+        try {
+          const res = await api.post<{ success: boolean; data: Squad }>(
+            "/api/v1/squads",
+            createPayload
+          );
+          if (res?.data?.id) {
+            setSquadId(res.data.id);
+          }
+          const msg = "Squad created and registered in FantasyXI!";
+          setSaveSuccessMsg(msg);
+          toast.success(msg);
+        } catch (err: unknown) {
+          const msg =
+            err instanceof ApiError
+              ? err.message || "Failed to create squad."
+              : err instanceof Error
+                ? err.message
+                : "An unexpected error occurred while creating squad.";
+          setPlayers(previousPlayers);
+          setErrorMessage(msg);
+          toast.error(msg);
         }
-        setSaveSuccessMsg("Squad created and registered in FantasyXI!");
-      }
-    } catch (err: unknown) {
-      if (err instanceof ApiError) {
-        setErrorMessage(err.message || "Failed to save squad.");
-      } else if (err instanceof Error) {
-        setErrorMessage(err.message);
-      } else {
-        setErrorMessage("An unexpected error occurred while saving squad.");
       }
     } finally {
       setIsSaving(false);
     }
   };
 
+  // Activate Wildcard chip
+  const handleActivateWildcard = async () => {
+    if (!squadId || !currentGameweek || !isOnline) {
+      setErrorMessage("Cannot activate Wildcard: squad ID or current gameweek not available, or you are offline.");
+      return;
+    }
+
+    setIsActivatingChip(true);
+    setErrorMessage(null);
+
+    try {
+      await api.post(`/api/v1/squads/${squadId}/chip`, {
+        chipType: ChipType.WILDCARD,
+        gameweekId: currentGameweek.id,
+      });
+
+      setIsWildcardActive(true);
+      const newUsage: SquadChipUsage = {
+        id: Date.now(),
+        squadId,
+        gameweekId: currentGameweek.id,
+        chipType: ChipType.WILDCARD,
+        season: new Date().getFullYear().toString(),
+        usedAt: new Date().toISOString(),
+      };
+      setChipUsages([...chipUsages, newUsage]);
+      
+      toast.success("Wildcard activated! All transfers this gameweek are free.");
+    } catch (err: unknown) {
+      const msg =
+        err instanceof ApiError
+          ? err.message || "Failed to activate Wildcard."
+          : err instanceof Error
+            ? err.message
+            : "An unexpected error occurred while activating Wildcard.";
+      setErrorMessage(msg);
+      toast.error(msg);
+    } finally {
+      setIsActivatingChip(false);
+    }
+  };
+
+  // Check if Wildcard is already active for current gameweek
+  useEffect(() => {
+    if (currentGameweek && chipUsages.length > 0) {
+      const wildcardForGameweek = chipUsages.find(
+        (usage) => usage.chipType === ChipType.WILDCARD && usage.gameweekId === currentGameweek.id
+      );
+      setIsWildcardActive(!!wildcardForGameweek);
+    }
+  }, [currentGameweek, chipUsages]);
+
   if (isLoading) {
     return (
-      <div className="py-24 text-center text-slate-400">
-        <div className="inline-block w-10 h-10 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4" />
-        <h2 className="text-base font-bold text-white uppercase tracking-tight">
-          Loading Dugout & Tactical Pitch...
-        </h2>
-        <p className="text-xs text-slate-500 mt-1">Retrieving squad lineup and FPL player telemetry</p>
-      </div>
+      <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <div className="space-y-6 pb-12">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-pitch-surface border border-pitch-border p-5 rounded-xl shadow-md">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+                  Tactical Pitch
+                </span>
+                <span className="text-xs font-mono text-slate-500">&bull; Gameweek Lineup</span>
+              </div>
+              <div className="h-8 w-40 rounded-md bg-slate-800/90 animate-pulse border border-slate-700" />
+            </div>
+            <div className="flex items-center gap-2 text-xs font-mono">
+              <span className="text-slate-400 uppercase tracking-wider text-[11px]">Formation</span>
+              <span className="h-5 w-14 rounded-md bg-slate-800 border border-slate-700 animate-pulse" />
+            </div>
+          </div>
+
+          <BudgetBar
+            onAutoPick={handleAutoPick}
+            onReset={() => {
+              setPlayers([]);
+              setSelectedPlayerId(null);
+            }}
+            isSaving={isSaving}
+            onSave={handleSaveSquad}
+            canSave={canSave}
+          />
+
+          <Pitch isLoading />
+          <Bench isLoading />
+        </div>
+      </DndContext>
     );
   }
 
   return (
-    <div className="space-y-6 pb-12">
-      {/* Top Header & Squad Name */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-pitch-surface border border-pitch-border p-5 rounded-xl shadow-md">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
-              Tactical Pitch
-            </span>
-            <span className="text-xs font-mono text-slate-500">&bull; Gameweek Lineup</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <input
-              type="text"
-              value={squadName}
-              onChange={(e) => setSquadName(e.target.value)}
-              placeholder="My Fantasy XI"
-              className="text-xl sm:text-2xl font-black text-white bg-transparent border-b border-dashed border-slate-700 hover:border-emerald-400 focus:border-emerald-400 focus:outline-none uppercase tracking-tight"
-            />
-          </div>
-        </div>
-
-        {/* Formation & Rules status */}
-        <div className="flex items-center gap-2 text-xs font-mono">
-          <span className="text-slate-400 uppercase tracking-wider text-[11px]">Formation</span>
-          <span className="text-emerald-400 font-bold text-sm">
-            {detectFormation(starters as any)}
-          </span>
-        </div>
-      </div>
-
-      {/* Notifications */}
-      {saveSuccessMsg && (
-        <div className="p-3.5 rounded-lg bg-emerald-950/40 border border-emerald-500/40 flex items-center gap-3 text-emerald-300 text-xs animate-fadeIn">
-          <IconCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-          <span className="font-semibold">{saveSuccessMsg}</span>
-        </div>
-      )}
-
-      {errorMessage && (
-        <div className="p-3.5 rounded-lg bg-rose-950/40 border border-rose-500/40 flex items-center gap-3 text-rose-300 text-xs animate-shake">
-          <IconAlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />
-          <span className="font-semibold">{errorMessage}</span>
-        </div>
-      )}
-
-      {/* Budget & Squad Constraints Bar */}
-      <BudgetBar
-        spent={totalSpent}
-        playerCount={players.length}
-        clubCounts={clubCounts}
-        onAutoPick={handleAutoPick}
-        onReset={() => {
-          setPlayers([]);
-          setSelectedPlayerId(null);
-        }}
-        isSaving={isSaving}
-        onSave={handleSaveSquad}
-        canSave={canSave}
-      />
-
-      {/* Validation Errors Pill if invalid */}
-      {!validation.valid && validation.errors.length > 0 && (
-        <div className="p-3 rounded-lg bg-amber-950/30 border border-amber-500/30 text-amber-300 text-xs space-y-1">
-          <div className="font-bold uppercase tracking-wider flex items-center gap-1.5 text-[11px]">
-            <IconAlertCircle className="w-3.5 h-3.5" />
-            <span>Lineup Constraints Checklist</span>
-          </div>
-          <ul className="list-disc list-inside space-y-0.5 text-slate-300">
-            {validation.errors.map((err, i) => (
-              <li key={i}>{err}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Contextual Action Bar when player is clicked */}
-      {selectedPlayer && (
-        <div className="p-3.5 rounded-xl bg-slate-900 border border-emerald-500/50 shadow-xl flex flex-wrap items-center justify-between gap-3 animate-fadeIn">
-          <div className="flex items-center gap-3">
-            <PositionBadge position={selectedPlayer.player.position} size="md" />
-            <div>
-              <div className="text-xs font-bold text-white">
-                {selectedPlayer.player.displayName} ({selectedPlayer.player.team?.shortName || "PL"})
-              </div>
-              <div className="text-[11px] text-slate-400 font-mono">
-                £{(selectedPlayer.player.price / 10).toFixed(1)}m &bull; {selectedPlayer.player.totalPoints} pts &bull;{" "}
-                {selectedPlayer.isStarter ? "Starter" : "Sub"}
-              </div>
+    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      <div className="space-y-6 pb-12">
+        {/* Top Header & Squad Name */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-pitch-surface border border-pitch-border p-5 rounded-xl shadow-md">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+                Tactical Pitch
+              </span>
+              <span className="text-xs font-mono text-slate-500">&bull; Gameweek Lineup</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <input
+                type="text"
+                value={squadName}
+                onChange={(e) => setSquadName(e.target.value)}
+                placeholder="My Fantasy XI"
+                className="text-xl sm:text-2xl font-black text-white bg-transparent border-b border-dashed border-slate-700 hover:border-emerald-400 focus:border-emerald-400 focus:outline-none uppercase tracking-tight"
+              />
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            {selectedPlayer.isStarter && (
-              <>
-                <Button
+          {/* Formation & Rules status */}
+          <div className="flex items-center gap-4 text-xs font-mono">
+            <div className="flex items-center gap-2">
+              <span className="text-slate-400 uppercase tracking-wider text-[11px]">Formation</span>
+              <span className="text-emerald-400 font-bold text-sm">
+                {detectFormation(starters)}
+              </span>
+            </div>
+            
+            {/* Wildcard Chip Toggle */}
+            {currentGameweek && (
+              <div className="flex items-center gap-2">
+                <button
                   type="button"
-                  variant={selectedPlayer.isCaptain ? "primary" : "secondary"}
-                  size="sm"
-                  onClick={() => handleSetCaptain(selectedPlayer.playerId)}
-                  className="text-xs font-bold"
+                  onClick={handleActivateWildcard}
+                  disabled={isWildcardActive || isActivatingChip || !isOnline}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
+                    isWildcardActive
+                      ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 cursor-not-allowed"
+                      : "bg-amber-500/20 text-amber-400 border border-amber-500/50 hover:bg-amber-500/30"
+                  } disabled:opacity-50`}
+                  data-testid="wildcard-toggle"
                 >
-                  (C) Captain
-                </Button>
-
-                <Button
-                  type="button"
-                  variant={selectedPlayer.isViceCaptain ? "primary" : "secondary"}
-                  size="sm"
-                  onClick={() => handleSetViceCaptain(selectedPlayer.playerId)}
-                  className="text-xs font-bold"
-                >
-                  (V) Vice
-                </Button>
-              </>
+                  {isActivatingChip ? (
+                    "Activating..."
+                  ) : isWildcardActive ? (
+                    "Wildcard Active"
+                  ) : (
+                    "Activate Wildcard"
+                  )}
+                </button>
+              </div>
             )}
-
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                setActiveModalState({
-                  isOpen: true,
-                  requiredPosition: selectedPlayer.player.position,
-                  replacingPlayer: selectedPlayer.player,
-                });
-              }}
-              className="text-xs"
-            >
-              Transfer Out
-            </Button>
-
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => setSelectedPlayerId(null)}
-              className="text-xs text-slate-400"
-            >
-              Deselect
-            </Button>
           </div>
         </div>
-      )}
 
-      {/* Main Pitch View */}
-      <Pitch
-        starters={starters}
-        selectedPlayerId={selectedPlayerId}
-        onPlayerClick={(player, position) => handlePlayerClick(player, position)}
-      />
+        {/* Offline mode: read-only view of the squad saved on this device */}
+        {(offlineSnapshotAt || !isOnline) && (
+          <div
+            role="status"
+            className="p-3.5 rounded-lg bg-amber-950/40 border border-amber-500/40 flex items-center gap-3 text-amber-200 text-xs"
+          >
+            <IconAlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0" />
+            <span className="font-semibold">
+              {offlineSnapshotAt
+                ? `Offline mode: showing your squad as saved on this device ${new Date(offlineSnapshotAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}.`
+                : "You are offline."}{" "}
+              Saving and transfers need a connection.
+            </span>
+          </div>
+        )}
 
-      {/* Dugout Substitute Bench */}
-      <Bench
-        benchPlayers={bench}
-        selectedPlayerId={selectedPlayerId}
-        onPlayerClick={(player) => handlePlayerClick(player)}
-      />
+        {/* Notifications */}
+        {saveSuccessMsg && (
+          <div data-testid="save-success" className="p-3.5 rounded-lg bg-emerald-950/40 border border-emerald-500/40 flex items-center gap-3 text-emerald-300 text-xs animate-fadeIn">
+            <IconCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+            <span className="font-semibold">{saveSuccessMsg}</span>
+          </div>
+        )}
 
-      {/* Transfer & Player Picker Modal */}
-      <PlayerPickerModal
-        isOpen={activeModalState.isOpen}
-        onClose={() =>
-          setActiveModalState({
-            isOpen: false,
-            requiredPosition: null,
-            replacingPlayer: null,
-          })
-        }
-        requiredPosition={activeModalState.requiredPosition}
-        currentSquadPlayerIds={players.map((p) => p.playerId)}
-        clubCounts={clubCounts}
-        remainingBudget={remainingBudgetTenths}
-        replacingPlayer={activeModalState.replacingPlayer}
-        onSelectPlayer={handleReplacePlayer}
-      />
-    </div>
+        {errorMessage && (
+          <div data-testid="save-error" className="p-3.5 rounded-lg bg-rose-950/40 border border-rose-500/40 flex items-center gap-3 text-rose-300 text-xs animate-shake">
+            <IconAlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+            <span className="font-semibold">{errorMessage}</span>
+          </div>
+        )}
+
+        {substitutionFeedback && (
+          <div
+            className={`p-3.5 rounded-lg flex items-center justify-between gap-3 text-xs animate-fadeIn ${
+              substitutionFeedback.type === "success"
+                ? "bg-emerald-950/50 border border-emerald-500/50 text-emerald-300"
+                : "bg-rose-950/50 border border-rose-500/50 text-rose-300"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              {substitutionFeedback.type === "success" ? (
+                <IconCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+              ) : (
+                <IconAlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+              )}
+              <span className="font-semibold">{substitutionFeedback.message}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSubstitutionFeedback(null)}
+              className="text-[10px] text-slate-400 hover:text-white uppercase font-mono px-1.5 py-0.5 rounded hover:bg-white/10"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+
+        {/* Budget & Squad Constraints Bar */}
+        <BudgetBar
+          onAutoPick={handleAutoPick}
+          onReset={() => {
+            setPlayers([]);
+            setSelectedPlayerId(null);
+          }}
+          isSaving={isSaving}
+          onSave={handleSaveSquad}
+          canSave={canSave && isOnline}
+        />
+
+        {/* Validation Errors Pill if invalid */}
+        {!validation.valid && validation.errors.length > 0 && (
+          <div data-testid="formation-errors" className="p-3 rounded-lg bg-amber-950/30 border border-amber-500/30 text-amber-300 text-xs space-y-1">
+            <div className="font-bold uppercase tracking-wider flex items-center gap-1.5 text-[11px]">
+              <IconAlertCircle className="w-3.5 h-3.5" />
+              <span>Lineup Constraints Checklist</span>
+            </div>
+            <ul className="list-disc list-inside space-y-0.5 text-slate-300">
+              {validation.errors.map((err, i) => (
+                <li key={i}>{err}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Action Modal when player is clicked */}
+        {selectedPlayer && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-0 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
+            <div className="bg-slate-900 border border-emerald-500/50 shadow-2xl rounded-2xl w-full max-w-sm overflow-hidden animate-slideUp sm:animate-zoomIn">
+              <div className="p-5 flex items-center gap-4 border-b border-slate-800 bg-slate-900/50">
+                <PositionBadge position={selectedPlayer.player.position} size="md" />
+                <div className="flex-1 min-w-0">
+                  <div className="text-base font-black text-white truncate uppercase">
+                    {selectedPlayer.player.displayName}
+                  </div>
+                  <div className="text-xs text-slate-400 font-mono mt-0.5">
+                    {selectedPlayer.player.team?.shortName || "PL"} &bull; £{(selectedPlayer.player.price / 10).toFixed(1)}m &bull; {selectedPlayer.player.totalPoints} pts
+                  </div>
+                </div>
+              </div>
+              <div className="p-4 grid gap-2">
+                {selectedPlayer.isStarter && (
+                  <>
+                    <Button
+                      type="button"
+                      variant={selectedPlayer.isCaptain ? "primary" : "secondary"}
+                      size="md"
+                      onClick={() => { handleSetCaptain(selectedPlayer.playerId); setSelectedPlayerId(null); }}
+                      className="w-full justify-start text-sm font-bold"
+                    >
+                      (C) Make Captain
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={selectedPlayer.isViceCaptain ? "primary" : "secondary"}
+                      size="md"
+                      onClick={() => { handleSetViceCaptain(selectedPlayer.playerId); setSelectedPlayerId(null); }}
+                      className="w-full justify-start text-sm font-bold"
+                    >
+                      (V) Make Vice-Captain
+                    </Button>
+                  </>
+                )}
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="md"
+                  onClick={() => {
+                    setActiveModalState({
+                      isOpen: true,
+                      requiredPosition: selectedPlayer.player.position,
+                      replacingPlayer: selectedPlayer.player,
+                    });
+                    setSelectedPlayerId(null);
+                  }}
+                  className="w-full justify-start text-sm"
+                  data-testid="transfer-out-button"
+                >
+                  <IconSwap className="w-4 h-4 mr-2 opacity-70" /> Transfer Out
+                </Button>
+              </div>
+              <div className="p-3 bg-slate-950 border-t border-slate-800">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="md"
+                  onClick={() => setSelectedPlayerId(null)}
+                  className="w-full text-slate-400 hover:text-white"
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Main Pitch View */}
+        <Pitch />
+
+        {/* Dugout Substitute Bench */}
+        <Bench />
+
+        {/* Transfer & Player Picker Modal */}
+        <PlayerPickerModal
+          isOpen={activeModalState.isOpen}
+          onClose={() =>
+            setActiveModalState({
+              isOpen: false,
+              requiredPosition: null,
+              replacingPlayer: null,
+            })
+          }
+          requiredPosition={activeModalState.requiredPosition}
+          currentSquadPlayerIds={players.map((p) => p.playerId)}
+          clubCounts={clubCounts}
+          remainingBudget={remainingBudgetTenths}
+          replacingPlayer={activeModalState.replacingPlayer}
+          onSelectPlayer={handleReplacePlayer}
+        />
+      </div>
+
+      <DragOverlay dropAnimation={null}>
+        {activeDragPlayer ? (
+          <div className="scale-110 opacity-90 shadow-2xl drop-shadow-[0_0_15px_rgba(52,211,153,0.5)] cursor-grabbing z-50">
+            <PlayerCard
+              player={activeDragPlayer.player}
+              positionSlot={activeDragPlayer.player.position}
+              isStarter={activeDragPlayer.isStarter}
+              isCaptain={activeDragPlayer.isCaptain}
+              isViceCaptain={activeDragPlayer.isViceCaptain}
+              isOverlay={true}
+            />
+          </div>
+        ) : null}
+      </DragOverlay>
+    </DndContext>
   );
 }

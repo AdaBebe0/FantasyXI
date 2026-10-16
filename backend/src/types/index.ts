@@ -18,9 +18,15 @@ import {
   MembershipStatus,
   PaymentStatus,
   ScoringType,
+  LeagueTierMovement,
   TransactionType,
   TransactionStatus,
+  ChipType,
+  UserRole,
 } from "@prisma/client";
+
+export { Role, Permission } from "../config/permissions.js";
+import type { Role } from "../config/permissions.js";
 
 export {
   Position,
@@ -28,8 +34,11 @@ export {
   MembershipStatus,
   PaymentStatus,
   ScoringType,
+  LeagueTierMovement,
   TransactionType,
   TransactionStatus,
+  ChipType,
+  UserRole,
 };
 
 
@@ -64,6 +73,12 @@ export const SQUAD_RULES = {
   MAX_PER_TEAM: 3,
   /** Starting budget in £ millions */
   STARTING_BUDGET: 100.0,
+  /** Free transfers granted each gameweek */
+  FREE_TRANSFERS_PER_GAMEWEEK: 1,
+  /** Maximum free transfers that can be banked */
+  MAX_FREE_TRANSFERS: 5,
+  /** Points deducted per transfer beyond the free allowance */
+  TRANSFER_POINTS_COST: 4,
 } as const;
 
 // ============================================================
@@ -76,6 +91,8 @@ export interface AuthUser {
   email: string;
   username: string;
   name?: string | null;
+  /** USER / MODERATOR / ADMIN for accounts, SERVICE for API-key callers */
+  role: Role;
 }
 
 /** Safe user representation returned across public and auth endpoints */
@@ -84,6 +101,12 @@ export interface SafeUser {
   email: string;
   username: string;
   name?: string | null;
+  role: UserRole;
+  /** Sign-in methods available to the account (email/password and/or Google) */
+  authProviders: {
+    password: boolean;
+    google: boolean;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -93,6 +116,7 @@ export interface JwtPayload {
   userId: string;
   email: string;
   username: string;
+  role?: UserRole;
 }
 
 /** POST /api/v1/auth/register input */
@@ -101,6 +125,7 @@ export interface RegisterInput {
   password: string;
   name?: string;
   username?: string;
+  referralCode?: string;
 }
 
 /** Backwards-compatible alias */
@@ -205,6 +230,58 @@ export interface CreateLeagueInput {
   startGameweekId: number;
   endGameweekId: number;
   squadId: string; // Creator's initial squad
+  scoringType?: ScoringType; // default CLASSIC
+  isPrivate?: boolean; // default false: private leagues are invitation-only
+}
+
+export interface CreateLeagueTierGroupInput {
+  name: string;
+  season: string;
+  slug?: string;
+  description?: string;
+  isActive?: boolean;
+}
+
+export interface CreateLeagueTierInput {
+  groupId: string;
+  name: string;
+  rank: number;
+  slug?: string;
+  description?: string;
+  promotionTargetTierId?: string | null;
+  relegationTargetTierId?: string | null;
+}
+
+export interface LeagueTierTransitionInput {
+  leagueId: string;
+  season: string;
+  rank: number;
+  movement?: LeagueTierMovement;
+  targetTierId?: string | null;
+}
+
+export type LeagueSortField = "newest" | "entryFee" | "size" | "prizePool" | "members";
+
+/** League discovery filters (GET /leagues query string) */
+export interface LeagueSearchFilters {
+  /** Case-insensitive substring match on the league name */
+  q?: string;
+  /** Exact invite code (public leagues, or private ones the viewer already belongs to) */
+  code?: string;
+  status?: LeagueStatus;
+  scoringType?: ScoringType;
+  creatorId?: string;
+  minEntryFee?: number;
+  maxEntryFee?: number;
+  /** League capacity (maxMembers) bounds */
+  minSize?: number;
+  maxSize?: number;
+  /** Only leagues with at least one free spot */
+  hasOpenSlots?: boolean;
+  sortBy?: LeagueSortField;
+  sortOrder?: "asc" | "desc";
+  page?: number;
+  pageSize?: number;
 }
 
 export interface JoinLeagueInput {
@@ -226,6 +303,21 @@ export interface LeagueStandingsEntry {
     points: number;
   }>;
   joinedAt: Date;
+}
+
+export interface H2HStandingsEntry {
+  rank: number;
+  memberId: string;
+  userId: string;
+  username: string;
+  squadName: string;
+  matchesWon: number;
+  matchesDrawn: number;
+  matchesLost: number;
+  pointsFor: number;
+  pointsAgainst: number;
+  pointsDifference: number;
+  h2hPoints: number;
 }
 
 export interface PrizeDistribution {
@@ -295,6 +387,7 @@ export interface SettlementPlan {
   netPrizePool: number;
   winners: SettlementWinner[];
   canSettle: boolean;
+  proofHash?: string;
   unsettledReason?: string;
 }
 
@@ -316,7 +409,6 @@ export interface ReconciliationReport {
     confirmedAt: Date | null;
   }>;
 }
-
 
 
 

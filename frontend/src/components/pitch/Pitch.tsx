@@ -1,27 +1,32 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Position, SquadPlayer, Player } from "@/types";
 import { PlayerCard } from "./PlayerCard";
 import { detectFormation } from "@/lib/formation";
 
-export interface PitchProps {
-  starters: Array<{
-    id?: number | string;
-    player?: Player | null;
-    isCaptain?: boolean;
-    isViceCaptain?: boolean;
-    positionOrder?: number;
-  }>;
-  selectedPlayerId?: number | null;
-  onPlayerClick?: (player: Player | null, position: Position, slotIndex: number) => void;
+import { useTeamStore } from "@/store/teamStore";
+
+interface PitchProps {
+  isLoading?: boolean;
 }
 
-export const Pitch: React.FC<PitchProps> = ({
-  starters,
-  selectedPlayerId,
-  onPlayerClick,
-}) => {
+export const Pitch: React.FC<PitchProps> = ({ isLoading = false }) => {
+  const starters = useTeamStore((state) => 
+    state.players.filter((p) => p.isStarter).sort((a, b) => a.positionOrder - b.positionOrder)
+export const Pitch: React.FC = () => {
+  // Select the raw players array and derive `starters` with useMemo rather than
+  // inside the selector: a selector that returns a freshly filtered/sorted array
+  // on every call breaks useSyncExternalStore's reference-equality check and
+  // causes an infinite re-render loop ("Maximum update depth exceeded").
+  // Select the stable players array and derive from it: a selector returning a
+  // new array on every call makes zustand re-render forever
+  const players = useTeamStore((state) => state.players);
+  const starters = useMemo(
+    () => players.filter((p) => p.isStarter).sort((a, b) => a.positionOrder - b.positionOrder),
+    [players]
+  );
+
   // Group starters by position
   const gkpStarters = starters.filter(
     (s) => s.player?.position === Position.GKP
@@ -45,7 +50,7 @@ export const Pitch: React.FC<PitchProps> = ({
   const currentFormation = detectFormation(starters as any);
 
   return (
-    <div className="w-full relative rounded-2xl overflow-hidden shadow-2xl border border-pitch-border bg-slate-950">
+    <div className="w-full relative rounded-2xl overflow-hidden shadow-2xl border border-pitch-border bg-slate-950" data-testid="pitch">
       {/* Tactical Grass Pitch Canvas */}
       <div className="pitch-grass relative w-full min-h-[580px] sm:min-h-[660px] flex flex-col justify-between py-6 px-2 sm:px-6">
         {/* Pitch Tactical Line Markings */}
@@ -67,6 +72,11 @@ export const Pitch: React.FC<PitchProps> = ({
           <div className="flex items-center gap-2">
             <span className="text-slate-400 uppercase tracking-wider text-[11px]">Formation</span>
             <span className="text-emerald-400 font-bold">{currentFormation}</span>
+            {useTeamStore.getState().activeDragPlayer && (
+              <span className="ml-2 hidden sm:inline-block px-2 py-0.5 rounded bg-emerald-950/70 border border-emerald-500/40 text-[10px] text-emerald-300 animate-pulse">
+                Dragging {useTeamStore.getState().activeDragPlayer?.player.displayName} - Drop to Substitute
+              </span>
+            )}
           </div>
 
           <div className="text-[11px] text-slate-300 tracking-wide">
@@ -78,17 +88,15 @@ export const Pitch: React.FC<PitchProps> = ({
         {/* Row 1: Goalkeeper (GKP) */}
         <div className="relative z-10 flex justify-center items-center py-2">
           {gkpSlots.map((item, idx) => {
-            const isSelected = !!item?.player && item.player.id === selectedPlayerId;
             return (
               <PlayerCard
                 key={`gkp-${idx}`}
-                player={item?.player}
+                player={isLoading ? null : item?.player}
                 positionSlot={Position.GKP}
                 isStarter={true}
                 isCaptain={item?.isCaptain}
                 isViceCaptain={item?.isViceCaptain}
-                isSelectedForSwap={isSelected}
-                onClick={() => onPlayerClick?.(item?.player || null, Position.GKP, idx)}
+                isLoading={isLoading}
               />
             );
           })}
@@ -97,17 +105,15 @@ export const Pitch: React.FC<PitchProps> = ({
         {/* Row 2: Defenders (DEF) */}
         <div className="relative z-10 flex justify-around items-center py-2 gap-1 sm:gap-2">
           {defSlots.map((item, idx) => {
-            const isSelected = !!item?.player && item.player.id === selectedPlayerId;
             return (
               <PlayerCard
                 key={`def-${idx}`}
-                player={item?.player}
+                player={isLoading ? null : item?.player}
                 positionSlot={Position.DEF}
                 isStarter={true}
                 isCaptain={item?.isCaptain}
                 isViceCaptain={item?.isViceCaptain}
-                isSelectedForSwap={isSelected}
-                onClick={() => onPlayerClick?.(item?.player || null, Position.DEF, idx)}
+                isLoading={isLoading}
               />
             );
           })}
@@ -116,17 +122,15 @@ export const Pitch: React.FC<PitchProps> = ({
         {/* Row 3: Midfielders (MID) */}
         <div className="relative z-10 flex justify-around items-center py-2 gap-1 sm:gap-2">
           {midSlots.map((item, idx) => {
-            const isSelected = !!item?.player && item.player.id === selectedPlayerId;
             return (
               <PlayerCard
                 key={`mid-${idx}`}
-                player={item?.player}
+                player={isLoading ? null : item?.player}
                 positionSlot={Position.MID}
                 isStarter={true}
                 isCaptain={item?.isCaptain}
                 isViceCaptain={item?.isViceCaptain}
-                isSelectedForSwap={isSelected}
-                onClick={() => onPlayerClick?.(item?.player || null, Position.MID, idx)}
+                isLoading={isLoading}
               />
             );
           })}
@@ -135,17 +139,15 @@ export const Pitch: React.FC<PitchProps> = ({
         {/* Row 4: Forwards (FWD) */}
         <div className="relative z-10 flex justify-around items-center py-2 gap-1 sm:gap-2">
           {fwdSlots.map((item, idx) => {
-            const isSelected = !!item?.player && item.player.id === selectedPlayerId;
             return (
               <PlayerCard
                 key={`fwd-${idx}`}
-                player={item?.player}
+                player={isLoading ? null : item?.player}
                 positionSlot={Position.FWD}
                 isStarter={true}
                 isCaptain={item?.isCaptain}
                 isViceCaptain={item?.isViceCaptain}
-                isSelectedForSwap={isSelected}
-                onClick={() => onPlayerClick?.(item?.player || null, Position.FWD, idx)}
+                isLoading={isLoading}
               />
             );
           })}

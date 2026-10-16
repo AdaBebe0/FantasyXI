@@ -106,6 +106,10 @@ export async function getPlayers(
       prisma.player.count({ where }),
     ]);
 
+    const totalPages = Math.ceil(total / limitNum);
+    const nextPage = pageNum < totalPages ? pageNum + 1 : null;
+    const prevPage = pageNum > 1 && pageNum <= totalPages + 1 ? pageNum - 1 : null;
+
     res.json({
       success: true,
       data: players,
@@ -113,7 +117,12 @@ export async function getPlayers(
         page: pageNum,
         limit: limitNum,
         total,
-        totalPages: Math.ceil(total / limitNum),
+        totalCount: total,
+        totalPages,
+        nextPage,
+        prevPage,
+        hasNextPage: nextPage !== null,
+        hasPrevPage: pageNum > 1,
       },
     });
   } catch (error) {
@@ -164,3 +173,114 @@ export async function getPlayerById(
     next(error);
   }
 }
+
+interface CachedStats {
+  timestamp: number;
+  data: {
+    totalSquads: number;
+    topOwned: Array<{
+      id: number;
+      displayName: string;
+      position: string;
+      teamName: string;
+      price: number;
+      totalPoints: number;
+      selectedCount: number;
+      selectedByPercent: number;
+      ppm: number;
+    }>;
+    ownershipVsPrice: Array<{
+      id: number;
+      displayName: string;
+      position: string;
+      teamName: string;
+      price: number;
+      totalPoints: number;
+      selectedCount: number;
+      selectedByPercent: number;
+      ppm: number;
+    }>;
+  };
+}
+
+let statsCache: CachedStats | null = null;
+const CACHE_TTL_MS = 60 * 1000;
+
+export function clearOwnershipStatsCache(): void {
+  statsCache = null;
+}
+
+export async function getPlayerOwnershipStats(
+  _req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const now = Date.now();
+    if (statsCache && now - statsCache.timestamp < CACHE_TTL_MS) {
+      res.json({
+        success: true,
+        data: statsCache.data,
+        cached: true,
+      });
+      return;
+    }
+
+    const totalSquads = await prisma.squad.count();
+    const players = await prisma.player.findMany({
+      include: {
+        team: { select: { name: true, shortName: true } },
+        _count: { select: { squadPlayers: true } },
+      },
+    });
+
+    const formatted = players.map((p) => {
+      const priceNum = typeof p.price === "number" ? p.price : parseFloat(p.price.toString()) || 1.0;
+      const selectedCount = p._count?.squadPlayers || 0;
+      const selectedByPercent =
+        totalSquads > 0
+          ? parseFloat(((selectedCount / totalSquads) * 100).toFixed(1))
+          : p.selectedByPercent
+          ? parseFloat(p.selectedByPercent.toString())
+          : 0;
+      const ppm = priceNum > 0 ? parseFloat((p.totalPoints / priceNum).toFixed(2)) : 0;
+
+      return {
+        id: p.id,
+        displayName: p.displayName,
+        position: p.position,
+        teamName: p.team?.name || p.team?.shortName || "Unknown",
+        price: priceNum,
+        totalPoints: p.totalPoints,
+        selectedCount,
+        selectedByPercent,
+        ppm,
+      };
+    });
+
+    const topOwned = [...formatted]
+      .sort((a, b) => b.selectedByPercent - a.selectedByPercent)
+      .slice(0, 20);
+    const ownershipVsPrice = [...formatted].sort((a, b) => b.totalPoints - a.totalPoints);
+
+    const resultData = {
+      totalSquads,
+      topOwned,
+      ownershipVsPrice,
+    };
+
+    statsCache = {
+      timestamp: now,
+      data: resultData,
+    };
+
+    res.json({
+      success: true,
+      data: resultData,
+      cached: false,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+

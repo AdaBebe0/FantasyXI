@@ -52,6 +52,13 @@ export enum TransactionStatus {
   FAILED = "FAILED",
 }
 
+export enum ChipType {
+  TRIPLE_CAPTAIN = "TRIPLE_CAPTAIN",
+  BENCH_BOOST = "BENCH_BOOST",
+  FREE_HIT = "FREE_HIT",
+  WILDCARD = "WILDCARD",
+}
+
 // ============================================================
 // API response types
 // ============================================================
@@ -61,6 +68,12 @@ export interface User {
   email: string;
   username: string;
   name?: string | null;
+  role?: "USER" | "MODERATOR" | "ADMIN";
+  /** Sign-in methods linked to the account; the same user whichever one is used */
+  authProviders?: {
+    password: boolean;
+    google: boolean;
+  };
   createdAt: string;
   updatedAt?: string;
 }
@@ -127,6 +140,16 @@ export interface Gameweek {
   season: string;
 }
 
+export interface GameweekHistoryEntry {
+  id: number;
+  points: number;
+  benchPoints: number;
+  captainPoints: number;
+  transferCost: number;
+  gameweek: Gameweek;
+  squad: Squad;
+}
+
 export interface PlayerGameweekStats {
   id: number;
   playerId: number;
@@ -149,6 +172,7 @@ export interface Squad {
   budgetRemaining: number;
   totalPoints: number;
   players?: SquadPlayer[];
+  chipUsages?: SquadChipUsage[];
   createdAt: string;
 }
 
@@ -164,12 +188,25 @@ export interface SquadPlayer {
   purchasePrice: number;
 }
 
+export interface SquadChipUsage {
+  id: number;
+  squadId: string;
+  gameweekId: number;
+  chipType: ChipType;
+  season: string;
+  usedAt: string;
+  revertedAt?: string | null;
+}
+
 export interface League {
   id: string;
   name: string;
   description: string | null;
   creatorId: string;
-  inviteCode: string;
+  /** Hidden (null) for private leagues unless the viewer is the creator */
+  inviteCode: string | null;
+  /** Private leagues are invitation-only and hidden from public search */
+  isPrivate: boolean;
   maxMembers: number;
   minMembers: number;
   currentMembers: number;
@@ -181,6 +218,48 @@ export interface League {
   endGameweekId: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export type LeagueSortField = "newest" | "entryFee" | "size" | "prizePool" | "members";
+
+export interface LeagueSearchMeta {
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+export type LeagueInvitationState = "ACTIVE" | "USED" | "REVOKED" | "EXPIRED";
+
+export interface LeagueInvitation {
+  id: string;
+  expiresAt: string;
+  usedAt: string | null;
+  revokedAt: string | null;
+  createdAt: string;
+  usedBy: { id: string; username: string } | null;
+  state: LeagueInvitationState;
+}
+
+/** Returned once when an invitation is created; the token is never shown again */
+export interface CreatedLeagueInvitation {
+  id: string;
+  leagueId: string;
+  token: string;
+  expiresAt: string;
+  createdAt: string;
+}
+
+export interface LeagueInvitationPreview {
+  league: Pick<
+    League,
+    "id" | "name" | "description" | "entryFee" | "prizePool" | "maxMembers" | "currentMembers" | "status" | "scoringType"
+  > & {
+    creator: { id: string; username: string };
+    startGameweek: { id: number; name: string; deadline: string };
+    endGameweek: { id: number; name: string };
+  };
+  expiresAt: string;
 }
 
 export interface LeagueMember {
@@ -212,6 +291,176 @@ export interface LeagueStandingsEntry {
     points: number;
   }>;
   joinedAt: string;
+}
+
+// ============================================================
+// League Chat (REST history + WebSocket /api/v1/leagues/:id/chat/ws)
+// ============================================================
+
+export interface ChatMessage {
+  id: string;
+  leagueId: string;
+  userId: string;
+  username: string;
+  body: string;
+  createdAt: string;
+}
+
+/** A message in the UI, including the sender's own messages that are still in flight */
+export interface ChatEntry extends ChatMessage {
+  /** Correlates an optimistic message with the server's acknowledgement */
+  clientId?: string;
+  status?: "sending" | "failed";
+  error?: string;
+  /** Transport used for the latest send attempt */
+  via?: "socket" | "http";
+  /** The socket dropped before an ack arrived, so the server may still have saved it */
+  lostInFlight?: boolean;
+}
+
+export type ChatConnectionState = "connecting" | "open" | "reconnecting" | "unavailable";
+
+// Historical Performance Analytics (GET /api/v1/analytics/me/performance)
+// ============================================================
+
+export type ChipType = "TRIPLE_CAPTAIN" | "BENCH_BOOST" | "FREE_HIT" | "WILDCARD";
+
+export interface GameweekPerformance {
+  gameweekId: number;
+  gameweekFplId: number;
+  gameweekName: string;
+  deadline: string;
+  points: number;
+  benchPoints: number;
+  captainPoints: number;
+  transferCost: number;
+  cumulativePoints: number;
+  rollingAverage: number;
+  /** Mean score of every squad on the platform that gameweek */
+  averagePoints: number | null;
+  cumulativeAveragePoints: number | null;
+  highestPoints: number | null;
+  differenceVsAverage: number | null;
+  chip: ChipType | null;
+}
+
+export interface GameweekHighlight {
+  gameweekId: number;
+  gameweekName: string;
+  points: number;
+}
+
+export interface PerformanceSummary {
+  gameweeksPlayed: number;
+  totalPoints: number;
+  averagePoints: number;
+  medianPoints: number;
+  standardDeviation: number;
+  bestGameweek: GameweekHighlight | null;
+  worstGameweek: GameweekHighlight | null;
+  recentForm: number;
+  gameweeksAboveAverage: number;
+  totalBenchPoints: number;
+  totalCaptainPoints: number;
+  totalTransferCost: number;
+  captainShare: number;
+}
+
+export interface PerformanceAnalytics {
+  squads: Array<{ id: string; name: string }>;
+  squadId: string | null;
+  summary: PerformanceSummary;
+  history: GameweekPerformance[];
+  chips: Array<{ chipType: ChipType; gameweekId: number; gameweekName: string }>;
+// Global Leaderboard (GET /api/v1/leaderboard)
+// ============================================================
+
+export type LeaderboardMode = "overall" | "gameweek";
+
+export interface LeaderboardEntry {
+  /** Competition rank: equal points share a rank (1, 2, 2, 4) */
+  rank: number;
+  squadId: string;
+  squadName: string;
+  userId: string;
+  username: string;
+  points: number;
+  isCurrentUser: boolean;
+}
+
+export interface LeaderboardData {
+  mode: LeaderboardMode;
+  gameweek: { id: number; name: string } | null;
+  entries: LeaderboardEntry[];
+  /** The signed-in viewer's best squad and the unfiltered page it appears on */
+  viewer: { rank: number; page: number; squadId: string; points: number } | null;
+}
+
+// ============================================================
+// Live Matchday Feed (GET /api/v1/leagues/:id/live, Server-Sent Events)
+// ============================================================
+
+export interface LivePlayerPoints {
+  playerId: number;
+  name: string;
+  teamShortName: string;
+  position: Position;
+  isStarter: boolean;
+  isCaptain: boolean;
+  isViceCaptain: boolean;
+  positionOrder: number;
+  minutesPlayed: number;
+  rawPoints: number;
+  multiplier: number;
+  effectivePoints: number;
+  subbedIn: boolean;
+  subbedOut: boolean;
+}
+
+export interface LiveStandingsEntry {
+  rank: number;
+  userId: string;
+  username: string;
+  squadId: string;
+  squadName: string;
+  membershipStatus: MembershipStatus;
+  totalPoints: number;
+  livePoints: number;
+  lineup: LivePlayerPoints[];
+}
+
+export interface LiveFixture {
+  id: number;
+  homeTeam: string;
+  awayTeam: string;
+  homeScore: number | null;
+  awayScore: number | null;
+  minutes: number;
+  started: boolean;
+  finished: boolean;
+  kickoffTime: string | null;
+}
+
+export interface LivePlayerEvent {
+  playerId: number;
+  playerName: string;
+  teamShortName: string;
+  goals: number;
+  assists: number;
+  yellowCards: number;
+  redCards: number;
+  saves: number;
+  bonus: number;
+  totalPoints: number;
+}
+
+export interface LiveSnapshot {
+  leagueId: string;
+  gameweek: { id: number; name: string } | null;
+  fixtures: LiveFixture[];
+  events: LivePlayerEvent[];
+  standings: LiveStandingsEntry[];
+  generatedAt: string;
 }
 
 export interface PrizeDistribution {
@@ -283,3 +532,96 @@ export const SQUAD_RULES = {
   MAX_PER_TEAM: 3,
   STARTING_BUDGET: 100.0,
 } as const;
+
+// ============================================================
+// Live Match Event Timeline Types
+// ============================================================
+
+export type MatchEventType =
+  | "GOAL"
+  | "ASSIST"
+  | "YELLOW_CARD"
+  | "RED_CARD"
+  | "SAVE"
+  | "BONUS"
+  | "PENALTY_SAVED"
+  | "OWN_GOAL";
+
+export interface TimelineEvent {
+  id: string;
+  fixtureId: number;
+  fixtureName: string;
+  gameweekId: number;
+  playerId: number;
+  fplId: number;
+  playerName: string;
+  teamShortName: string;
+  teamId: number;
+  type: MatchEventType;
+  minute: number;
+  detail: string;
+  pointsAwarded: number;
+  timestamp: string;
+}
+
+export interface FixtureTimelineSummary {
+  id: number;
+  homeTeam: string;
+  awayTeam: string;
+  homeScore: number | null;
+  awayScore: number | null;
+  minutes: number;
+  started: boolean;
+  finished: boolean;
+  kickoffTime: string | null;
+  events: TimelineEvent[];
+}
+
+export interface GameweekTimeline {
+  gameweek: {
+    id: number;
+    name: string;
+    isCurrent: boolean;
+    isFinished: boolean;
+  } | null;
+  fixtures: FixtureTimelineSummary[];
+  events: TimelineEvent[];
+  summary: {
+    totalGoals: number;
+    totalAssists: number;
+    totalYellowCards: number;
+    totalRedCards: number;
+    totalSaves: number;
+    totalBonus: number;
+  };
+  generatedAt: string;
+}
+
+// ============================================================
+// Toast Notification Types
+// ============================================================
+
+export type ToastType = "success" | "error" | "info" | "warning";
+
+export interface ToastAction {
+  label: string;
+  onClick: () => void;
+}
+
+export interface ToastOptions {
+  id?: string;
+  title?: string;
+  duration?: number;
+  action?: ToastAction;
+}
+
+export interface ToastItem {
+  id: string;
+  type: ToastType;
+  message: string;
+  title?: string;
+  duration: number;
+  action?: ToastAction;
+  createdAt: number;
+}
+

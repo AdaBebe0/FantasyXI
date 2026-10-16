@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import {
   squadService,
   SquadForbiddenError,
+  ChipUnavailableError,
 } from "../services/squad/squadService.js";
 import {
   SquadValidationError,
@@ -176,6 +177,30 @@ export async function getUserSquads(
   }
 }
 
+export async function getSquadValuation(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const { id } = req.params;
+    const valuation = await squadService.getSquadValuation(id as string);
+    res.json({
+      success: true,
+      data: valuation,
+    });
+  } catch (error) {
+    if (error instanceof SquadValidationError) {
+      res.status(404).json({
+        success: false,
+        message: error.message,
+      });
+      return;
+    }
+    next(error);
+  }
+}
+
 export async function calculateGameweekScore(
   req: Request,
   res: Response,
@@ -203,6 +228,77 @@ export async function calculateGameweekScore(
       data: result,
     });
   } catch (error) {
+    next(error);
+  }
+}
+
+export async function activateChip(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    if (!req.user || !req.user.id) {
+      res.status(401).json({
+        success: false,
+        message: "Authentication required to play a chip",
+      });
+      return;
+    }
+
+    const { id } = req.params;
+    const { chipType, gameweekId } = req.body;
+    const parsedGw = parseInt(gameweekId, 10);
+    if (!chipType || isNaN(parsedGw)) {
+      res.status(400).json({
+        success: false,
+        message: "chipType and a numeric gameweekId are required",
+      });
+      return;
+    }
+
+    const usage = await squadService.activateChip(
+      id as string,
+      chipType,
+      parsedGw,
+      req.user.id
+    );
+
+    res.status(201).json({
+      success: true,
+      message: `${chipType} activated for gameweek ${parsedGw}`,
+      data: usage,
+    });
+  } catch (error) {
+    if (error instanceof SquadForbiddenError) {
+      res.status(403).json({
+        success: false,
+        message: error.message,
+      });
+      return;
+    }
+    if (error instanceof SquadLockedError) {
+      res.status(403).json({
+        success: false,
+        message: error.message,
+        deadline: error.deadline,
+      });
+      return;
+    }
+    if (error instanceof ChipUnavailableError) {
+      res.status(409).json({
+        success: false,
+        message: error.message,
+      });
+      return;
+    }
+    if (error instanceof SquadValidationError) {
+      res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+      return;
+    }
     next(error);
   }
 }
