@@ -838,11 +838,7 @@ impl FantasyXIEscrow {
 
     /// Cancels an un-settled league so enrolled participants can claim refunds.
     /// Caller must be either admin or league creator.
-    pub fn cancel_league(
-        env: Env,
-        caller: Address,
-        league_id: u64,
-    ) -> Result<(), EscrowError> {
+    pub fn cancel_league(env: Env, caller: Address, league_id: u64) -> Result<(), EscrowError> {
         caller.require_auth();
 
         let league_key = DataKey::League(league_id);
@@ -874,19 +870,13 @@ impl FantasyXIEscrow {
             PERSISTENT_BUMP_AMOUNT,
         );
 
-        env.events().publish(
-            (Symbol::new(&env, "LeagueCancelled"), league_id),
-            caller,
-        );
+        env.events()
+            .publish((Symbol::new(&env, "LeagueCancelled"), league_id), caller);
         Ok(())
     }
 
     /// Enrolled participant claims their full deposit back after a league is cancelled.
-    pub fn claim_refund(
-        env: Env,
-        participant: Address,
-        league_id: u64,
-    ) -> Result<(), EscrowError> {
+    pub fn claim_refund(env: Env, participant: Address, league_id: u64) -> Result<(), EscrowError> {
         participant.require_auth();
 
         let league_key = DataKey::League(league_id);

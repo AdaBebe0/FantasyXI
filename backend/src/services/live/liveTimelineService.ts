@@ -718,7 +718,7 @@ export class LiveScoreIngestionDaemon {
               benchPoints: calculated.benchPoints,
               captainPoints: calculated.captainPoints,
               transferCost: calculated.transferCost,
-              lineupDetails: calculated.lineupDetails,
+              lineupDetails: calculated.details,
               updatedAt: new Date().toISOString(),
             };
 
