@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "type-check": "tsc --noEmit",
-    "test": "tsx --test src/tests/toast.test.ts src/tests/leagueChat.test.tsx src/tests/leaderboard.test.tsx src/tests/dragAndDropSubstitutions.test.ts",
+    "test": "tsx --test src/tests/toast.test.ts src/tests/leagueChat.test.tsx src/tests/leaderboard.test.tsx src/tests/dragAndDropSubstitutions.test.ts src/tests/adminPayouts.test.tsx",
     "test:e2e": "playwright test"
   },
   "dependencies": {

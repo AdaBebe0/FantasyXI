@@ -626,3 +626,34 @@ export interface ToastItem {
   createdAt: number;
 }
 
+// ============================================================
+// Payout Dead-Letter Types
+// ============================================================
+
+export enum FailedPayoutStatus {
+  PENDING = "PENDING",
+  RETRYING = "RETRYING",
+  RESOLVED = "RESOLVED",
+  DISCARDED = "DISCARDED",
+}
+
+export interface FailedPayoutRecord {
+  id: string;
+  type: TransactionType | string;
+  leagueId: string;
+  memberIds: string[];
+  recipients: string[];
+  amountPerRecipient: string | number;
+  error: string;
+  errorCode: number | null;
+  recoverable: boolean;
+  attempts: number;
+  status: FailedPayoutStatus;
+  retryNote?: string | null;
+  discardReason?: string | null;
+  claimedBy?: string | null;
+  claimedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+

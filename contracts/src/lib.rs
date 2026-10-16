@@ -39,6 +39,9 @@ pub enum EscrowError {
     InvalidMultisig = 20,
     InvalidGameweekResult = 21,
     GameweekResultConflict = 22,
+    LeagueNotCancelled = 23,
+    AlreadyClaimed = 24,
+    InvalidFeeShare = 25,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -527,8 +530,18 @@ impl FantasyXIEscrow {
             return Err(EscrowError::FeeExceedsMaxCap);
         }
 
-        if affiliate_cut < 0 || affiliate_cut > platform_fee {
+        if affiliate_cut < 0 {
             return Err(EscrowError::InvalidAmount);
+        }
+
+        if affiliate_cut > platform_fee {
+            return Err(EscrowError::InvalidFeeShare);
+        }
+
+        // Maximum affiliate payout cap (max 20% of platform fee, net platform fee >= 4%)
+        let max_affiliate_cut = (platform_fee * 2000) / 10000;
+        if affiliate_cut > max_affiliate_cut {
+            return Err(EscrowError::InvalidFeeShare);
         }
 
         // Calculate expected distributions based on prize curve rules
@@ -602,6 +615,10 @@ impl FantasyXIEscrow {
         if let Some(affiliate) = affiliate_address {
             if affiliate_cut > 0 {
                 token_client.transfer(&env.current_contract_address(), &affiliate, &affiliate_cut);
+                env.events().publish(
+                    (Symbol::new(&env, "AffiliatePayoutTransferred"), league_id),
+                    (affiliate.clone(), affiliate_cut),
+                );
                 env.events().publish(
                     (symbol_short!("affiliate"), league_id),
                     (affiliate, affiliate_cut),
@@ -798,6 +815,99 @@ impl FantasyXIEscrow {
         env.events()
             .publish((symbol_short!("refund"), league_id), participants.len());
 
+        Ok(())
+    }
+
+    /// Cancels an un-settled league so enrolled participants can claim refunds.
+    /// Caller must be either admin or league creator.
+    pub fn cancel_league(
+        env: Env,
+        caller: Address,
+        league_id: u64,
+    ) -> Result<(), EscrowError> {
+        caller.require_auth();
+
+        let league_key = DataKey::League(league_id);
+        let mut league: LeagueState = env
+            .storage()
+            .persistent()
+            .get(&league_key)
+            .ok_or(EscrowError::LeagueNotFound)?;
+
+        if league.status == LeagueStatus::Settled {
+            return Err(EscrowError::AlreadySettled);
+        }
+
+        let stored_admin: Address = env
+            .storage()
+            .instance()
+            .get(&DataKey::Admin)
+            .ok_or(EscrowError::NotInitialized)?;
+
+        if caller != stored_admin && caller != league.creator {
+            return Err(EscrowError::NotAuthorized);
+        }
+
+        league.status = LeagueStatus::Cancelled;
+        env.storage().persistent().set(&league_key, &league);
+        env.storage().persistent().extend_ttl(
+            &league_key,
+            PERSISTENT_LIFETIME_THRESHOLD,
+            PERSISTENT_BUMP_AMOUNT,
+        );
+
+        env.events().publish(
+            (Symbol::new(&env, "LeagueCancelled"), league_id),
+            caller,
+        );
+        Ok(())
+    }
+
+    /// Enrolled participant claims their full deposit back after a league is cancelled.
+    pub fn claim_refund(
+        env: Env,
+        participant: Address,
+        league_id: u64,
+    ) -> Result<(), EscrowError> {
+        participant.require_auth();
+
+        let league_key = DataKey::League(league_id);
+        let mut league: LeagueState = env
+            .storage()
+            .persistent()
+            .get(&league_key)
+            .ok_or(EscrowError::LeagueNotFound)?;
+
+        if league.status != LeagueStatus::Cancelled {
+            return Err(EscrowError::LeagueNotCancelled);
+        }
+
+        let deposit_key = DataKey::Deposit(league_id, participant.clone());
+        let amount: i128 = env
+            .storage()
+            .persistent()
+            .get(&deposit_key)
+            .ok_or(EscrowError::NoDeposit)?;
+
+        if amount <= 0 {
+            return Err(EscrowError::AlreadyClaimed);
+        }
+
+        token::Client::new(&env, &league.asset).transfer(
+            &env.current_contract_address(),
+            &participant,
+            &amount,
+        );
+
+        // Update participant deposit state to 0 and reduce total_deposited to prevent double claims
+        env.storage().persistent().set(&deposit_key, &0i128);
+        league.total_deposited -= amount;
+        env.storage().persistent().set(&league_key, &league);
+
+        env.events().publish(
+            (Symbol::new(&env, "LeagueRefundClaimed"), league_id),
+            (participant, amount),
+        );
         Ok(())
     }
 
@@ -1686,5 +1796,121 @@ mod test {
         // 4. Second deposit aggregates to 100_000_000 (10 USDC)
         client.deposit(&user2, &900);
         assert_eq!(client.get_prize_pool(&900), 100_000_000);
+    }
+
+    #[test]
+    fn test_cancel_league_and_claim_refund_lifecycle() {
+        let (env, _admin, token_addr, client) = setup_test();
+        let token_admin = token::StellarAssetClient::new(&env, &token_addr);
+        let token_client = token::Client::new(&env, &token_addr);
+
+        let creator = Address::generate(&env);
+        let u1 = Address::generate(&env);
+        let u2 = Address::generate(&env);
+        let non_participant = Address::generate(&env);
+
+        token_admin.mint(&u1, &50_000_000);
+        token_admin.mint(&u2, &50_000_000);
+
+        let league_id = 950u64;
+        client.create_league(&creator, &league_id, &50_000_000, &token_addr);
+        client.deposit(&u1, &league_id);
+        client.deposit(&u2, &league_id);
+
+        assert_eq!(token_client.balance(&u1), 0);
+        assert_eq!(token_client.balance(&u2), 0);
+
+        // Cannot claim refund while league is not cancelled
+        let premature = client.try_claim_refund(&u1, &league_id);
+        assert_eq!(premature, Err(Ok(EscrowError::LeagueNotCancelled)));
+
+        // Non-admin / non-creator cannot cancel
+        let bad_cancel = client.try_cancel_league(&u1, &league_id);
+        assert_eq!(bad_cancel, Err(Ok(EscrowError::NotAuthorized)));
+
+        // Creator cancels league
+        client.cancel_league(&creator, &league_id);
+        let league = client.get_league(&league_id).unwrap();
+        assert_eq!(league.status, LeagueStatus::Cancelled);
+
+        // Non-participant claim fails
+        let non_p = client.try_claim_refund(&non_participant, &league_id);
+        assert_eq!(non_p, Err(Ok(EscrowError::NoDeposit)));
+
+        // u1 claims refund successfully
+        client.claim_refund(&u1, &league_id);
+        assert_eq!(token_client.balance(&u1), 50_000_000);
+
+        // Double claim by u1 fails with AlreadyClaimed
+        let double_claim = client.try_claim_refund(&u1, &league_id);
+        assert_eq!(double_claim, Err(Ok(EscrowError::AlreadyClaimed)));
+
+        // u2 claims refund successfully
+        client.claim_refund(&u2, &league_id);
+        assert_eq!(token_client.balance(&u2), 50_000_000);
+    }
+
+    #[test]
+    fn test_affiliate_payout_exceeding_cap_rejected() {
+        let (env, admin, token_addr, client) = setup_test();
+        let token_admin = token::StellarAssetClient::new(&env, &token_addr);
+
+        let u1 = Address::generate(&env);
+        let referrer = Address::generate(&env);
+        let treasury = Address::generate(&env);
+
+        token_admin.mint(&u1, &100_000_000);
+
+        let league_id = 960u64;
+        client.create_league(&admin, &league_id, &100_000_000, &token_addr);
+        client.deposit(&u1, &league_id);
+
+        let winners = vec![
+            &env,
+            WinnerPayout {
+                winner: u1.clone(),
+                amount: 95_000_000,
+            },
+        ];
+
+        // Platform fee = 5_000_000 (5%). Max affiliate is 20% of fee = 1_000_000.
+        // Attempting to set affiliate cut to 1_500_000 (> 20%) must return InvalidFeeShare
+        let over_cap = client.try_settle_with_affiliate(
+            &admin,
+            &league_id,
+            &winners,
+            &treasury,
+            &5_000_000,
+            &Some(referrer.clone()),
+            &1_500_000,
+        );
+        assert_eq!(over_cap, Err(Ok(EscrowError::InvalidFeeShare)));
+
+        // Attempting to set affiliate cut > platform fee entirely (e.g. 6_000_000) returns InvalidFeeShare
+        let over_fee = client.try_settle_with_affiliate(
+            &admin,
+            &league_id,
+            &winners,
+            &treasury,
+            &5_000_000,
+            &Some(referrer.clone()),
+            &6_000_000,
+        );
+        assert_eq!(over_fee, Err(Ok(EscrowError::InvalidFeeShare)));
+
+        // Valid affiliate payout within 20% cap succeeds
+        client.settle_with_affiliate(
+            &admin,
+            &league_id,
+            &winners,
+            &treasury,
+            &5_000_000,
+            &Some(referrer.clone()),
+            &1_000_000,
+        );
+
+        let token_client = token::Client::new(&env, &token_addr);
+        assert_eq!(token_client.balance(&referrer), 1_000_000);
+        assert_eq!(token_client.balance(&treasury), 4_000_000);
     }
 }
