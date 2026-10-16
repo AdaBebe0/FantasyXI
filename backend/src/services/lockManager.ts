@@ -1,4 +1,4 @@
-import { getRedisClient } from "../../config/redis.js";
+import { getRedisClient } from "../config/redis.js";
 
 /**
  * Distributed lock manager using Redis.
@@ -41,7 +41,7 @@ export async function acquireLock(
   const ttlSeconds = Math.ceil(ttlMs / 1000);
 
   for (let attempt = 0; attempt < retryCount; attempt++) {
-    const acquired = await client.set(lockKey, lockValue, "NX", "EX", ttlSeconds);
+    const acquired = await client.set(lockKey, lockValue, "EX", ttlSeconds, "NX");
     if (acquired === "OK") {
       return async () => {
         await releaseLock(lockKey, lockValue);

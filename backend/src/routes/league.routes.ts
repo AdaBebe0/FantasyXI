@@ -15,8 +15,8 @@ import {
   previewLeagueInvitation,
   acceptLeagueInvitation,
 } from "../controllers/league.controller.js";
-import { requireAuth, requirePermission, optionalAuth } from "../middleware/authMiddleware.js";
-import { Permission } from "../types/index.js";
+import { requireAuth, requirePermission, optionalAuth, requireRole } from "../middleware/authMiddleware.js";
+import { Permission, UserRole } from "../types/index.js";
 import { authenticatedRateLimiter, mutationRateLimiter } from "../middleware/rateLimiter.js";
 import { primaryReads } from "../middleware/readConsistency.js";
 import { getChatMessages, postChatMessage } from "../controllers/chat.controller.js";

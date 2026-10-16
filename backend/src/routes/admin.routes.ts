@@ -11,8 +11,8 @@ import {
   createTierGroup,
   createTier,
   applyTierTransitions,
+  listH2HAnomalies,
 } from "../controllers/leagueAdmin.controller.js";
-import { listH2HAnomalies, recalculateStandings } from "../controllers/leagueAdmin.controller.js";
 import { listSecurityAnomalies } from "../controllers/securityAdmin.controller.js";
 import { requireAuth, requirePermission } from "../middleware/authMiddleware.js";
 import { Permission } from "../types/index.js";

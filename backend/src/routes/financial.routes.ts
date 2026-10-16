@@ -9,8 +9,8 @@ import {
   reconcileLeague,
   getAffiliateDashboard,
 } from "../controllers/financial.controller.js";
-import { requireAuth, requirePermission } from "../middleware/authMiddleware.js";
-import { Permission } from "../types/index.js";
+import { requireAuth, requirePermission, requireRole } from "../middleware/authMiddleware.js";
+import { Permission, UserRole } from "../types/index.js";
 import { financialRateLimiter, mutationRateLimiter } from "../middleware/rateLimiter.js";
 
 const router = Router({ mergeParams: true });

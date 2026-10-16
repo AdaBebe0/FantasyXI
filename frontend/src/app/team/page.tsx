@@ -442,7 +442,7 @@ export default function TeamPage() {
     };
 
     // Snapshot current state for rollback
-    const previousPlayers = players.map((p) => ({ ...p, player: p.player ? { ...p.player } : undefined }));
+    const previousPlayers: LocalSquadPlayer[] = players.map((p) => ({ ...p, player: { ...p.player } }));
 
     try {
       if (squadId) {
