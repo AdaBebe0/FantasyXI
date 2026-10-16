@@ -12,6 +12,7 @@ const INSTANCE_LIFETIME_THRESHOLD: u32 = 14 * DAY_IN_LEDGERS;
 const PERSISTENT_BUMP_AMOUNT: u32 = 30 * DAY_IN_LEDGERS;
 const PERSISTENT_LIFETIME_THRESHOLD: u32 = 14 * DAY_IN_LEDGERS;
 const EMERGENCY_REFUND_TIMELOCK_SECONDS: u64 = 14 * 24 * 60 * 60;
+pub const PARTICIPANTS_PER_PAGE: u32 = 50;
 
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
@@ -90,6 +91,7 @@ pub enum DataKey {
     Deposit(u64, Address),
     ClaimablePrize(u64, Address),
     GameweekResult(u64),
+    ParticipantPage(u64, u32),
 }
 
 /// # Issue #83: Soroban Escrow Smart Contract for Fantasy Leagues
@@ -300,6 +302,22 @@ impl FantasyXIEscrow {
 
         env.storage().persistent().extend_ttl(
             &deposit_key,
+            PERSISTENT_LIFETIME_THRESHOLD,
+            PERSISTENT_BUMP_AMOUNT,
+        );
+
+        // Store participant in paginated page bucket
+        let page_index = league.participant_count / PARTICIPANTS_PER_PAGE;
+        let page_key = DataKey::ParticipantPage(league_id, page_index);
+        let mut page: Vec<Address> = env
+            .storage()
+            .persistent()
+            .get(&page_key)
+            .unwrap_or_else(|| Vec::new(&env));
+        page.push_back(participant.clone());
+        env.storage().persistent().set(&page_key, &page);
+        env.storage().persistent().extend_ttl(
+            &page_key,
             PERSISTENT_LIFETIME_THRESHOLD,
             PERSISTENT_BUMP_AMOUNT,
         );
@@ -1028,6 +1046,66 @@ impl FantasyXIEscrow {
             .persistent()
             .extend_ttl(&key, threshold, extend_to);
 
+        env.storage().instance().extend_ttl(threshold, extend_to);
+        Ok(())
+    }
+
+    /// Returns a specific paginated page of participant addresses for a league.
+    pub fn get_participants_page(env: Env, league_id: u64, page: u32) -> Vec<Address> {
+        let key = DataKey::ParticipantPage(league_id, page);
+        if let Some(page_vec) = env.storage().persistent().get::<_, Vec<Address>>(&key) {
+            env.storage().persistent().extend_ttl(
+                &key,
+                PERSISTENT_LIFETIME_THRESHOLD,
+                PERSISTENT_BUMP_AMOUNT,
+            );
+            env.storage()
+                .instance()
+                .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+            page_vec
+        } else {
+            Vec::new(&env)
+        }
+    }
+
+    /// Returns the total number of participant pages allocated for a league.
+    pub fn get_participant_pages_count(env: Env, league_id: u64) -> u32 {
+        let league_key = DataKey::League(league_id);
+        if let Some(league) = env
+            .storage()
+            .persistent()
+            .get::<_, LeagueState>(&league_key)
+        {
+            env.storage().persistent().extend_ttl(
+                &league_key,
+                PERSISTENT_LIFETIME_THRESHOLD,
+                PERSISTENT_BUMP_AMOUNT,
+            );
+            if league.participant_count == 0 {
+                0
+            } else {
+                ((league.participant_count - 1) / PARTICIPANTS_PER_PAGE) + 1
+            }
+        } else {
+            0
+        }
+    }
+
+    /// Extends the storage TTL for a specific participant page bucket.
+    pub fn extend_participant_page_ttl(
+        env: Env,
+        league_id: u64,
+        page: u32,
+        threshold: u32,
+        extend_to: u32,
+    ) -> Result<(), EscrowError> {
+        let key = DataKey::ParticipantPage(league_id, page);
+        if !env.storage().persistent().has(&key) {
+            return Err(EscrowError::LeagueNotFound);
+        }
+        env.storage()
+            .persistent()
+            .extend_ttl(&key, threshold, extend_to);
         env.storage().instance().extend_ttl(threshold, extend_to);
         Ok(())
     }
@@ -1912,5 +1990,56 @@ mod test {
         let token_client = token::Client::new(&env, &token_addr);
         assert_eq!(token_client.balance(&referrer), 1_000_000);
         assert_eq!(token_client.balance(&treasury), 4_000_000);
+    }
+
+    #[test]
+    fn test_dynamic_league_participant_expansion_500_plus() {
+        let (env, admin, token, client) = setup_test();
+        let token_admin_client = token::StellarAssetClient::new(&env, &token);
+
+        let league_id = 999;
+        let entry_fee = 10_000_000; // 1 USDC
+        client.create_league(&admin, &league_id, &entry_fee, &token);
+
+        // Simulate 520 participant deposits
+        let total_participants = 520;
+        let mut sample_addresses = Vec::new(&env);
+
+        for i in 0..total_participants {
+            let participant = Address::generate(&env);
+            token_admin_client.mint(&participant, &entry_fee);
+            client.deposit(&participant, &league_id);
+            if i % 50 == 0 || i == total_participants - 1 {
+                sample_addresses.push_back(participant);
+            }
+        }
+
+        // Verify total participant count and deposit tally
+        let league = client.get_league(&league_id).unwrap();
+        assert_eq!(league.participant_count, total_participants);
+        assert_eq!(
+            league.total_deposited,
+            (total_participants as i128) * entry_fee
+        );
+
+        // Verify pagination across storage buckets
+        // 520 participants with 50 per page -> 11 pages (10 full pages of 50, 1 partial page of 20)
+        let page_count = client.get_participant_pages_count(&league_id);
+        assert_eq!(page_count, 11);
+
+        let first_page = client.get_participants_page(&league_id, &0);
+        assert_eq!(first_page.len(), 50);
+
+        let last_page = client.get_participants_page(&league_id, &10);
+        assert_eq!(last_page.len(), 20);
+
+        // Verify O(1) deposit lookup for sampled participants
+        for addr in sample_addresses.iter() {
+            let deposit = client.get_deposit(&league_id, &addr);
+            assert_eq!(deposit, entry_fee);
+        }
+
+        // Verify page TTL extension
+        client.extend_participant_page_ttl(&league_id, &0, &1000, &2000);
     }
 }
