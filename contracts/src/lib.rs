@@ -2,8 +2,8 @@
 #![allow(clippy::too_many_arguments)]
 use soroban_sdk::xdr::ToXdr;
 use soroban_sdk::{
-    contract, contracterror, contractimpl, contracttype, symbol_short, token, Address, Bytes, BytesN,
-    Env, Symbol, Vec,
+    contract, contracterror, contractimpl, contracttype, symbol_short, token, Address, Bytes,
+    BytesN, Env, Symbol, Vec,
 };
 
 const DAY_IN_LEDGERS: u32 = 17280;
@@ -1952,14 +1952,7 @@ mod test {
 
         let hash = client.compute_settlement_hash(&winners, &platform_fee);
 
-        client.settle_with_settlement_hash(
-            &admin,
-            &701,
-            &winners,
-            &treasury,
-            &platform_fee,
-            &hash,
-        );
+        client.settle_with_settlement_hash(&admin, &701, &winners, &treasury, &platform_fee, &hash);
 
         let league = client.get_league(&701).unwrap();
         assert_eq!(league.status, LeagueStatus::Settled);
