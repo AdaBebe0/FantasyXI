@@ -257,3 +257,29 @@ self.addEventListener("notificationclick", (event) => {
       })
   );
 });
+
+// ---------------------------------------------------------------------------
+// Background Sync for Offline Squad Mutations (Issue #214)
+// ---------------------------------------------------------------------------
+
+self.addEventListener("sync", (event) => {
+  if (event.tag === "sync-squad-mutations") {
+    event.waitUntil(
+      (async () => {
+        // Broadcast background sync trigger to all active window clients
+        const windowClients = await clients.matchAll({
+          type: "window",
+          includeUncontrolled: true,
+        });
+        for (const client of windowClients) {
+          client.postMessage({
+            type: "SYNC_SQUAD_MUTATIONS",
+            tag: event.tag,
+            timestamp: Date.now(),
+          });
+        }
+      })()
+    );
+  }
+});
+
