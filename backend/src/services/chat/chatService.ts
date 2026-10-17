@@ -126,6 +126,13 @@ export class ChatRateLimiter {
 
 type ChatListener = (message: ChatMessageDto) => void;
 
+export interface ChatPubSubAdapter {
+  publish(message: ChatMessageDto): Promise<void> | void;
+  subscribeLeague(leagueId: string): Promise<void> | void;
+  unsubscribeLeague(leagueId: string): Promise<void> | void;
+  close?(): Promise<void> | void;
+}
+
 /**
  * In-process publish/subscribe hub for league chat rooms.
  *
@@ -135,24 +142,59 @@ type ChatListener = (message: ChatMessageDto) => void;
  */
 export class ChatHub {
   private readonly rooms = new Map<string, Set<ChatListener>>();
+  private adapter: ChatPubSubAdapter | null = null;
+
+  public setAdapter(adapter: ChatPubSubAdapter | null): void {
+    this.adapter = adapter;
+  }
+
+  public getAdapter(): ChatPubSubAdapter | null {
+    return this.adapter;
+  }
 
   public subscribe(leagueId: string, listener: ChatListener): () => void {
+    const isFirst = !this.rooms.has(leagueId) || this.rooms.get(leagueId)!.size === 0;
     const room = this.rooms.get(leagueId) ?? new Set<ChatListener>();
     room.add(listener);
     this.rooms.set(leagueId, room);
+
+    if (isFirst && this.adapter) {
+      void Promise.resolve(this.adapter.subscribeLeague(leagueId)).catch((err) => {
+        console.warn(`[chat] Failed to subscribe adapter for league ${leagueId}:`, err);
+      });
+    }
+
     return () => {
       room.delete(listener);
-      if (room.size === 0) this.rooms.delete(leagueId);
+      if (room.size === 0) {
+        this.rooms.delete(leagueId);
+        if (this.adapter) {
+          void Promise.resolve(this.adapter.unsubscribeLeague(leagueId)).catch((err) => {
+            console.warn(`[chat] Failed to unsubscribe adapter for league ${leagueId}:`, err);
+          });
+        }
+      }
     };
   }
 
-  public publish(message: ChatMessageDto): void {
+  /** Delivers directly to all local listeners in this process */
+  public broadcastLocal(message: ChatMessageDto): void {
     for (const listener of this.rooms.get(message.leagueId) ?? []) {
       try {
         listener(message);
       } catch (error) {
         console.error("[chat] Listener failed:", error);
       }
+    }
+  }
+
+  public publish(message: ChatMessageDto): void {
+    this.broadcastLocal(message);
+
+    if (this.adapter) {
+      void Promise.resolve(this.adapter.publish(message)).catch((err) => {
+        console.warn(`[chat] Adapter publish failed for league ${message.leagueId}:`, err);
+      });
     }
   }
 
@@ -268,3 +310,15 @@ export class ChatService {
 }
 
 export const chatService = new ChatService();
+
+export async function initRedisChat(service: ChatService = chatService): Promise<any> {
+  const { RedisChatAdapter } = await import("./redisChatAdapter.js");
+  const { getRedisConfig } = await import("../../config/redis.js");
+  const config = getRedisConfig();
+  if (config.enabled) {
+    const adapter = new RedisChatAdapter();
+    adapter.attach(service.hub);
+    return adapter;
+  }
+  return null;
+}
