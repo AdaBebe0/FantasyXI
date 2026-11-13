@@ -239,7 +239,7 @@ export class StellarService {
   }
 
   public async getHorizonLatestLedger(): Promise<number> {
-    const page = await this.server.ledgers().order("desc").limit(1).call();
+    const page = await this.runHorizon((server) => server.ledgers().order("desc").limit(1).call());
     const ledger = page.records[0]?.sequence;
     if (!Number.isInteger(ledger)) {
       throw new Error("Horizon did not return a latest ledger sequence");
@@ -796,10 +796,10 @@ export class StellarService {
       throw new PathPaymentError("INVALID_AMOUNT", "Entry fee amount must be positive");
     }
 
-    const page = await this.server
-      .strictReceivePaths([params.sendAsset], destAsset, params.destAmount)
-      .call();
-    const candidates = page.records.filter((record) =>
+    const page = await this.runHorizon((server) =>
+      server.strictReceivePaths([params.sendAsset], destAsset, params.destAmount).call()
+    );
+    const candidates = page.records.filter((record: any) =>
       horizonAsset(record.source_asset_type, record.source_asset_code, record.source_asset_issuer).equals(
         params.sendAsset
       )
@@ -807,7 +807,7 @@ export class StellarService {
     if (candidates.length === 0) {
       throw new PathPaymentError("NO_PATH", "No DEX liquidity path delivers the entry fee from this asset");
     }
-    const best = candidates.reduce((a, b) =>
+    const best = candidates.reduce((a: any, b: any) =>
       amountToStroops(b.source_amount) < amountToStroops(a.source_amount) ? b : a
     );
 
@@ -820,7 +820,7 @@ export class StellarService {
       destAmount: stroopsToAmount(amountToStroops(params.destAmount)),
       sourceAmount: stroopsToAmount(sourceStroops),
       sendMax: stroopsToAmount(sendMaxStroops),
-      path: best.path.map((hop) => horizonAsset(hop.asset_type, hop.asset_code, hop.asset_issuer)),
+      path: best.path.map((hop: any) => horizonAsset(hop.asset_type, hop.asset_code, hop.asset_issuer)),
       slippageBps,
       expiresAt: now + PATH_PAYMENT_QUOTE_TTL_SECONDS,
     };
@@ -845,7 +845,7 @@ export class StellarService {
       throw new PathPaymentError("QUOTE_EXPIRED", "Path payment quote has expired; request a new quote");
     }
     const settlesIntoEscrow = StrKey.isValidEd25519PublicKey(params.destination);
-    const account = await this.server.loadAccount(params.sourceAccount);
+    const account = await this.runHorizon((server) => server.loadAccount(params.sourceAccount));
     const builder = new TransactionBuilder(account, {
       fee: BASE_FEE,
       networkPassphrase: stellarConfig.networkPassphrase,
@@ -885,10 +885,10 @@ export class StellarService {
     const slippageBps = params.slippageBps ?? quote.slippageBps;
     validateSlippage(slippageBps);
 
-    const page = await this.server
-      .strictSendPaths(quote.destAsset, quote.destAmount, [quote.sendAsset])
-      .call();
-    const candidates = page.records.filter((record) =>
+    const page = await this.runHorizon((server) =>
+      server.strictSendPaths(quote.destAsset, quote.destAmount, [quote.sendAsset]).call()
+    );
+    const candidates = page.records.filter((record: any) =>
       horizonAsset(
         record.destination_asset_type,
         record.destination_asset_code,
@@ -898,14 +898,14 @@ export class StellarService {
     if (candidates.length === 0) {
       throw new PathPaymentError("NO_PATH", "No DEX liquidity path to swap the entry fee back");
     }
-    const best = candidates.reduce((a, b) =>
+    const best = candidates.reduce((a: any, b: any) =>
       amountToStroops(b.destination_amount) > amountToStroops(a.destination_amount) ? b : a
     );
     const destMin =
       (amountToStroops(best.destination_amount) * BigInt(10_000 - slippageBps)) / 10_000n;
 
     const expiresAt = (params.now ?? Math.floor(Date.now() / 1000)) + PATH_PAYMENT_QUOTE_TTL_SECONDS;
-    const account = await this.server.loadAccount(params.sourceAccount);
+    const account = await this.runHorizon((server) => server.loadAccount(params.sourceAccount));
     const tx = new TransactionBuilder(account, {
       fee: BASE_FEE,
       networkPassphrase: stellarConfig.networkPassphrase,
@@ -918,7 +918,7 @@ export class StellarService {
           destination: params.sourceAccount,
           destAsset: quote.sendAsset,
           destMin: stroopsToAmount(destMin),
-          path: best.path.map((hop) => horizonAsset(hop.asset_type, hop.asset_code, hop.asset_issuer)),
+          path: best.path.map((hop: any) => horizonAsset(hop.asset_type, hop.asset_code, hop.asset_issuer)),
         })
       )
       .build();
@@ -939,7 +939,7 @@ export class StellarService {
     const tx = TransactionBuilder.fromXDR(signedXdr, stellarConfig.networkPassphrase);
     const txHash = Buffer.from(tx.hash()).toString("hex");
     try {
-      const result = await this.server.submitTransaction(tx);
+      const result = await this.runHorizon((server) => server.submitTransaction(tx));
       return { status: "SETTLED", txHash: result.hash, ledger: result.ledger };
     } catch (error) {
       const resultCodes = (error as {
@@ -962,7 +962,7 @@ export class StellarService {
 
       // No result codes: the submission may or may not have reached the network.
       try {
-        const record = await this.server.transactions().transaction(txHash).call();
+        const record = await this.runHorizon((server) => server.transactions().transaction(txHash).call());
         if (record.successful) {
           return { status: "SETTLED", txHash, ledger: record.ledger_attr };
         }

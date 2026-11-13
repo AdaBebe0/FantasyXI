@@ -1,10 +1,9 @@
 import { Router, Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
-import { requireAuth } from '@/middleware/auth';
-import { logger } from '@/config/logger';
+import { prisma } from '../config/db.js';
+import { requireAuth } from '../middleware/authMiddleware.js';
+import { logger } from '../config/logger.js';
 
 const router = Router();
-const prisma = new PrismaClient();
 
 /**
  * POST /api/v1/user/suspension-appeals
@@ -90,7 +89,7 @@ router.post(
         message: 'Appeal submitted successfully. An admin will review your appeal within 7 business days.',
       });
     } catch (error) {
-      logger.error('[Appeal] Error creating appeal:', error);
+      logger.error({ err: error }, '[Appeal] Error creating appeal:');
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -145,7 +144,7 @@ router.get(
 
       res.json(enriched);
     } catch (error) {
-      logger.error('[Appeal] Error fetching appeals:', error);
+      logger.error({ err: error }, '[Appeal] Error fetching appeals:');
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -165,7 +164,7 @@ router.get(
       const { appealId } = req.params;
 
       const appeal = await prisma.suspensionAppeal.findUnique({
-        where: { id: appealId },
+        where: { id: String(appealId) },
         include: {
           flag: {
             select: {
@@ -195,7 +194,7 @@ router.get(
 
       res.json(appeal);
     } catch (error) {
-      logger.error('[Appeal] Error fetching appeal:', error);
+      logger.error({ err: error }, '[Appeal] Error fetching appeal:');
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -253,7 +252,7 @@ router.get(
             : 'No active suspensions',
       });
     } catch (error) {
-      logger.error('[Appeal] Error checking suspension status:', error);
+      logger.error({ err: error }, '[Appeal] Error checking suspension status:');
       res.status(500).json({ error: 'Internal server error' });
     }
   }

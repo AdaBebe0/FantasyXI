@@ -1,31 +1,31 @@
-import { PrismaClient, LeagueCollusionFlag, LeagueMember, Squad, SquadTransfer, Player, League, Gameweek } from '@prisma/client';
-import { logger } from '@/config/logger';
+import { Prisma, PrismaClient, LeagueCollusionFlag, LeagueMember, Squad, SquadTransfer, Player, League, Gameweek } from '@prisma/client';
+import { logger } from '../../../config/logger.js';
 import { 
   computeTransferSimilarity, 
   TransferSimilarityConfig, 
   DEFAULT_TRANSFER_SIMILARITY_CONFIG 
-} from './transferSimilaritySignal';
+} from './transferSimilaritySignal.js';
 import { 
   computeSharedIpScore, 
   SharedIpConfig, 
   DEFAULT_SHARED_IP_CONFIG 
-} from './sharedIpSignal';
+} from './sharedIpSignal.js';
 import { 
   computeChipTimingScore, 
   ChipTimingConfig, 
   DEFAULT_CHIP_TIMING_CONFIG 
-} from './chipTimingSignal';
+} from './chipTimingSignal.js';
 import { 
   computeBenchGhostingScore, 
   BenchGhostingConfig, 
   DEFAULT_BENCH_GHOSTING_CONFIG,
   SquadLineup 
-} from './benchGhostingSignal';
+} from './benchGhostingSignal.js';
 import { 
   computePointAbsorptionScore, 
   PointAbsorptionConfig, 
   DEFAULT_POINT_ABSORPTION_CONFIG 
-} from './pointAbsorptionSignal';
+} from './pointAbsorptionSignal.js';
 
 /**
  * Risk scoring configuration combining all signals with weights.
@@ -230,7 +230,7 @@ export class LeagueIntegrityService {
 
       return { flagsCreated, accountsSuspended };
     } catch (error) {
-      logger.error(`[Collusion Audit] Error auditing league ${leagueId}:`, error);
+      logger.error({ err: error }, `[Collusion Audit] Error auditing league ${leagueId}:`);
       throw error;
     }
   }
@@ -423,7 +423,7 @@ export class LeagueIntegrityService {
           scores.transferSimilarity.triggered = result.score > 0;
           (evidence.signals as any).transferSimilarity = result.evidence;
         } catch (err) {
-          logger.error('[Transfer Signal]', err);
+          logger.error({ err }, '[Transfer Signal]');
         }
 
         // Signal 2: Shared IP
@@ -451,7 +451,7 @@ export class LeagueIntegrityService {
           scores.sharedIp.triggered = result.score > 0;
           (evidence.signals as any).sharedIp = result.evidence;
         } catch (err) {
-          logger.error('[IP Signal]', err);
+          logger.error({ err }, '[IP Signal]');
         }
 
         // Signal 3: Chip Timing
@@ -494,7 +494,7 @@ export class LeagueIntegrityService {
           scores.chipTiming.triggered = result.score > 0;
           (evidence.signals as any).chipTiming = result.evidence;
         } catch (err) {
-          logger.error('[Chip Signal]', err);
+          logger.error({ err }, '[Chip Signal]');
         }
 
         // Signal 4: Bench Ghosting
@@ -513,7 +513,7 @@ export class LeagueIntegrityService {
           scores.benchGhosting.triggered = result.score > 0;
           (evidence.signals as any).benchGhosting = result.evidence;
         } catch (err) {
-          logger.error('[Bench Signal]', err);
+          logger.error({ err }, '[Bench Signal]');
         }
 
         // Signal 5: Point Absorption
@@ -543,7 +543,7 @@ export class LeagueIntegrityService {
           scores.pointAbsorption.triggered = result.score > 0;
           (evidence.signals as any).pointAbsorption = result.evidence;
         } catch (err) {
-          logger.error('[Point Absorption Signal]', err);
+          logger.error({ err }, '[Point Absorption Signal]');
         }
 
         // Aggregate scores
@@ -556,8 +556,8 @@ export class LeagueIntegrityService {
           scores.pointAbsorption.score * weights.pointAbsorptionWeight;
 
         // Count triggered signals
-        const signalsTriggered = (Object.entries(scores) as any)
-          .filter(([_key, value]) => value.triggered)
+        const signalsTriggered = (Object.entries(scores) as [string, any][])
+          .filter(([_key, value]) => Boolean(value.triggered))
           .map(([key]) => key.toUpperCase());
 
         // Apply multi-signal requirements
@@ -581,7 +581,7 @@ export class LeagueIntegrityService {
           });
         }
       } catch (err) {
-        logger.error(`[Scoring] Error scoring pair ${candidate.memberA.user.id}/${candidate.memberB.user.id}:`, err);
+        logger.error({ err }, `[Scoring] Error scoring pair ${candidate.memberA.user.id}/${candidate.memberB.user.id}:`);
       }
     }
 
@@ -634,7 +634,7 @@ export class LeagueIntegrityService {
           riskScore: pair.riskScore,
           confidenceLevel,
           signalsTriggered: pair.signalsTriggered,
-          evidencePayload: pair.evidence,
+          evidencePayload: pair.evidence as unknown as Prisma.InputJsonValue,
           configVersion,
           status: 'FLAGGED',
         },
@@ -642,7 +642,7 @@ export class LeagueIntegrityService {
           riskScore: pair.riskScore,
           confidenceLevel,
           signalsTriggered: pair.signalsTriggered,
-          evidencePayload: pair.evidence,
+          evidencePayload: pair.evidence as unknown as Prisma.InputJsonValue,
           updatedAt: new Date(),
         },
       });
@@ -665,7 +665,7 @@ export class LeagueIntegrityService {
         suspended = true;
       }
     } catch (err) {
-      logger.error(`[Flag Creation] Error creating flag:`, err);
+      logger.error({ err }, `[Flag Creation] Error creating flag:`);
     }
 
     return { flagCreated, suspended };

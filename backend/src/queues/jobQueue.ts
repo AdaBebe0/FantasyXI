@@ -20,15 +20,6 @@ import {
   fplTaskPriority,
   type FplSyncTask,
 } from "./fplSyncQueue.js";
-import {
-  executeFplSyncTask,
-  FPL_SYNC_DLQ_NAME,
-  FPL_SYNC_QUEUE_NAME,
-  FPL_SYNC_RETRY_LIMIT,
-  fplSyncQueueConfig,
-  fplTaskPriority,
-  type FplSyncTask,
-} from "./fplSyncQueue.js";
 
 /**
  * PostgreSQL-backed background job queue (pg-boss).

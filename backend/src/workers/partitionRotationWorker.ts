@@ -64,7 +64,7 @@ export class PartitionRotationWorker {
   public async archiveExpiredPartitions(): Promise<string[]> {
     if (!this.archiveDirectory) return [];
     const cutoff = new Date(this.now().getTime() - this.archiveAfterDays * DAY_MS);
-    const partitions = await this.db.$queryRawUnsafe<Array<{ name: string }>>(
+    const partitions = (await (this.db.$queryRawUnsafe as any)(
       `SELECT child.relname AS name
        FROM pg_inherits i JOIN pg_class parent ON parent.oid = i.inhparent
        JOIN pg_class child ON child.oid = i.inhrelid
@@ -73,7 +73,7 @@ export class PartitionRotationWorker {
        ORDER BY child.relname`,
       TABLE,
       `${TABLE}_default`
-    );
+    )) as Array<{ name: string }>;
     const archived: string[] = [];
     await mkdir(this.archiveDirectory, { recursive: true });
     for (const { name } of partitions) {

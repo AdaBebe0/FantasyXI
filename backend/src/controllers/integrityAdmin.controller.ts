@@ -1,17 +1,17 @@
 import { Router, Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
-import { requirePermission } from '@/middleware/auth';
-import { logger } from '@/config/logger';
+import { prisma } from '../config/db.js';
+import { requirePermission, requireRole } from '../middleware/authMiddleware.js';
+import { Permission, Role } from '../config/permissions.js';
+import { logger } from '../config/logger.js';
 
 const router = Router();
-const prisma = new PrismaClient();
 
 /**
  * GET /api/v1/admin/leagues/:leagueId/collusion-flags
  * List all collusion flags for a league with pagination.
  * Requires: SECURITY_REVIEW permission
  */
-router.get('/leagues/:leagueId/collusion-flags', requirePermission('SECURITY_REVIEW'), async (req: Request, res: Response) => {
+router.get('/leagues/:leagueId/collusion-flags', requirePermission(Permission.SECURITY_REVIEW), async (req: Request, res: Response) => {
   try {
     const { leagueId } = req.params;
     const { status, minRiskScore = 0, limit = 20, offset = 0 } = req.query;
@@ -21,9 +21,9 @@ router.get('/leagues/:leagueId/collusion-flags', requirePermission('SECURITY_REV
     const pageOffset = Number(offset) || 0;
 
     // Build filter
-    const where: any = { leagueId };
+    const where: any = { leagueId: String(leagueId) };
     if (status) {
-      where.status = status;
+      where.status = String(status);
     }
     if (minRiskScore) {
       where.riskScore = { gte: Number(minRiskScore) };
@@ -60,7 +60,7 @@ router.get('/leagues/:leagueId/collusion-flags', requirePermission('SECURITY_REV
       },
     });
   } catch (error) {
-    logger.error('[Admin] Error listing flags:', error);
+    logger.error({ err: error }, '[Admin] Error listing flags:');
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -70,12 +70,12 @@ router.get('/leagues/:leagueId/collusion-flags', requirePermission('SECURITY_REV
  * Get detailed information about a specific flag.
  * Requires: SECURITY_REVIEW permission
  */
-router.get('/collusion-flags/:flagId', requirePermission('SECURITY_REVIEW'), async (req: Request, res: Response) => {
+router.get('/collusion-flags/:flagId', requirePermission(Permission.SECURITY_REVIEW), async (req: Request, res: Response) => {
   try {
     const { flagId } = req.params;
 
     const flag = await prisma.leagueCollusionFlag.findUnique({
-      where: { id: flagId },
+      where: { id: String(flagId) },
       include: {
         accountA: {
           select: { id: true, email: true, username: true, createdAt: true },
@@ -105,7 +105,7 @@ router.get('/collusion-flags/:flagId', requirePermission('SECURITY_REVIEW'), asy
       evidencePayload: sanitizeEvidence(flag.evidencePayload as any),
     });
   } catch (error) {
-    logger.error('[Admin] Error fetching flag:', error);
+    logger.error({ err: error }, '[Admin] Error fetching flag:');
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -117,7 +117,7 @@ router.get('/collusion-flags/:flagId', requirePermission('SECURITY_REVIEW'), asy
  */
 router.post(
   '/collusion-flags/:flagId/review',
-  requirePermission('ADMIN'),
+  requireRole(Role.ADMIN),
   async (req: Request, res: Response) => {
     try {
       const { flagId } = req.params;
@@ -131,7 +131,7 @@ router.post(
 
       // Fetch flag
       const flag = await prisma.leagueCollusionFlag.findUnique({
-        where: { id: flagId },
+        where: { id: String(flagId) },
       });
 
       if (!flag) {
@@ -140,7 +140,7 @@ router.post(
 
       // Update flag
       const updated = await prisma.leagueCollusionFlag.update({
-        where: { id: flagId },
+        where: { id: String(flagId) },
         data: {
           status,
           reviewedBy: adminUserId,
@@ -165,7 +165,7 @@ router.post(
 
       res.json(updated);
     } catch (error) {
-      logger.error('[Admin] Error reviewing flag:', error);
+      logger.error({ err: error }, '[Admin] Error reviewing flag:');
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -178,7 +178,7 @@ router.post(
  */
 router.post(
   '/collusion-flags/:flagId/suspend',
-  requirePermission('ADMIN'),
+  requireRole(Role.ADMIN),
   async (req: Request, res: Response) => {
     try {
       const { flagId } = req.params;
@@ -191,7 +191,7 @@ router.post(
 
       // Fetch flag
       const flag = await prisma.leagueCollusionFlag.findUnique({
-        where: { id: flagId },
+        where: { id: String(flagId) },
         include: {
           league: true,
           accountA: true,
@@ -209,7 +209,7 @@ router.post(
 
       // Update flag to mark suspension
       const updated = await prisma.leagueCollusionFlag.update({
-        where: { id: flagId },
+        where: { id: String(flagId) },
         data: {
           suspendedLeagueParticipationAt: new Date(),
           suspensionReason: reason || 'Admin suspension due to collusion detection',
@@ -226,7 +226,7 @@ router.post(
 
       res.json(updated);
     } catch (error) {
-      logger.error('[Admin] Error suspending accounts:', error);
+      logger.error({ err: error }, '[Admin] Error suspending accounts:');
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -239,7 +239,7 @@ router.post(
  */
 router.post(
   '/collusion-flags/:flagId/unsuspend',
-  requirePermission('ADMIN'),
+  requireRole(Role.ADMIN),
   async (req: Request, res: Response) => {
     try {
       const { flagId } = req.params;
@@ -248,7 +248,7 @@ router.post(
 
       // Fetch flag
       const flag = await prisma.leagueCollusionFlag.findUnique({
-        where: { id: flagId },
+        where: { id: String(flagId) },
       });
 
       if (!flag) {
@@ -261,7 +261,7 @@ router.post(
 
       // Update flag to remove suspension
       const updated = await prisma.leagueCollusionFlag.update({
-        where: { id: flagId },
+        where: { id: String(flagId) },
         data: {
           suspendedLeagueParticipationAt: null,
           suspensionReason: null,
@@ -276,7 +276,7 @@ router.post(
 
       res.json(updated);
     } catch (error) {
-      logger.error('[Admin] Error unsuspending accounts:', error);
+      logger.error({ err: error }, '[Admin] Error unsuspending accounts:');
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -289,13 +289,13 @@ router.post(
  */
 router.get(
   '/collusion-flags/:flagId/appeals',
-  requirePermission('SECURITY_REVIEW'),
+  requirePermission(Permission.SECURITY_REVIEW),
   async (req: Request, res: Response) => {
     try {
       const { flagId } = req.params;
 
       const appeals = await prisma.suspensionAppeal.findMany({
-        where: { flagId },
+        where: { flagId: String(flagId) },
         include: {
           account: { select: { email: true, username: true } },
         },
@@ -304,7 +304,7 @@ router.get(
 
       res.json(appeals);
     } catch (error) {
-      logger.error('[Admin] Error listing appeals:', error);
+      logger.error({ err: error }, '[Admin] Error listing appeals:');
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -317,7 +317,7 @@ router.get(
  */
 router.post(
   '/suspension-appeals/:appealId/review',
-  requirePermission('ADMIN'),
+  requireRole(Role.ADMIN),
   async (req: Request, res: Response) => {
     try {
       const { appealId } = req.params;
@@ -331,7 +331,7 @@ router.post(
 
       // Fetch appeal
       const appeal = await prisma.suspensionAppeal.findUnique({
-        where: { id: appealId },
+        where: { id: String(appealId) },
         include: { flag: true, account: true },
       });
 
@@ -345,7 +345,7 @@ router.post(
 
       // Update appeal
       const updated = await prisma.suspensionAppeal.update({
-        where: { id: appealId },
+        where: { id: String(appealId) },
         data: {
           status,
           reviewedBy: adminUserId,
@@ -371,7 +371,7 @@ router.post(
 
       res.json(updated);
     } catch (error) {
-      logger.error('[Admin] Error reviewing appeal:', error);
+      logger.error({ err: error }, '[Admin] Error reviewing appeal:');
       res.status(500).json({ error: 'Internal server error' });
     }
   }

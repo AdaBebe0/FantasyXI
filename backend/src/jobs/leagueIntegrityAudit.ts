@@ -1,8 +1,6 @@
-import { PrismaClient } from '@prisma/client';
-import { logger } from '@/config/logger';
-import { LeagueIntegrityService } from '@/services/league/collusion/leagueIntegrityService';
-
-const prisma = new PrismaClient();
+import { prisma } from '../config/db.js';
+import { logger } from '../config/logger.js';
+import { LeagueIntegrityService } from '../services/league/collusion/leagueIntegrityService.js';
 
 /**
  * Audit all ACTIVE leagues for collusion after each gameweek settles.
@@ -83,17 +81,17 @@ export async function auditLeaguesForCollusion(): Promise<{
               `[Collusion Audit] League ${league.name} (${league.id}): ${result.flagsCreated} flags, ${result.accountsSuspended} suspensions`
             );
           } catch (err) {
-            logger.error(`[Collusion Audit] Error auditing league ${league.id}:`, err);
+            logger.error({ err }, `[Collusion Audit] Error auditing league ${league.id}:`);
             errors++;
           }
         }
       } catch (err) {
-        logger.error(`[Collusion Audit] Error processing gameweek ${gameweek.fplId}:`, err);
+        logger.error({ err }, `[Collusion Audit] Error processing gameweek ${gameweek.fplId}:`);
         errors++;
       }
     }
   } catch (err) {
-    logger.error('[Collusion Audit] Critical error during audit run:', err);
+    logger.error({ err }, '[Collusion Audit] Critical error during audit run:');
     errors++;
   }
 
@@ -135,7 +133,7 @@ export async function auditLeagueOnDemand(leagueId: string, gameweekId: number):
 
     return result;
   } catch (err) {
-    logger.error(`[Collusion Audit] Error in on-demand audit:`, err);
+    logger.error({ err }, `[Collusion Audit] Error in on-demand audit:`);
     throw err;
   }
 }
