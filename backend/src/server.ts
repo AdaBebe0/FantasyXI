@@ -251,6 +251,7 @@ async function startServer(): Promise<void> {
 
 startServer().catch((error) => {
   console.error("Failed to start FantasyXI API:", error);
+  if (error && error.stack) console.error(error.stack);
   process.exitCode = 1;
 });
 

@@ -163,10 +163,15 @@ export class EventFanout {
     if (this.started) return;
     if (!this.redisConfigured) this.redis ??= createRedisClient();
     if (this.redis) {
-      if (this.redis.status === "wait") await this.redis.connect();
-      await this.maintainGroups();
-      try { await this.redis.xgroup("CREATE", FANOUT_STREAM, this.group, "$", "MKSTREAM"); }
-      catch (error) { if (!(error as Error).message.includes("BUSYGROUP")) throw error; }
+      try {
+        if (this.redis.status === "wait") await this.redis.connect();
+        await this.maintainGroups();
+        try { await this.redis.xgroup("CREATE", FANOUT_STREAM, this.group, "$", "MKSTREAM"); }
+        catch (error) { if (!(error as Error).message.includes("BUSYGROUP")) throw error; }
+      } catch (err) {
+        console.warn("[EventFanout] Redis connection failed, falling back to local fanout mode:", (err as Error).message);
+        this.redis = null;
+      }
     }
     this.started = true;
     this.producerTimer = setInterval(() => void this.flushProducer(), FANOUT_LIMITS.windowMs);
