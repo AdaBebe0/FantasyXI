@@ -89,24 +89,24 @@ export default function PlayersPage() {
   return (
     <div className="space-y-6 pb-12 max-w-full overflow-x-hidden">
       {/* Header */}
-      <div className="bg-pitch-surface border border-pitch-border rounded-xl p-4 sm:p-6 shadow-lg flex flex-col gap-4 sm:flex-row sm:items-center justify-between">
+      <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col gap-4 sm:flex-row sm:items-center justify-between">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2 mb-1">
-            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-400">
+          <div className="flex flex-wrap items-center gap-2 mb-1.5">
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-700">
               Scouting Intelligence
             </span>
-            <span className="text-[10px] sm:text-xs text-slate-500 font-mono">&bull; Premier League Telemetry</span>
+            <span className="text-[10px] sm:text-xs text-slate-400 font-mono">&bull; Premier League Telemetry</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight leading-tight">
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight leading-tight">
             Player Browser
           </h1>
-          <p className="text-[11px] sm:text-xs text-slate-400 mt-1 max-w-xl leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-xl leading-relaxed">
             Analyze fantasy form, goal contributions, and market values to optimize your £100m squad.
           </p>
         </div>
 
         <Link href="/team" className="w-full sm:w-auto">
-          <Button variant="primary" size="md" className="w-full sm:w-auto uppercase font-bold tracking-wide text-[10px] sm:text-xs">
+          <Button variant="primary" size="md" className="w-full sm:w-auto uppercase font-bold tracking-wide text-xs">
             <IconFootball className="w-4 h-4" />
             <span>Manage My Squad</span>
           </Button>
@@ -114,17 +114,17 @@ export default function PlayersPage() {
       </div>
 
       {/* Filter Toolbar */}
-      <div className="bg-pitch-surface border border-pitch-border rounded-xl p-3 sm:p-4 shadow-md space-y-3">
+      <div className="bg-white border border-slate-200/80 rounded-3xl p-4 sm:p-5 shadow-sm space-y-4">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {/* Search Input */}
           <div className="relative sm:col-span-1 min-w-0">
-            <IconSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+            <IconSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search player by name..."
-              className="w-full min-w-0 pl-9 pr-3 py-2.5 sm:py-2 bg-slate-950 border border-slate-700/80 rounded-lg text-white placeholder-slate-500 text-[11px] sm:text-xs focus:outline-none focus:border-emerald-500"
+              className="w-full min-w-0 pl-10 pr-3.5 py-2.5 sm:py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c]"
             />
           </div>
 
@@ -133,7 +133,7 @@ export default function PlayersPage() {
             <select
               value={selectedTeamId}
               onChange={(e) => setSelectedTeamId(e.target.value)}
-              className="w-full min-w-0 px-3 py-2.5 sm:py-2 bg-slate-950 border border-slate-700/80 rounded-lg text-white text-[11px] sm:text-xs focus:outline-none focus:border-emerald-500"
+              className="w-full min-w-0 px-3.5 py-2.5 sm:py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c]"
             >
               <option value="ALL">All Premier League Clubs</option>
               {teams.map((t) => (
@@ -153,7 +153,7 @@ export default function PlayersPage() {
                 setSortBy(sb);
                 setSortOrder(so as "desc" | "asc");
               }}
-              className="w-full min-w-0 px-3 py-2.5 sm:py-2 bg-slate-950 border border-slate-700/80 rounded-lg text-white text-[11px] sm:text-xs focus:outline-none focus:border-emerald-500"
+              className="w-full min-w-0 px-3.5 py-2.5 sm:py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c]"
             >
               <option value="totalPoints-desc">Total Points (High &rarr; Low)</option>
               <option value="price-desc">Price (Most Expensive)</option>
@@ -167,17 +167,17 @@ export default function PlayersPage() {
         </div>
 
         {/* Position Filter Tabs */}
-        <div className="flex flex-col gap-2 pt-2 border-t border-slate-800/80 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-wrap items-center gap-1 bg-slate-950/80 p-1 rounded-lg border border-slate-800">
+        <div className="flex flex-col gap-2 pt-3 border-t border-slate-100 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-1.5 bg-slate-50 p-1 rounded-xl border border-slate-200">
             {["ALL", "GKP", "DEF", "MID", "FWD"].map((pos) => (
               <button
                 key={pos}
                 type="button"
                 onClick={() => setSelectedPosition(pos)}
-                className={`px-2.5 py-1.5 sm:px-3 sm:py-1 rounded text-[10px] sm:text-xs font-bold uppercase transition-colors ${
+                className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-colors cursor-pointer ${
                   selectedPosition === pos
-                    ? "bg-emerald-500 text-slate-950 shadow-sm"
-                    : "text-slate-400 hover:text-slate-200"
+                    ? "bg-[#37003c] text-white shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
                 }`}
               >
                 {pos}
@@ -185,14 +185,14 @@ export default function PlayersPage() {
             ))}
           </div>
 
-          <div className="text-[10px] sm:text-xs font-mono text-slate-400">
+          <div className="text-xs font-mono text-slate-400">
             Showing {players.length} players
           </div>
         </div>
       </div>
 
       {/* Players Data Table — virtualised */}
-      <div className="bg-pitch-surface border border-pitch-border rounded-xl shadow-md overflow-hidden">
+      <div className="bg-white border border-slate-200/80 rounded-3xl shadow-sm overflow-hidden">
         {isLoading ? (
           <div className="py-24 text-center text-slate-400">
             <div className="inline-block w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mb-3" />
@@ -202,7 +202,7 @@ export default function PlayersPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="border-b border-pitch-border text-slate-400 uppercase font-semibold text-[11px] bg-slate-950/70">
+                <tr className="border-b border-slate-200 text-slate-500 uppercase font-bold text-[10px] bg-slate-50 tracking-wider">
                   <th className="py-3 px-4">Player</th>
                   <th className="py-3 px-3">Position</th>
                   <th className="py-3 px-3">Club</th>
@@ -234,7 +234,7 @@ export default function PlayersPage() {
                     {virtualItems.map(({ index, item: p, offsetTop }) => (
                       <tr
                         key={p.id}
-                        className="hover:bg-slate-900/40 transition-colors border-b border-slate-800/60"
+                        className="hover:bg-slate-50 transition-colors border-b border-slate-100"
                         style={{
                           position: "absolute",
                           top: offsetTop,
@@ -246,10 +246,10 @@ export default function PlayersPage() {
                       >
                         {/* Name */}
                         <td className="py-3 px-4" style={{ width: "22%" }}>
-                          <div className="font-bold text-white text-sm truncate">
+                          <div className="font-bold text-slate-900 text-xs sm:text-sm truncate">
                             {p.displayName || `${p.firstName} ${p.lastName}`}
                           </div>
-                          <div className="text-[10px] text-slate-500 font-sans truncate">
+                          <div className="text-[10px] text-slate-400 font-sans truncate">
                             {p.firstName} {p.lastName}
                           </div>
                         </td>
@@ -260,37 +260,37 @@ export default function PlayersPage() {
                         </td>
 
                         {/* Club */}
-                        <td className="py-3 px-3 font-mono font-medium text-slate-300" style={{ width: "10%" }}>
+                        <td className="py-3 px-3 font-mono font-medium text-slate-600" style={{ width: "10%" }}>
                           {p.team?.shortName || `Team ${p.teamId}`}
                         </td>
 
                         {/* Price */}
-                        <td className="py-3 px-3 text-right font-mono font-bold text-white" style={{ width: "9%" }}>
+                        <td className="py-3 px-3 text-right font-mono font-bold text-slate-900" style={{ width: "9%" }}>
                           £{(p.price / 10).toFixed(1)}m
                         </td>
 
                         {/* Points */}
-                        <td className="py-3 px-3 text-right font-mono font-black text-emerald-400 text-sm" style={{ width: "9%" }}>
+                        <td className="py-3 px-3 text-right font-mono font-black text-emerald-700 text-sm" style={{ width: "9%" }}>
                           {p.totalPoints}
                         </td>
 
                         {/* Form */}
-                        <td className="py-3 px-3 text-center font-mono text-slate-300" style={{ width: "9%" }}>
+                        <td className="py-3 px-3 text-center font-mono text-slate-600" style={{ width: "9%" }}>
                           {p.form ?? "—"}
                         </td>
 
                         {/* Goals */}
-                        <td className="py-3 px-3 text-center font-mono text-slate-300" style={{ width: "8%" }}>
+                        <td className="py-3 px-3 text-center font-mono text-slate-600" style={{ width: "8%" }}>
                           {p.goalsScored}
                         </td>
 
                         {/* Assists */}
-                        <td className="py-3 px-3 text-center font-mono text-slate-300" style={{ width: "8%" }}>
+                        <td className="py-3 px-3 text-center font-mono text-slate-600" style={{ width: "8%" }}>
                           {p.assists}
                         </td>
 
                         {/* Clean Sheets */}
-                        <td className="py-3 px-3 text-center font-mono text-slate-300" style={{ width: "8%" }}>
+                        <td className="py-3 px-3 text-center font-mono text-slate-600" style={{ width: "8%" }}>
                           {p.cleanSheets}
                         </td>
 

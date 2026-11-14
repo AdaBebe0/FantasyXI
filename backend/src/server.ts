@@ -56,7 +56,21 @@ app.set("trust proxy", 1);
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, server-to-server)
+      if (!origin) return callback(null, true);
+      const configured = (process.env.FRONTEND_URL || "http://localhost:3000").replace(/\/$/, "");
+      const cleanOrigin = origin.replace(/\/$/, "");
+      if (
+        cleanOrigin === configured ||
+        cleanOrigin === "http://localhost:3000" ||
+        cleanOrigin === "http://127.0.0.1:3000" ||
+        cleanOrigin.endsWith(".vercel.app")
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, false);
+    },
     credentials: true,
   })
 );
