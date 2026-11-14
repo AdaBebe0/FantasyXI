@@ -128,36 +128,36 @@ export default function CreateLeaguePage() {
       </div>
 
       {/* Header */}
-      <div className="bg-pitch-surface border border-pitch-border rounded-xl p-6 shadow-lg">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+      <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm">
+        <div className="flex items-center gap-2 mb-1.5">
+          <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">
             Competition Builder
           </span>
-          <span className="text-xs text-slate-500 font-mono">&bull; Soroban Escrow Enabled</span>
+          <span className="text-xs text-slate-400 font-mono">&bull; Soroban Escrow Enabled</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight">
           Create Fantasy League
         </h1>
-        <p className="text-xs text-slate-400 mt-1">
+        <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-xl leading-relaxed">
           Set your entry fee, choose the Premier League gameweek duration, and invite fellow managers.
         </p>
       </div>
 
       {errorMessage && (
-        <div className="p-3.5 rounded-lg bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2.5 animate-shake">
-          <IconAlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />
-          <span className="font-medium">{errorMessage}</span>
+        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2.5 font-semibold animate-shake">
+          <IconAlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0" />
+          <span>{errorMessage}</span>
         </div>
       )}
 
       {/* 2-Column Form & Live Prize Calculator */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
         {/* Left Form: 3 cols */}
-        <form onSubmit={handleSubmit} className="lg:col-span-3 space-y-5 bg-pitch-surface border border-pitch-border rounded-xl p-6 shadow-md">
+        <form onSubmit={handleSubmit} className="lg:col-span-3 space-y-5 bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm">
           {/* League Name */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
-              League Name <span className="text-red-400">*</span>
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+              League Name <span className="text-rose-500">*</span>
             </label>
             <input
               type="text"
@@ -165,31 +165,31 @@ export default function CreateLeaguePage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Premier League Legends"
-              className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-lg text-white placeholder-slate-500 text-sm focus:outline-none focus:border-emerald-500"
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c]"
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
-              Description <span className="text-slate-500 font-normal lowercase">(optional)</span>
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+              Description <span className="text-slate-400 font-normal lowercase">(optional)</span>
             </label>
             <textarea
               rows={2}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe your competition rules or banter..."
-              className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-lg text-white placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500 resize-none"
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c] resize-none"
             />
           </div>
 
           {/* Entry Fee in USDC */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
                 Entry Fee (USDC)
               </label>
-              <span className="text-[11px] text-slate-500">Set 0 for free league</span>
+              <span className="text-[10px] text-slate-400">Set 0 for free league</span>
             </div>
             <div className="grid grid-cols-4 gap-2 mb-2">
               {[0, 5, 10, 25].map((amt) => (
@@ -197,10 +197,10 @@ export default function CreateLeaguePage() {
                   key={amt}
                   type="button"
                   onClick={() => setEntryFee(amt)}
-                  className={`py-1.5 rounded-lg text-xs font-mono font-bold uppercase transition-colors ${
+                  className={`py-1.5 rounded-xl text-xs font-mono font-bold uppercase transition-colors cursor-pointer ${
                     entryFee === amt
-                      ? "bg-emerald-500 text-slate-950"
-                      : "bg-slate-900 text-slate-300 border border-slate-800 hover:border-slate-700"
+                      ? "bg-[#37003c] text-white shadow-xs"
+                      : "bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100"
                   }`}
                 >
                   {amt === 0 ? "Free" : `${amt} USDC`}
@@ -214,13 +214,13 @@ export default function CreateLeaguePage() {
               step={1}
               value={entryFee}
               onChange={(e) => setEntryFee(Math.max(0, parseInt(e.target.value, 10) || 0))}
-              className="w-full px-3.5 py-2 bg-slate-950 border border-slate-700/80 rounded-lg text-white font-mono text-sm focus:outline-none focus:border-emerald-500"
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-mono text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c]"
             />
           </div>
 
           {/* Max Participants */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
               Max Participant Capacity
             </label>
             <input
@@ -229,21 +229,21 @@ export default function CreateLeaguePage() {
               max={100}
               value={maxMembers}
               onChange={(e) => setMaxMembers(Math.max(2, parseInt(e.target.value, 10) || 2))}
-              className="w-full px-3.5 py-2 bg-slate-950 border border-slate-700/80 rounded-lg text-white font-mono text-sm focus:outline-none focus:border-emerald-500"
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-mono text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c]"
             />
-            <p className="text-[11px] text-slate-500 mt-1">Min 2, maximum 100 participants.</p>
+            <p className="text-[10px] text-slate-400 mt-1">Min 2, maximum 100 participants.</p>
           </div>
 
           {/* Duration Gameweeks */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                 Start Gameweek
               </label>
               <select
                 value={startGameweekId}
                 onChange={(e) => setStartGameweekId(parseInt(e.target.value, 10))}
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c]"
               >
                 {gameweeks.map((g) => (
                   <option key={g.id} value={g.id}>
@@ -254,13 +254,13 @@ export default function CreateLeaguePage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                 End Gameweek
               </label>
               <select
                 value={endGameweekId}
                 onChange={(e) => setEndGameweekId(parseInt(e.target.value, 10))}
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c]"
               >
                 {gameweeks.map((g) => (
                   <option key={g.id} value={g.id}>
@@ -272,18 +272,18 @@ export default function CreateLeaguePage() {
           </div>
 
           {/* Visibility */}
-          <label className="flex items-start gap-3 p-3 rounded-lg bg-slate-950/60 border border-slate-800 cursor-pointer">
+          <label className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer">
             <input
               type="checkbox"
               checked={isPrivate}
               onChange={(e) => setIsPrivate(e.target.checked)}
-              className="mt-0.5 accent-emerald-500"
+              className="mt-0.5 accent-[#37003c]"
             />
             <span>
-              <span className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+              <span className="block text-xs font-bold text-slate-800">
                 Private League
               </span>
-              <span className="block text-[11px] text-slate-500 mt-0.5">
+              <span className="block text-[11px] text-slate-500 mt-0.5 leading-relaxed">
                 Hidden from public search. Managers can only join with a single-use invitation link you generate.
               </span>
             </span>
@@ -297,24 +297,24 @@ export default function CreateLeaguePage() {
               isLoading={isSubmitting}
               className="w-full justify-center uppercase font-bold tracking-wide text-xs"
             >
-              Deploy League & Escrow
+              Deploy League &amp; Escrow
             </Button>
           </div>
         </form>
 
         {/* Right: Live Prize Calculator: 2 cols */}
         <div className="lg:col-span-2 space-y-4">
-          <div className="text-xs font-bold uppercase tracking-wider text-slate-400">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
             Live Prize Simulation
           </div>
           <PrizeCalculator entryFee={entryFee} participants={maxMembers} />
 
-          <div className="p-4 rounded-xl bg-slate-950/60 border border-pitch-border space-y-2 text-xs text-slate-400">
-            <div className="font-bold text-slate-200 flex items-center gap-1.5">
-              <IconCheck className="w-4 h-4 text-emerald-400" />
+          <div className="p-5 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-2 text-xs text-slate-500">
+            <div className="font-bold text-slate-800 flex items-center gap-1.5">
+              <IconCheck className="w-4 h-4 text-emerald-600" />
               <span>Soroban Automated Payouts</span>
             </div>
-            <p className="leading-relaxed">
+            <p className="leading-relaxed text-[11px]">
               When the final gameweek concludes, scores are locked and prizes are automatically settled to the top 3 managers on Stellar Testnet.
             </p>
           </div>

@@ -30,26 +30,26 @@ export const PrizeCalculator: React.FC<PrizeCalculatorProps> = ({
   const thirdPrize = Math.round((prizePool - firstPrize - secondPrize) * 100) / 100;
 
   return (
-    <div className="bg-slate-950/70 border border-pitch-border rounded-xl p-4 sm:p-5 space-y-4">
+    <div className="bg-white border border-slate-200/80 rounded-3xl p-5 sm:p-6 space-y-4 shadow-sm">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <IconTrophy className="w-4 h-4 text-amber-400" />
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-200">
+          <IconTrophy className="w-4 h-4 text-amber-500" />
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-800">
             Automated Prize Distribution
           </span>
         </div>
-        <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-semibold font-mono">
+        <div className="flex items-center gap-1.5 text-[11px] text-emerald-700 font-bold font-mono">
           <IconShield className="w-3.5 h-3.5" />
           <span>Soroban Smart Contract</span>
         </div>
       </div>
 
-      <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 space-y-2.5">
+      <div className="rounded-2xl border border-purple-100 bg-purple-50/50 p-4 space-y-2.5">
         <div className="flex items-center justify-between gap-3">
-          <label htmlFor="participant-simulator" className="text-xs font-semibold text-slate-200">
+          <label htmlFor="participant-simulator" className="text-xs font-bold text-slate-700">
             Participant simulator
           </label>
-          <span className="font-mono text-sm font-black text-emerald-400">
+          <span className="font-mono text-sm font-black text-[#37003c]">
             {count} players
           </span>
         </div>
@@ -61,40 +61,40 @@ export const PrizeCalculator: React.FC<PrizeCalculatorProps> = ({
           step={1}
           value={count}
           onChange={(event) => setSimulatedParticipants(Number(event.target.value))}
-          className="w-full accent-emerald-400"
+          className="w-full accent-[#37003c]"
           aria-label="Simulated participant count"
         />
-        <div className="flex justify-between text-[10px] font-mono text-slate-500">
+        <div className="flex justify-between text-[10px] font-mono text-slate-400">
           <span>2 min</span>
           <span>100 max</span>
         </div>
       </div>
 
       {/* Summary Stat Grid */}
-      <div className="grid grid-cols-3 gap-2.5 p-3 rounded-lg bg-slate-900/60 border border-slate-800 text-center font-mono">
+      <div className="grid grid-cols-3 gap-2.5 p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-center font-mono">
         <div>
-          <div className="text-[10px] text-slate-500 uppercase font-sans font-semibold">
+          <div className="text-[10px] text-slate-400 uppercase font-sans font-bold">
             Gross Pot
           </div>
-          <div className="text-sm sm:text-base font-black text-white mt-0.5">
+          <div className="text-sm sm:text-base font-black text-slate-900 mt-0.5">
             ${grossTotal.toFixed(2)}
           </div>
         </div>
 
         <div>
-          <div className="text-[10px] text-slate-500 uppercase font-sans font-semibold">
+          <div className="text-[10px] text-slate-400 uppercase font-sans font-bold">
             Platform Fee (5%)
           </div>
-          <div className="text-sm sm:text-base font-bold text-slate-400 mt-0.5">
+          <div className="text-sm sm:text-base font-bold text-slate-500 mt-0.5">
             ${platformFee.toFixed(2)}
           </div>
         </div>
 
         <div>
-          <div className="text-[10px] text-slate-500 uppercase font-sans font-semibold">
+          <div className="text-[10px] text-slate-400 uppercase font-sans font-bold">
             Prize Pool (95%)
           </div>
-          <div className="text-sm sm:text-base font-black text-amber-400 mt-0.5">
+          <div className="text-sm sm:text-base font-black text-emerald-700 mt-0.5">
             ${prizePool.toFixed(2)}
           </div>
         </div>
@@ -102,38 +102,38 @@ export const PrizeCalculator: React.FC<PrizeCalculatorProps> = ({
 
       {/* Winner Payout Breakdown */}
       <div className="space-y-2 text-xs">
-        <div className="flex items-center justify-between p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30">
+        <div className="flex items-center justify-between p-3 rounded-xl bg-amber-50 border border-amber-200/80">
           <div className="flex items-center gap-2.5 font-medium">
             <span className="w-5 h-5 rounded-full bg-amber-400 text-slate-950 font-black text-[10px] flex items-center justify-center font-mono">
               1
             </span>
-            <span className="font-bold text-amber-300">1st Place Champion ({firstPercent}%)</span>
+            <span className="font-bold text-amber-900">1st Place Champion ({firstPercent}%)</span>
           </div>
-          <span className="font-mono font-black text-white text-sm">
+          <span className="font-mono font-black text-slate-900 text-sm">
             ${firstPrize.toFixed(2)} USDC
           </span>
         </div>
 
-        <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/40 border border-slate-800">
+        <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
           <div className="flex items-center gap-2.5 font-medium">
-            <span className="w-5 h-5 rounded-full bg-slate-300 text-slate-950 font-black text-[10px] flex items-center justify-center font-mono">
+            <span className="w-5 h-5 rounded-full bg-slate-300 text-slate-900 font-black text-[10px] flex items-center justify-center font-mono">
               2
             </span>
-            <span className="font-semibold text-slate-300">2nd Place Runner-Up ({secondPercent}%)</span>
+            <span className="font-bold text-slate-700">2nd Place Runner-Up ({secondPercent}%)</span>
           </div>
-          <span className="font-mono font-bold text-slate-200">
+          <span className="font-mono font-bold text-slate-800">
             ${secondPrize.toFixed(2)} USDC
           </span>
         </div>
 
-        <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/40 border border-slate-800">
+        <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
           <div className="flex items-center gap-2.5 font-medium">
-            <span className="w-5 h-5 rounded-full bg-amber-700 text-amber-100 font-black text-[10px] flex items-center justify-center font-mono">
+            <span className="w-5 h-5 rounded-full bg-amber-700 text-white font-black text-[10px] flex items-center justify-center font-mono">
               3
             </span>
-            <span className="font-semibold text-slate-400">3rd Place Podium ({thirdPercent}%)</span>
+            <span className="font-bold text-slate-600">3rd Place Podium ({thirdPercent}%)</span>
           </div>
-          <span className="font-mono font-bold text-slate-300">
+          <span className="font-mono font-bold text-slate-700">
             ${thirdPrize.toFixed(2)} USDC
           </span>
         </div>
