@@ -89,19 +89,19 @@ export const PlayerPickerModal: React.FC<PlayerPickerModalProps> = ({
   const effectiveBudget = remainingBudget + (replacingPlayer ? replacingPlayer.price : 0);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-      <div className="relative w-full max-w-2xl bg-pitch-surface border border-pitch-border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fadeIn">
+      <div className="relative w-full max-w-2xl bg-white border border-slate-200/90 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
         {/* Header */}
-        <div className="p-5 border-b border-pitch-border flex items-center justify-between bg-slate-950/60">
+        <div className="p-5 sm:p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
           <div>
-            <h2 className="text-lg font-bold text-white uppercase tracking-tight">
+            <h2 className="text-lg font-black text-slate-900 uppercase tracking-tight">
               {replacingPlayer
                 ? `Transfer: Replace ${replacingPlayer.displayName}`
                 : "Player Scouting Database"}
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-500 mt-0.5 font-medium">
               Available budget:{" "}
-              <span className="font-mono font-bold text-emerald-400">
+              <span className="font-mono font-bold text-emerald-700">
                 £{(effectiveBudget / 10).toFixed(1)}m
               </span>
             </p>
@@ -110,14 +110,14 @@ export const PlayerPickerModal: React.FC<PlayerPickerModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
           >
             <IconClose className="w-5 h-5" />
           </button>
         </div>
 
         {/* Filter Toolbar */}
-        <div className="p-4 border-b border-pitch-border bg-slate-900/40 space-y-3">
+        <div className="p-4 sm:p-5 border-b border-slate-100 bg-white space-y-3">
           {/* Search Input */}
           <div className="relative">
             <IconSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -126,23 +126,23 @@ export const PlayerPickerModal: React.FC<PlayerPickerModalProps> = ({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search player name or club..."
-              className="w-full pl-10 pr-4 py-2 bg-slate-950/80 border border-slate-700/80 rounded-lg text-slate-100 placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+              className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c]"
             />
           </div>
 
           {/* Position & Sort Filter Bar */}
           <div className="flex flex-wrap items-center justify-between gap-2">
             {/* Position Tabs */}
-            <div className="flex items-center gap-1 bg-slate-950/80 p-1 rounded-lg border border-slate-800">
+            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/80">
               {(requiredPosition ? [requiredPosition] : ["ALL", "GKP", "DEF", "MID", "FWD"]).map((pos) => (
                 <button
                   key={pos}
                   type="button"
                   onClick={() => setSelectedPosition(pos)}
-                  className={`px-3 py-1 rounded text-xs font-bold uppercase transition-colors ${
+                  className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-colors ${
                     selectedPosition === pos
-                      ? "bg-emerald-500 text-slate-950 shadow-sm"
-                      : "text-slate-400 hover:text-slate-200"
+                      ? "bg-[#37003c] text-white shadow-sm"
+                      : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
                   {pos}
@@ -151,12 +151,12 @@ export const PlayerPickerModal: React.FC<PlayerPickerModalProps> = ({
             </div>
 
             {/* Sort Select */}
-            <div className="flex items-center gap-2 text-xs text-slate-400">
-              <span className="font-semibold uppercase tracking-wider text-[10px]">Sort by:</span>
+            <div className="flex items-center gap-2 text-xs text-slate-500">
+              <span className="font-bold uppercase tracking-wider text-[10px]">Sort by:</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="bg-slate-950/80 border border-slate-700 rounded px-2.5 py-1 text-slate-200 text-xs focus:outline-none focus:border-emerald-500"
+                className="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1 text-slate-800 text-xs focus:outline-none focus:border-[#37003c]"
               >
                 <option value="totalPoints">Total Points</option>
                 <option value="price">Price (High to Low)</option>
@@ -204,18 +204,18 @@ export const PlayerPickerModal: React.FC<PlayerPickerModalProps> = ({
                       width: "100%",
                       height: 64,
                     }}
-                    className={`flex items-center justify-between px-3 rounded-lg transition-colors ${
-                      isDisabled ? "opacity-50 bg-slate-950/30" : "hover:bg-slate-900/60"
+                    className={`flex items-center justify-between px-3 rounded-xl transition-colors ${
+                      isDisabled ? "opacity-40 bg-slate-50" : "hover:bg-slate-50"
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <PositionBadge position={p.position} />
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-sm text-slate-100 truncate">
+                          <span className="font-bold text-sm text-slate-900 truncate">
                             {p.displayName || `${p.firstName} ${p.lastName}`}
                           </span>
-                          <span className="text-xs font-mono uppercase text-slate-400 shrink-0">
+                          <span className="text-xs font-mono uppercase text-slate-500 shrink-0 font-medium">
                             {p.team?.shortName || "PL"}
                           </span>
                         </div>
@@ -225,13 +225,13 @@ export const PlayerPickerModal: React.FC<PlayerPickerModalProps> = ({
                           <span>Goals: {p.goalsScored}</span>
                           <span>Assists: {p.assists}</span>
                           {isAlreadyInSquad && !isReplacingSame && (
-                            <span className="text-amber-400 font-semibold">Already in Squad</span>
+                            <span className="text-amber-600 font-semibold">Already in Squad</span>
                           )}
                           {isOverBudget && (
-                            <span className="text-rose-400 font-semibold">Over Budget</span>
+                            <span className="text-rose-600 font-semibold">Over Budget</span>
                           )}
                           {exceedsClubLimit && (
-                            <span className="text-amber-400 font-semibold">Max 3 per Club</span>
+                            <span className="text-amber-600 font-semibold">Max 3 per Club</span>
                           )}
                         </div>
                       </div>
@@ -239,10 +239,10 @@ export const PlayerPickerModal: React.FC<PlayerPickerModalProps> = ({
 
                     <div className="flex items-center gap-4 shrink-0">
                       <div className="text-right">
-                        <div className="font-mono font-bold text-white text-sm">
+                        <div className="font-mono font-bold text-slate-900 text-sm">
                           £{(p.price / 10).toFixed(1)}m
                         </div>
-                        <div className="font-mono text-emerald-400 font-bold text-xs">
+                        <div className="font-mono text-emerald-700 font-bold text-xs">
                           {p.totalPoints} pts
                         </div>
                       </div>
@@ -256,7 +256,7 @@ export const PlayerPickerModal: React.FC<PlayerPickerModalProps> = ({
                           onSelectPlayer(p);
                           onClose();
                         }}
-                        className="text-xs uppercase font-bold"
+                        className="text-xs uppercase font-bold px-3 py-1.5"
                       >
                         {isReplacingSame ? "Selected" : "Pick"}
                       </Button>
@@ -273,9 +273,9 @@ export const PlayerPickerModal: React.FC<PlayerPickerModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-3 border-t border-pitch-border bg-slate-950/80 flex items-center justify-between text-xs text-slate-500">
+        <div className="p-4 border-t border-slate-100 bg-slate-50/70 flex items-center justify-between text-xs text-slate-500">
           <span>Max 3 players per club &bull; Premier League official FPL data</span>
-          <Button variant="secondary" size="sm" onClick={onClose}>
+          <Button variant="secondary" size="sm" onClick={onClose} className="text-xs font-semibold">
             Close
           </Button>
         </div>

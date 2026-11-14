@@ -40,20 +40,20 @@ export const BudgetBar: React.FC<BudgetBarProps> = ({
   const violatingClubs = Object.entries(clubCounts).filter(([_, count]) => count > SQUAD_RULES.MAX_PER_TEAM);
 
   return (
-    <div className="w-full bg-pitch-surface border border-pitch-border rounded-xl p-4 sm:p-5 shadow-lg space-y-3" data-testid="budget-bar">
+    <div className="w-full bg-white border border-slate-200/80 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4" data-testid="budget-bar">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         {/* Left: Key Metrics */}
         <div className="flex items-center gap-6 sm:gap-8">
           {/* Players Selected */}
           <div>
-            <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
               Players Picked
             </div>
             <div className="flex items-baseline gap-1.5 mt-0.5">
-              <span className="text-xl sm:text-2xl font-black text-white font-mono">
+              <span className="text-xl sm:text-2xl font-black text-slate-900 font-mono">
                 {playerCount}
               </span>
-              <span className="text-xs text-slate-500 font-mono">
+              <span className="text-xs text-slate-400 font-mono">
                 / {SQUAD_RULES.TOTAL_PLAYERS}
               </span>
             </div>
@@ -61,11 +61,11 @@ export const BudgetBar: React.FC<BudgetBarProps> = ({
 
           {/* Budget Spent */}
           <div>
-            <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
               Squad Value
             </div>
             <div className="flex items-baseline gap-1 mt-0.5">
-              <span className="text-xl sm:text-2xl font-black text-white font-mono">
+              <span className="text-xl sm:text-2xl font-black text-slate-900 font-mono">
                 £{spentM.toFixed(1)}m
               </span>
             </div>
@@ -73,14 +73,14 @@ export const BudgetBar: React.FC<BudgetBarProps> = ({
 
           {/* Budget Remaining */}
           <div>
-            <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
               Remaining
             </div>
             <div className="flex items-baseline gap-1 mt-0.5">
               <span
                 data-testid="budget-remaining"
                 className={`text-xl sm:text-2xl font-black font-mono ${
-                  isOverBudget ? "text-rose-400" : "text-emerald-400"
+                  isOverBudget ? "text-rose-600" : "text-emerald-700"
                 }`}
               >
                 £{remainingM.toFixed(1)}m
@@ -101,7 +101,7 @@ export const BudgetBar: React.FC<BudgetBarProps> = ({
               title="Draft a valid, balanced squad within budget"
               data-testid="auto-pick-button"
             >
-              <IconRefresh className="w-3.5 h-3.5 text-emerald-400" />
+              <IconRefresh className="w-3.5 h-3.5 text-emerald-600" />
               <span>Auto-Pick Squad</span>
             </Button>
           )}
@@ -112,7 +112,7 @@ export const BudgetBar: React.FC<BudgetBarProps> = ({
               variant="ghost"
               size="sm"
               onClick={onReset}
-              className="text-xs text-slate-400 hover:text-rose-400"
+              className="text-xs text-slate-500 hover:text-rose-600 font-semibold"
             >
               Reset
             </Button>
@@ -126,7 +126,7 @@ export const BudgetBar: React.FC<BudgetBarProps> = ({
               disabled={!canSave || isSaving}
               isLoading={isSaving}
               onClick={onSave}
-              className="uppercase font-bold tracking-wide text-xs px-4"
+              className="uppercase font-bold tracking-wide text-xs px-5 rounded-xl"
               data-testid="save-squad-button"
             >
               Save Squad
@@ -136,9 +136,9 @@ export const BudgetBar: React.FC<BudgetBarProps> = ({
       </div>
 
       {/* Visual Budget Progress Bar */}
-      <div className="w-full bg-slate-900 rounded-sm h-2 overflow-hidden border border-slate-800">
+      <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden border border-slate-200">
         <div
-          className={`h-full transition-all duration-300 ${
+          className={`h-full transition-all duration-300 rounded-full ${
             isOverBudget
               ? "bg-rose-500"
               : remainingM < 5
@@ -151,8 +151,8 @@ export const BudgetBar: React.FC<BudgetBarProps> = ({
 
       {/* Warnings / Errors */}
       {isOverBudget && (
-        <div data-testid="budget-over-warning" className="p-2 rounded bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
-          <IconAlertCircle className="w-4 h-4 flex-shrink-0" />
+        <div data-testid="budget-over-warning" className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-xs flex items-center gap-2 shadow-sm font-medium">
+          <IconAlertCircle className="w-4 h-4 flex-shrink-0 text-rose-600" />
           <span>
             You have exceeded the £100.0m limit by £{Math.abs(remainingM).toFixed(1)}m. Replace or transfer players to balance budget.
           </span>
@@ -160,8 +160,8 @@ export const BudgetBar: React.FC<BudgetBarProps> = ({
       )}
 
       {violatingClubs.length > 0 && (
-        <div className="p-2 rounded bg-amber-950/40 border border-amber-500/30 text-amber-300 text-xs flex items-center gap-2">
-          <IconAlertCircle className="w-4 h-4 flex-shrink-0" />
+        <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center gap-2 shadow-sm font-medium">
+          <IconAlertCircle className="w-4 h-4 flex-shrink-0 text-amber-600" />
           <span>
             Exceeded club limit: Maximum 3 players allowed from any Premier League team.
           </span>

@@ -658,19 +658,19 @@ export default function TeamPage() {
     return (
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="space-y-6 pb-12">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-pitch-surface border border-pitch-border p-5 rounded-xl shadow-md">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-slate-200/80 p-6 sm:p-7 rounded-3xl shadow-sm">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">
                   Tactical Pitch
                 </span>
-                <span className="text-xs font-mono text-slate-500">&bull; Gameweek Lineup</span>
+                <span className="text-xs font-mono text-slate-400">&bull; Gameweek Lineup</span>
               </div>
-              <div className="h-8 w-40 rounded-md bg-slate-800/90 animate-pulse border border-slate-700" />
+              <div className="h-8 w-40 rounded-xl bg-slate-100 animate-pulse border border-slate-200" />
             </div>
             <div className="flex items-center gap-2 text-xs font-mono">
-              <span className="text-slate-400 uppercase tracking-wider text-[11px]">Formation</span>
-              <span className="h-5 w-14 rounded-md bg-slate-800 border border-slate-700 animate-pulse" />
+              <span className="text-slate-500 uppercase tracking-wider text-[11px] font-bold">Formation</span>
+              <span className="h-6 w-14 rounded-xl bg-slate-100 border border-slate-200 animate-pulse" />
             </div>
           </div>
 
@@ -700,13 +700,13 @@ export default function TeamPage() {
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="space-y-6 pb-12">
         {/* Top Header & Squad Name */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-pitch-surface border border-pitch-border p-5 rounded-xl shadow-md">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-slate-200/80 p-6 sm:p-7 rounded-3xl shadow-sm">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">
                 Tactical Pitch
               </span>
-              <span className="text-xs font-mono text-slate-500">&bull; Gameweek Lineup</span>
+              <span className="text-xs font-mono text-slate-400">&bull; Gameweek Lineup</span>
             </div>
             <div className="flex items-center gap-3">
               <input
@@ -714,7 +714,7 @@ export default function TeamPage() {
                 value={squadName}
                 onChange={(e) => setSquadName(e.target.value)}
                 placeholder="My Fantasy XI"
-                className="text-xl sm:text-2xl font-black text-white bg-transparent border-b border-dashed border-slate-700 hover:border-emerald-400 focus:border-emerald-400 focus:outline-none uppercase tracking-tight"
+                className="text-xl sm:text-2xl font-black text-slate-900 bg-transparent border-b border-dashed border-slate-300 hover:border-emerald-600 focus:border-emerald-600 focus:outline-none uppercase tracking-tight"
               />
             </div>
           </div>
@@ -725,8 +725,8 @@ export default function TeamPage() {
               <CountdownTimer deadline={currentGameweek.deadline} onExpiredChange={setIsDeadlinePassed} />
             )}
             <div className="flex items-center gap-2">
-              <span className="text-slate-400 uppercase tracking-wider text-[11px]">Formation</span>
-              <span className="text-emerald-400 font-bold text-sm">
+              <span className="text-slate-500 uppercase tracking-wider text-[11px] font-bold">Formation</span>
+              <span className="text-emerald-700 font-bold text-sm">
                 {detectFormation(starters)}
               </span>
             </div>
@@ -738,10 +738,10 @@ export default function TeamPage() {
                   type="button"
                   onClick={handleActivateWildcard}
                   disabled={isWildcardActive || isActivatingChip || !isOnline}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
                     isWildcardActive
-                      ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 cursor-not-allowed"
-                      : "bg-amber-500/20 text-amber-400 border border-amber-500/50 hover:bg-amber-500/30"
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-300 cursor-not-allowed"
+                      : "bg-amber-50 text-amber-800 border border-amber-300 hover:bg-amber-100"
                   } disabled:opacity-50`}
                   data-testid="wildcard-toggle"
                 >
@@ -763,10 +763,10 @@ export default function TeamPage() {
           <div
             role="status"
             data-testid="offline-sync-banner"
-            className="p-3.5 rounded-lg bg-amber-950/50 border border-amber-500/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-amber-200 text-xs animate-fadeIn"
+            className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-amber-900 text-xs shadow-sm animate-fadeIn"
           >
             <div className="flex items-center gap-3">
-              <IconAlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0" />
+              <IconAlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
               <span className="font-semibold">
                 {conflictMutation
                   ? "An offline lineup edit needs conflict resolution"
@@ -777,7 +777,7 @@ export default function TeamPage() {
               type="button"
               onClick={() => handleManualSync(false)}
               disabled={isSyncingOfflineQueue || !isOnline || Boolean(conflictMutation)}
-              className="px-3 py-1.5 rounded-md bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold uppercase tracking-wider text-[11px] transition-all disabled:opacity-50 flex items-center gap-1.5 self-start sm:self-auto cursor-pointer disabled:cursor-not-allowed"
+              className="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold uppercase tracking-wider text-[11px] transition-all disabled:opacity-50 flex items-center gap-1.5 self-start sm:self-auto cursor-pointer disabled:cursor-not-allowed shadow-sm"
             >
               {isSyncingOfflineQueue ? "Syncing..." : "Sync Now"}
             </button>
@@ -789,11 +789,11 @@ export default function TeamPage() {
             role="alertdialog"
             aria-labelledby="offline-conflict-title"
             aria-describedby="offline-conflict-description"
-            className="rounded-xl border border-amber-500/50 bg-amber-950/70 p-5 space-y-3"
+            className="rounded-2xl border border-amber-200 bg-amber-50 p-5 space-y-3 shadow-sm"
             data-testid="offline-conflict-dialog"
           >
-            <h2 id="offline-conflict-title" className="text-sm font-bold text-amber-100">Your squad changed elsewhere</h2>
-            <p id="offline-conflict-description" className="text-xs text-amber-200">
+            <h2 id="offline-conflict-title" className="text-sm font-bold text-amber-950">Your squad changed elsewhere</h2>
+            <p id="offline-conflict-description" className="text-xs text-amber-800">
               Another update reached the server while this device was offline. Use the current server squad or retry your lineup against its latest revision.
             </p>
             <div className="flex flex-wrap gap-2">
@@ -801,7 +801,7 @@ export default function TeamPage() {
                 type="button"
                 onClick={useServerSquadVersion}
                 disabled={!isOnline}
-                className="rounded-md bg-slate-700 px-3 py-2 text-xs font-bold text-white disabled:opacity-50"
+                className="rounded-xl bg-slate-800 px-3 py-2 text-xs font-bold text-white hover:bg-slate-900 disabled:opacity-50"
               >
                 Use server version
               </button>
@@ -809,7 +809,7 @@ export default function TeamPage() {
                 type="button"
                 onClick={keepOfflineSquadVersion}
                 disabled={!isOnline || !conflictMutation.serverRevision}
-                className="rounded-md bg-amber-500/20 px-3 py-2 text-xs font-bold text-amber-100 disabled:opacity-50"
+                className="rounded-xl bg-amber-100 border border-amber-300 px-3 py-2 text-xs font-bold text-amber-900 hover:bg-amber-200 disabled:opacity-50"
               >
                 Keep my offline changes
               </button>
@@ -821,9 +821,9 @@ export default function TeamPage() {
         {(offlineSnapshotAt || !isOnline) && queuedMutationsCount === 0 && (
           <div
             role="status"
-            className="p-3.5 rounded-lg bg-amber-950/40 border border-amber-500/40 flex items-center gap-3 text-amber-200 text-xs"
+            className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-center gap-3 text-amber-900 text-xs shadow-sm"
           >
-            <IconAlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0" />
+            <IconAlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
             <span className="font-semibold">
               {offlineSnapshotAt
                 ? `Offline mode: showing your squad as saved on this device ${new Date(offlineSnapshotAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}.`
@@ -835,39 +835,39 @@ export default function TeamPage() {
 
         {/* Notifications */}
         {saveSuccessMsg && (
-          <div data-testid="save-success" className="p-3.5 rounded-lg bg-emerald-950/40 border border-emerald-500/40 flex items-center gap-3 text-emerald-300 text-xs animate-fadeIn">
-            <IconCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+          <div data-testid="save-success" className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center gap-3 text-emerald-900 text-xs shadow-sm animate-fadeIn">
+            <IconCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
             <span className="font-semibold">{saveSuccessMsg}</span>
           </div>
         )}
 
         {errorMessage && (
-          <div data-testid="save-error" className="p-3.5 rounded-lg bg-rose-950/40 border border-rose-500/40 flex items-center gap-3 text-rose-300 text-xs animate-shake">
-            <IconAlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+          <div data-testid="save-error" className="p-4 rounded-2xl bg-rose-50 border border-rose-200 flex items-center gap-3 text-rose-900 text-xs shadow-sm animate-shake">
+            <IconAlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0" />
             <span className="font-semibold">{errorMessage}</span>
           </div>
         )}
 
         {substitutionFeedback && (
           <div
-            className={`p-3.5 rounded-lg flex items-center justify-between gap-3 text-xs animate-fadeIn ${
+            className={`p-4 rounded-2xl flex items-center justify-between gap-3 text-xs shadow-sm animate-fadeIn ${
               substitutionFeedback.type === "success"
-                ? "bg-emerald-950/50 border border-emerald-500/50 text-emerald-300"
-                : "bg-rose-950/50 border border-rose-500/50 text-rose-300"
+                ? "bg-emerald-50 border border-emerald-200 text-emerald-900"
+                : "bg-rose-50 border border-rose-200 text-rose-900"
             }`}
           >
             <div className="flex items-center gap-2">
               {substitutionFeedback.type === "success" ? (
-                <IconCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                <IconCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
               ) : (
-                <IconAlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+                <IconAlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0" />
               )}
               <span className="font-semibold">{substitutionFeedback.message}</span>
             </div>
             <button
               type="button"
               onClick={() => setSubstitutionFeedback(null)}
-              className="text-[10px] text-slate-400 hover:text-white uppercase font-mono px-1.5 py-0.5 rounded hover:bg-white/10"
+              className="text-[10px] text-slate-500 hover:text-slate-800 uppercase font-mono px-2 py-1 rounded-lg hover:bg-slate-100"
             >
               Dismiss
             </button>
@@ -888,12 +888,12 @@ export default function TeamPage() {
 
         {/* Validation Errors Pill if invalid */}
         {!validation.valid && validation.errors.length > 0 && (
-          <div data-testid="formation-errors" className="p-3 rounded-lg bg-amber-950/30 border border-amber-500/30 text-amber-300 text-xs space-y-1">
-            <div className="font-bold uppercase tracking-wider flex items-center gap-1.5 text-[11px]">
+          <div data-testid="formation-errors" className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs space-y-1.5 shadow-sm">
+            <div className="font-bold uppercase tracking-wider flex items-center gap-1.5 text-[11px] text-amber-800">
               <IconAlertCircle className="w-3.5 h-3.5" />
               <span>Lineup Constraints Checklist</span>
             </div>
-            <ul className="list-disc list-inside space-y-0.5 text-slate-300">
+            <ul className="list-disc list-inside space-y-0.5 text-amber-800 font-medium">
               {validation.errors.map((err, i) => (
                 <li key={i}>{err}</li>
               ))}
@@ -903,20 +903,20 @@ export default function TeamPage() {
 
         {/* Action Modal when player is clicked */}
         {selectedPlayer && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-0 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-            <div className="bg-slate-900 border border-emerald-500/50 shadow-2xl rounded-2xl w-full max-w-sm overflow-hidden animate-slideUp sm:animate-zoomIn">
-              <div className="p-5 flex items-center gap-4 border-b border-slate-800 bg-slate-900/50">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-0 bg-slate-950/60 backdrop-blur-sm animate-fadeIn">
+            <div className="bg-white border border-slate-200/90 shadow-2xl rounded-3xl w-full max-w-sm overflow-hidden animate-slideUp sm:animate-zoomIn">
+              <div className="p-5 flex items-center gap-4 border-b border-slate-100 bg-slate-50/70">
                 <PositionBadge position={selectedPlayer.player.position} size="md" />
                 <div className="flex-1 min-w-0">
-                  <div className="text-base font-black text-white truncate uppercase">
+                  <div className="text-base font-black text-slate-900 truncate uppercase">
                     {selectedPlayer.player.displayName}
                   </div>
-                  <div className="text-xs text-slate-400 font-mono mt-0.5">
+                  <div className="text-xs text-slate-500 font-mono mt-0.5">
                     {selectedPlayer.player.team?.shortName || "PL"} &bull; £{(selectedPlayer.player.price / 10).toFixed(1)}m &bull; {selectedPlayer.player.totalPoints} pts
                   </div>
                 </div>
               </div>
-              <div className="p-4 grid gap-2">
+              <div className="p-5 grid gap-2.5">
                 {selectedPlayer.isStarter && (
                   <>
                     <Button
@@ -924,7 +924,7 @@ export default function TeamPage() {
                       variant={selectedPlayer.isCaptain ? "primary" : "secondary"}
                       size="md"
                       onClick={() => { handleSetCaptain(selectedPlayer.playerId); setSelectedPlayerId(null); }}
-                      className="w-full justify-start text-sm font-bold"
+                      className="w-full justify-start text-xs font-bold uppercase tracking-wider"
                     >
                       (C) Make Captain
                     </Button>
@@ -933,7 +933,7 @@ export default function TeamPage() {
                       variant={selectedPlayer.isViceCaptain ? "primary" : "secondary"}
                       size="md"
                       onClick={() => { handleSetViceCaptain(selectedPlayer.playerId); setSelectedPlayerId(null); }}
-                      className="w-full justify-start text-sm font-bold"
+                      className="w-full justify-start text-xs font-bold uppercase tracking-wider"
                     >
                       (V) Make Vice-Captain
                     </Button>
@@ -951,19 +951,19 @@ export default function TeamPage() {
                     });
                     setSelectedPlayerId(null);
                   }}
-                  className="w-full justify-start text-sm"
+                  className="w-full justify-start text-xs font-bold uppercase tracking-wider"
                   data-testid="transfer-out-button"
                 >
                   <IconSwap className="w-4 h-4 mr-2 opacity-70" /> Transfer Out
                 </Button>
               </div>
-              <div className="p-3 bg-slate-950 border-t border-slate-800">
+              <div className="p-4 bg-slate-50 border-t border-slate-100">
                 <Button
                   type="button"
                   variant="ghost"
                   size="md"
                   onClick={() => setSelectedPlayerId(null)}
-                  className="w-full text-slate-400 hover:text-white"
+                  className="w-full text-slate-500 hover:text-slate-900 font-semibold text-xs uppercase tracking-wider"
                 >
                   Close
                 </Button>
