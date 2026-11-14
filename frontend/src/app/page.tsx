@@ -19,6 +19,7 @@ import {
   IconStar,
   IconAward,
   IconTrendingUp,
+  IconCrown,
 } from "@/components/ui/Icons";
 import { Badge } from "@/components/ui/Badge";
 import { FantasyXILogo } from "@/components/ui/FantasyXILogo";
@@ -269,8 +270,8 @@ export default function HomePage() {
               {/* League item 1 */}
               <div className="py-3.5 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-sm shrink-0">
-                    👑
+                  <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 border border-amber-200/60 flex items-center justify-center shrink-0">
+                    <IconCrown size={18} />
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-bold text-slate-900 truncate">
@@ -300,8 +301,8 @@ export default function HomePage() {
               {/* League item 2 */}
               <div className="py-3.5 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-sm shrink-0">
-                    ⭐
+                  <div className="w-10 h-10 rounded-xl bg-purple-50 text-[#37003c] border border-purple-200/60 flex items-center justify-center shrink-0">
+                    <IconStar size={18} />
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-bold text-slate-900 truncate">
@@ -331,8 +332,8 @@ export default function HomePage() {
               {/* League item 3 */}
               <div className="py-3.5 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm shrink-0">
-                    ⚽
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/60 flex items-center justify-center shrink-0">
+                    <IconFootball size={18} />
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-bold text-slate-900 truncate">

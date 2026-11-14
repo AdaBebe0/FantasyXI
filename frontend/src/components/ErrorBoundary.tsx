@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { trackError } from '@/lib/telemetry';
+import { IconAlertTriangle } from '@/components/ui/Icons';
 
 export interface ErrorBoundaryFallbackProps {
   error: Error;
@@ -121,7 +122,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
             fontFamily: 'inherit',
           }}
         >
-          <span aria-hidden="true">⚠</span>
+          <IconAlertTriangle size={14} className="shrink-0 text-rose-400" aria-hidden="true" />
           <span>{headingText}</span>
           <button
             type="button"
@@ -164,8 +165,8 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
         }}
       >
         {/* Icon row */}
-        <div style={{ fontSize: '2.5rem', lineHeight: 1 }} aria-hidden="true">
-          ⚠
+        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-rose-950/60 text-rose-400 border border-rose-500/30" aria-hidden="true">
+          <IconAlertTriangle size={24} />
         </div>
 
         {/* Heading */}

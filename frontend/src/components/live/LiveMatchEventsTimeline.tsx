@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useTeamStore } from "@/store/teamStore";
 import type { GameweekTimeline, MatchEventType } from "@/types";
+import { IconFootball, IconStar, IconShield, IconAlertCircle } from "@/components/ui/Icons";
 
 interface LiveMatchEventsTimelineProps {
   gameweekId?: number;
@@ -110,19 +111,19 @@ export function LiveMatchEventsTimeline({
   const renderEventIcon = (type: MatchEventType) => {
     switch (type) {
       case "GOAL":
-        return <span className="text-emerald-400 font-bold text-base" title="Goal">⚽</span>;
+        return <IconFootball className="w-4 h-4 text-emerald-400 inline-block" title="Goal" />;
       case "ASSIST":
-        return <span className="text-cyan-400 font-bold text-base" title="Assist">🅰️</span>;
+        return <span className="inline-flex items-center justify-center w-4 h-4 rounded text-[10px] font-black bg-cyan-950 text-cyan-400 border border-cyan-800" title="Assist">A</span>;
       case "YELLOW_CARD":
-        return <span className="text-amber-400 font-bold text-base" title="Yellow Card">🟨</span>;
+        return <span className="inline-block w-3 h-4 rounded-xs bg-amber-400 border border-amber-500 shadow-xs" title="Yellow Card" />;
       case "RED_CARD":
-        return <span className="text-rose-500 font-bold text-base" title="Red Card">🟥</span>;
+        return <span className="inline-block w-3 h-4 rounded-xs bg-rose-500 border border-rose-600 shadow-xs" title="Red Card" />;
       case "SAVE":
-        return <span className="text-indigo-400 font-bold text-base" title="Save">🧤</span>;
+        return <IconShield className="w-4 h-4 text-indigo-400 inline-block" title="Save" />;
       case "BONUS":
-        return <span className="text-yellow-300 font-bold text-base" title="Bonus">⭐</span>;
+        return <IconStar className="w-4 h-4 text-amber-300 inline-block" title="Bonus" />;
       default:
-        return <span className="text-gray-400 text-base">•</span>;
+        return <span className="text-slate-400 text-xs">•</span>;
     }
   };
 

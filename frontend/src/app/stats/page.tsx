@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { IconChart, IconTrendingUp } from "@/components/ui/Icons";
 
 interface PlayerStat {
   id: number;
@@ -85,7 +86,7 @@ export default function StatsDashboardPage() {
             {/* Top 20 Most Owned Players Bar Chart */}
             <section className="bg-slate-800/60 p-6 rounded-xl border border-slate-700/60">
               <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                <span className="text-emerald-400">📊</span> Top 20 Most Owned Players
+                <IconChart className="text-emerald-400 w-5 h-5" /> Top 20 Most Owned Players
               </h2>
               <div className="space-y-3">
                 {stats.topOwned.map((player, idx) => {
@@ -119,7 +120,7 @@ export default function StatsDashboardPage() {
             <section className="bg-slate-800/60 p-6 rounded-xl border border-slate-700/60 space-y-6">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-                  <span className="text-sky-400">📈</span> Price vs. Total Points & Value Efficiency (PPM)
+                  <IconTrendingUp className="text-sky-400 w-5 h-5" /> Price vs. Total Points & Value Efficiency (PPM)
                 </h2>
                 {/* Position Filter */}
                 <div className="flex gap-2 bg-slate-900 p-1 rounded-lg border border-slate-700 text-xs">

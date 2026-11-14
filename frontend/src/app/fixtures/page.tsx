@@ -152,7 +152,7 @@ export default function FixturesPage() {
           >
             {gameweeks.map((g) => (
               <option key={g.id} value={g.id}>
-                {g.name} {g.isCurrent ? "★ Active" : ""}
+                {g.name} {g.isCurrent ? "— Active" : ""}
               </option>
             ))}
           </select>

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useToast } from "@/context/ToastContext";
+import { IconCopy, IconCheck } from "@/components/ui/Icons";
 
 interface AffiliateData {
   referralCode: string;
@@ -99,9 +100,19 @@ export default function AffiliateDashboardPage() {
                 />
                 <button
                   onClick={handleCopy}
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-6 py-2.5 rounded-lg transition flex items-center justify-center gap-2"
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-6 py-2.5 rounded-lg transition flex items-center justify-center gap-2 text-xs"
                 >
-                  {copied ? "Copied! ✓" : "Copy Link 📋"}
+                  {copied ? (
+                    <>
+                      <IconCheck size={16} />
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <IconCopy size={16} />
+                      <span>Copy Link</span>
+                    </>
+                  )}
                 </button>
               </div>
               <p className="text-xs text-slate-400">
