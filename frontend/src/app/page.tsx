@@ -98,10 +98,10 @@ export default function HomePage() {
           {/* Hero Content */}
           <div className="relative z-10 max-w-xl">
             <div className="flex items-center gap-2 mb-3">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#00ff87]/20 text-[#00ff87] border border-[#00ff87]/30">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#00ff87]">
                 Official Web3 Fantasy
               </span>
-              <span className="text-xs text-slate-300 font-medium">Gameweek {gameweek?.fplId ?? 12}</span>
+              <span className="text-xs text-slate-300 font-medium">&bull; Gameweek {gameweek?.fplId ?? 12}</span>
             </div>
 
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight text-white mb-3">
@@ -143,10 +143,10 @@ export default function HomePage() {
                   Your Wallet
                 </span>
               </div>
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                Connected
-              </span>
+              <div className="flex items-center gap-1.5 text-emerald-700 text-xs font-semibold">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+                <span>Connected</span>
+              </div>
             </div>
 
             <div className="mb-4">
@@ -281,7 +281,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="flex items-center gap-4">
-                  <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700">
+                  <span className="hidden sm:inline-block text-xs font-semibold text-emerald-700">
                     Active
                   </span>
                   <div className="text-right">
@@ -312,7 +312,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="flex items-center gap-4">
-                  <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700">
+                  <span className="hidden sm:inline-block text-xs font-semibold text-emerald-700">
                     Active
                   </span>
                   <div className="text-right">
@@ -343,7 +343,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="flex items-center gap-4">
-                  <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700">
+                  <span className="hidden sm:inline-block text-xs font-semibold text-emerald-700">
                     Active
                   </span>
                   <div className="text-right">

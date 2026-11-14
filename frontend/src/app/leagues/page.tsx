@@ -248,7 +248,7 @@ export default function LeaguesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-slate-200/80 p-6 sm:p-8 rounded-3xl shadow-sm">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="text-xs font-black uppercase tracking-wider text-[#37003c] bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#37003c]">
               Fantasy Competitions
             </span>
             <span className="text-xs text-slate-400 font-medium">&bull; Smart Escrow Verified</span>

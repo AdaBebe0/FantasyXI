@@ -68,7 +68,7 @@ export const Sidebar: React.FC = () => {
                 <span>{item.label}</span>
                 {item.href === "/leagues" && (
                   <span
-                    className={`ml-auto text-[10px] uppercase font-mono font-bold tracking-wider px-2 py-0.5 rounded-full ${
+                    className={`ml-auto text-[10px] uppercase font-mono font-bold tracking-wider px-1.5 py-0.5 rounded-md ${
                       active
                         ? "bg-white/20 text-white"
                         : "bg-emerald-50 text-emerald-700 border border-emerald-200"
