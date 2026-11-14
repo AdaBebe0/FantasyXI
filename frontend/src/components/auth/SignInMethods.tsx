@@ -29,7 +29,7 @@ function readLinkResult(): Notice {
 }
 
 const inputClass =
-  "w-full px-3 py-2 bg-slate-950/70 border border-slate-700/80 rounded-lg text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors";
+  "w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c] transition-colors";
 
 /**
  * Lets a manager see and manage how they sign in: email & password, Google
@@ -161,43 +161,44 @@ export function SignInMethods() {
   };
 
   return (
-    <section className="bg-pitch-surface border border-pitch-border rounded-xl p-6 shadow-md space-y-4">
-      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-300">
-        <IconShield className="w-4 h-4 text-emerald-400" />
+    <section className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm space-y-4">
+      <div className="flex items-center gap-2 text-xs font-black uppercase tracking-tight text-slate-900">
+        <IconShield className="w-4 h-4 text-emerald-700" />
         <span>Sign-in Methods</span>
       </div>
 
       {notice && (
         <div
           role="status"
-          className={`p-3 rounded-lg border flex items-start gap-2 text-sm ${
+          className={`p-3.5 rounded-2xl border flex items-start gap-2 text-xs font-medium ${
             notice.kind === "success"
-              ? "bg-emerald-950/40 border-emerald-500/40 text-emerald-300"
-              : "bg-red-950/40 border-red-500/40 text-red-300"
+              ? "bg-emerald-50 border-emerald-200 text-emerald-900"
+              : "bg-rose-50 border-rose-200 text-rose-900"
           }`}
         >
           {notice.kind === "success" ? (
-            <IconCheck className="w-4 h-4 mt-0.5 flex-shrink-0" />
+            <IconCheck className="w-4 h-4 mt-0.5 flex-shrink-0 text-emerald-600" />
           ) : (
-            <IconAlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+            <IconAlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-rose-600" />
           )}
           <span>{notice.text}</span>
         </div>
       )}
 
-      <div className="divide-y divide-slate-800/60 text-xs">
+      <div className="divide-y divide-slate-100 text-xs">
         {/* Email & password */}
-        <div className="py-3 space-y-3">
+        <div className="py-3.5 space-y-3">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-slate-200 font-semibold">Email &amp; password</p>
-              <p className="text-slate-500 mt-0.5">{hasPassword ? user?.email : "No password set"}</p>
+              <p className="text-slate-900 font-bold">Email &amp; password</p>
+              <p className="text-slate-400 mt-0.5 font-medium">{hasPassword ? user?.email : "No password set"}</p>
             </div>
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={() => setShowPasswordForm((open) => !open)}
+              className="text-xs font-bold uppercase tracking-wider rounded-xl"
             >
               {showPasswordForm ? "Cancel" : hasPassword ? "Change password" : "Set password"}
             </Button>
@@ -238,7 +239,7 @@ export function SignInMethods() {
                 required
               />
               <div className="sm:col-span-3">
-                <Button type="submit" size="sm" isLoading={busy === "password"}>
+                <Button type="submit" size="sm" isLoading={busy === "password"} className="rounded-xl font-bold uppercase tracking-wider text-xs">
                   Save password
                 </Button>
               </div>
@@ -247,12 +248,12 @@ export function SignInMethods() {
         </div>
 
         {/* Google */}
-        <div className="py-3 flex items-center justify-between gap-3">
+        <div className="py-3.5 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <IconGoogle className="w-4 h-4 flex-shrink-0" />
             <div>
-              <p className="text-slate-200 font-semibold">Google</p>
-              <p className="text-slate-500 mt-0.5">
+              <p className="text-slate-900 font-bold">Google</p>
+              <p className="text-slate-400 mt-0.5 font-medium">
                 {hasGoogle ? "Linked" : "Not linked"}
                 {hasGoogle && !hasPassword && " · set a password before unlinking"}
               </p>
@@ -266,24 +267,25 @@ export function SignInMethods() {
               onClick={handleUnlink}
               isLoading={busy === "unlink"}
               disabled={!hasPassword}
+              className="rounded-xl text-xs font-bold uppercase tracking-wider"
             >
               Unlink
             </Button>
           ) : (
-            <Button type="button" variant="secondary" size="sm" onClick={handleLink} isLoading={busy === "link"}>
+            <Button type="button" variant="secondary" size="sm" onClick={handleLink} isLoading={busy === "link"} className="rounded-xl text-xs font-bold uppercase tracking-wider">
               Link Google
             </Button>
           )}
         </div>
 
         {/* Passkeys */}
-        <div className="py-3 space-y-2">
+        <div className="py-3.5 space-y-2">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <IconShield className="w-4 h-4 flex-shrink-0 text-emerald-400" />
+              <IconShield className="w-4 h-4 flex-shrink-0 text-emerald-700" />
               <div>
-                <p className="text-slate-200 font-semibold">Passkeys</p>
-                <p className="text-slate-500 mt-0.5">
+                <p className="text-slate-900 font-bold">Passkeys</p>
+                <p className="text-slate-400 mt-0.5 font-medium">
                   {passkeys.length > 0
                     ? `${passkeys.length} registered · required after your password`
                     : canUsePasskey
@@ -299,21 +301,22 @@ export function SignInMethods() {
               onClick={handleAddPasskey}
               isLoading={busy === "passkey"}
               disabled={!canUsePasskey}
+              className="rounded-xl text-xs font-bold uppercase tracking-wider"
             >
               Add passkey
             </Button>
           </div>
 
           {passkeys.length > 0 && (
-            <ul className="space-y-1.5">
+            <ul className="space-y-2 pt-1">
               {passkeys.map((passkey) => (
                 <li
                   key={passkey.id}
-                  className="flex items-center justify-between gap-3 rounded-lg bg-slate-950/40 px-3 py-2"
+                  className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50 border border-slate-200/80 px-3.5 py-2.5"
                 >
                   <div>
-                    <p className="text-slate-200">{passkey.name}</p>
-                    <p className="text-slate-500">
+                    <p className="text-slate-900 font-bold">{passkey.name}</p>
+                    <p className="text-slate-400 font-medium text-[11px]">
                       {passkey.backedUp ? "Synced" : "This device only"} · added{" "}
                       {new Date(passkey.createdAt).toLocaleDateString()}
                       {passkey.lastUsedAt && ` · last used ${new Date(passkey.lastUsedAt).toLocaleDateString()}`}
@@ -325,6 +328,7 @@ export function SignInMethods() {
                     size="sm"
                     onClick={() => handleRemovePasskey(passkey.id)}
                     isLoading={busy === `remove:${passkey.id}`}
+                    className="rounded-xl text-xs font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-slate-200"
                   >
                     Remove
                   </Button>

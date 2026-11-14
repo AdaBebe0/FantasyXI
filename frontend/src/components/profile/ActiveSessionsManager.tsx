@@ -84,11 +84,11 @@ export function ActiveSessionsManager() {
   const otherSessions = sessions.filter((s) => !s.isCurrent);
 
   return (
-    <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm mt-8">
+    <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm mt-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-white">Active Sessions & Devices</h3>
-          <p className="text-sm text-slate-400">
+          <h3 className="text-sm font-black uppercase tracking-tight text-slate-900">Active Sessions & Devices</h3>
+          <p className="text-xs text-slate-500 mt-0.5">
             Manage your logged-in devices and revoke unauthorized access.
           </p>
         </div>
@@ -98,7 +98,7 @@ export function ActiveSessionsManager() {
             size="sm"
             onClick={handleRevokeOthers}
             disabled={isRevoking}
-            className="text-rose-400 border-rose-500/30 hover:bg-rose-500/10"
+            className="text-rose-600 border-rose-200 hover:bg-rose-50 text-xs font-bold uppercase tracking-wider rounded-xl"
           >
             {isRevoking ? "Revoking..." : "Log out other devices"}
           </Button>
@@ -106,7 +106,7 @@ export function ActiveSessionsManager() {
       </div>
 
       {message && (
-        <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-lg text-sm">
+        <div className="mb-4 p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-2xl text-xs font-medium">
           {message}
         </div>
       )}
@@ -114,37 +114,37 @@ export function ActiveSessionsManager() {
       {isLoading ? (
         <div className="space-y-3">
           {[1, 2].map((i) => (
-            <div key={i} className="h-16 bg-slate-800/40 rounded-xl animate-pulse" />
+            <div key={i} className="h-16 bg-slate-100 rounded-2xl animate-pulse border border-slate-200/80" />
           ))}
         </div>
       ) : sessions.length === 0 ? (
-        <p className="text-sm text-slate-400">No active sessions found.</p>
+        <p className="text-xs text-slate-400">No active sessions found.</p>
       ) : (
         <div className="space-y-3">
           {sessions.map((session) => (
             <div
               key={session.id}
-              className={`flex items-center justify-between p-4 rounded-xl border ${
+              className={`flex items-center justify-between p-4 rounded-2xl border ${
                 session.isCurrent
-                  ? "bg-emerald-500/5 border-emerald-500/30"
-                  : "bg-slate-800/30 border-slate-700/50"
+                  ? "bg-emerald-50/60 border-emerald-200"
+                  : "bg-slate-50 border-slate-200/80"
               }`}
             >
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-white">
+                  <span className="font-bold text-slate-900 text-xs">
                     {session.device.browser} on {session.device.os}
                   </span>
                   {session.isCurrent && (
-                    <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
                       This device
                     </span>
                   )}
-                  <span className="text-xs text-slate-500 uppercase">
+                  <span className="text-[10px] text-slate-400 uppercase font-mono font-medium">
                     {session.device.deviceType}
                   </span>
                 </div>
-                <div className="text-xs text-slate-400 flex items-center gap-3">
+                <div className="text-[11px] text-slate-500 font-mono flex items-center gap-2">
                   <span>IP: {session.device.ip}</span>
                   <span>•</span>
                   <span>
@@ -159,7 +159,7 @@ export function ActiveSessionsManager() {
                   size="sm"
                   onClick={() => handleRevokeSingle(session.id)}
                   disabled={isRevoking}
-                  className="text-xs text-slate-400 hover:text-rose-400 hover:border-rose-500/40"
+                  className="text-xs font-bold text-slate-600 hover:text-rose-600 hover:border-rose-300 rounded-xl"
                 >
                   Revoke
                 </Button>
