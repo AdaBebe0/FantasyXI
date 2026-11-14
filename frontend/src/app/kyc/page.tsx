@@ -49,42 +49,81 @@ export default function KycPage() {
     }
   };
 
-  if (status === "LOADING") return <div className="p-8 text-center text-white">Loading KYC status...</div>;
-  if (status === "APPROVED") return <div className="p-8 text-center text-green-500 font-bold">Your identity has been verified. You may now withdraw regulated assets.</div>;
-  if (status === "PENDING") return <div className="p-8 text-center text-yellow-500 font-bold">Your KYC application is currently under review.</div>;
+  if (status === "LOADING") {
+    return (
+      <div className="py-20 text-center text-slate-500 text-xs font-semibold">
+        <div className="inline-block w-8 h-8 border-2 border-[#37003c] border-t-transparent rounded-full animate-spin mb-3" />
+        <p>Loading verification status...</p>
+      </div>
+    );
+  }
+
+  if (status === "APPROVED") {
+    return (
+      <div className="max-w-md mx-auto my-12 p-8 bg-white border border-slate-200/80 rounded-3xl shadow-sm text-center">
+        <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200/60 flex items-center justify-center mx-auto mb-4 font-bold text-xl">
+          ✓
+        </div>
+        <h2 className="text-xl font-black text-slate-900 tracking-tight mb-2">Identity Verified</h2>
+        <p className="text-xs text-slate-500 leading-relaxed">
+          Your identity has been verified. You may now withdraw regulated assets and participate in high-roller escrow leagues.
+        </p>
+      </div>
+    );
+  }
+
+  if (status === "PENDING") {
+    return (
+      <div className="max-w-md mx-auto my-12 p-8 bg-white border border-slate-200/80 rounded-3xl shadow-sm text-center">
+        <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-700 border border-amber-200/60 flex items-center justify-center mx-auto mb-4 font-bold text-xl">
+          ⏳
+        </div>
+        <h2 className="text-xl font-black text-slate-900 tracking-tight mb-2">Review in Progress</h2>
+        <p className="text-xs text-slate-500 leading-relaxed">
+          Your KYC application is currently under review by compliance. Most verifications complete within 24 hours.
+        </p>
+      </div>
+    );
+  }
   
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md text-gray-800">
-      <h2 className="text-2xl font-bold mb-4">Identity Verification</h2>
-      <p className="mb-4 text-sm text-gray-600">Please provide your details to comply with SEP-8 regulated assets withdrawals.</p>
-      {error && <p className="text-red-500 mb-4">{error}</p>}
+    <div className="max-w-md mx-auto my-10 p-6 sm:p-8 bg-white border border-slate-200/80 rounded-3xl shadow-sm text-slate-800">
+      <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-1">Identity Verification</h2>
+      <p className="mb-6 text-xs text-slate-500 leading-relaxed">
+        Please provide your legal details to comply with SEP-8 regulated asset compliance and non-custodial payouts.
+      </p>
+      {error && (
+        <div className="p-3 mb-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
+          {error}
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium">First Name</label>
+          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">First Name</label>
           <input 
             type="text" 
             required 
-            className="w-full mt-1 p-2 border rounded"
+            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c]"
             value={formData.firstName}
             onChange={(e) => setFormData({...formData, firstName: e.target.value})}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium">Last Name</label>
+          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Last Name</label>
           <input 
             type="text" 
             required 
-            className="w-full mt-1 p-2 border rounded"
+            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c]"
             value={formData.lastName}
             onChange={(e) => setFormData({...formData, lastName: e.target.value})}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium">Document ID (Passport / ID)</label>
+          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Document ID (Passport / National ID)</label>
           <input 
             type="text" 
             required 
-            className="w-full mt-1 p-2 border rounded"
+            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c]"
             value={formData.documentId}
             onChange={(e) => setFormData({...formData, documentId: e.target.value})}
           />
@@ -92,7 +131,7 @@ export default function KycPage() {
         <button 
           type="submit" 
           disabled={loading}
-          className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:opacity-50"
+          className="w-full bg-[#37003c] hover:bg-[#26002b] text-white py-2.5 px-4 rounded-xl text-xs font-bold transition shadow-xs disabled:opacity-50 cursor-pointer"
         >
           {loading ? "Submitting..." : "Submit Verification"}
         </button>
