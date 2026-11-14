@@ -247,6 +247,11 @@ async function startServer(): Promise<void> {
   notificationSocketServer = attachNotificationSocketServer(httpServer);
   liveSocketServer = attachLiveSocketServer(httpServer);
   startTransactionCoordinator();
+
+  // Initialize JWT signing key rotation and preload keys
+  await jwtKeyRotationService.start().catch((err) => {
+    console.warn("[jwt-keys] Failed to initialize key rotation service:", err);
+  });
 }
 
 startServer().catch((error) => {
