@@ -136,23 +136,23 @@ export default function LeaderboardPage() {
     (meta && meta.totalPages > 0 ? `. Page ${meta.page} of ${meta.totalPages}.` : ".");
 
   return (
-    <div className="mx-auto max-w-4xl space-y-5 pb-12">
-      <header>
-        <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl">Global leaderboard</h1>
-        <p className="mt-1 text-sm text-slate-400">Every FantasyXI manager, ranked. Equal points share a rank.</p>
+    <div className="mx-auto max-w-4xl space-y-6 pb-12">
+      <header className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm">
+        <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 uppercase font-sans">Global leaderboard</h1>
+        <p className="mt-1 text-xs sm:text-sm text-slate-500 max-w-xl leading-relaxed">Every FantasyXI manager, ranked. Equal points share a rank.</p>
       </header>
 
-      <form role="search" aria-label="Filter the leaderboard" onSubmit={(e) => e.preventDefault()} className="space-y-3">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+      <form role="search" aria-label="Filter the leaderboard" onSubmit={(e) => e.preventDefault()} className="space-y-3 bg-white border border-slate-200/80 rounded-3xl p-5 sm:p-6 shadow-sm">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
           <div className="flex-1">
-            <label htmlFor="leaderboard-search" className="mb-1 block text-xs font-semibold text-slate-300">
+            <label htmlFor="leaderboard-search" className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-500">
               Search managers or squads
             </label>
             <div className="relative">
               <SearchIcon
                 size={16}
                 aria-hidden="true"
-                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
               />
               <input
                 id="leaderboard-search"
@@ -162,14 +162,14 @@ export default function LeaderboardPage() {
                 maxLength={50}
                 autoComplete="off"
                 placeholder="e.g. Salah Seekers or @manager"
-                className="min-h-11 w-full rounded-lg border border-slate-700 bg-slate-900 py-2 pl-9 pr-3 text-sm text-white placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60"
+                className="w-full px-3.5 py-2.5 pl-10 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c] transition-colors"
               />
             </div>
           </div>
 
           <fieldset className="shrink-0">
-            <legend className="mb-1 text-xs font-semibold text-slate-300">Standings</legend>
-            <div className="inline-flex rounded-lg border border-slate-700 bg-slate-900 p-1">
+            <legend className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">Standings</legend>
+            <div className="inline-flex rounded-xl border border-slate-200 bg-slate-50 p-1">
               {(
                 [
                   ["overall", "Season"],
@@ -186,7 +186,7 @@ export default function LeaderboardPage() {
                     disabled={value === "gameweek" && gameweeks.length === 0}
                     className="peer sr-only"
                   />
-                  <span className="inline-flex min-h-9 cursor-pointer items-center rounded-md px-4 text-sm font-semibold text-slate-300 peer-checked:bg-emerald-700 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-emerald-400 peer-disabled:cursor-not-allowed peer-disabled:opacity-40">
+                  <span className="inline-flex min-h-8 cursor-pointer items-center rounded-lg px-3.5 text-xs font-bold text-slate-600 peer-checked:bg-[#37003c] peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-[#37003c]/30 peer-disabled:cursor-not-allowed peer-disabled:opacity-40 transition-colors">
                     {text}
                   </span>
                 </label>
@@ -196,7 +196,7 @@ export default function LeaderboardPage() {
 
           {mode === "gameweek" && gameweeks.length > 0 && (
             <div className="shrink-0">
-              <label htmlFor="leaderboard-gameweek" className="mb-1 block text-xs font-semibold text-slate-300">
+              <label htmlFor="leaderboard-gameweek" className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-500">
                 Gameweek
               </label>
               <select
@@ -206,7 +206,7 @@ export default function LeaderboardPage() {
                   setGameweekId(Number(e.target.value));
                   setPage(1);
                 }}
-                className="min-h-11 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 text-sm text-white focus:border-emerald-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 sm:w-auto"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c] sm:w-auto"
               >
                 {gameweeks.map((gw) => (
                   <option key={gw.id} value={gw.id}>
@@ -221,15 +221,15 @@ export default function LeaderboardPage() {
       </form>
 
       {data?.viewer && (
-        <div className="flex flex-col gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-emerald-100">
-            You are <strong className="font-black text-white">{ordinal(data.viewer.rank)}</strong> with{" "}
-            <strong className="font-black text-white">{formatCount(data.viewer.points)}</strong> {pointsLabel.toLowerCase()}.
+        <div className="flex flex-col gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 sm:flex-row sm:items-center sm:justify-between shadow-2xs">
+          <p className="text-xs text-emerald-950 font-medium">
+            You are <strong className="font-bold text-emerald-900">{ordinal(data.viewer.rank)}</strong> with{" "}
+            <strong className="font-bold text-emerald-900">{formatCount(data.viewer.points)}</strong> {pointsLabel.toLowerCase()}.
           </p>
           <button
             type="button"
             onClick={jumpToViewer}
-            className="min-h-11 rounded-lg bg-emerald-700 px-4 text-sm font-bold text-white hover:bg-emerald-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
+            className="min-h-9 rounded-xl bg-emerald-700 px-3.5 text-xs font-bold text-white hover:bg-emerald-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 transition-colors cursor-pointer"
           >
             Jump to my position
           </button>
@@ -237,12 +237,12 @@ export default function LeaderboardPage() {
       )}
 
       {error && (
-        <div role="alert" className="flex items-center justify-between gap-3 rounded-lg border border-rose-800 bg-rose-950/40 p-4 text-sm text-rose-200">
+        <div role="alert" className="flex items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs font-semibold text-rose-700">
           <span>{error}</span>
           <button
             type="button"
             onClick={() => setRetryCount((n) => n + 1)}
-            className="min-h-11 rounded-lg border border-rose-700 px-3 font-semibold hover:bg-rose-900/50"
+            className="min-h-8 rounded-lg border border-rose-300 px-3 font-bold hover:bg-rose-100 transition-colors cursor-pointer"
           >
             Try again
           </button>
@@ -256,8 +256,8 @@ export default function LeaderboardPage() {
         aria-busy={isLoading}
         className="scroll-mt-4 space-y-3 outline-none"
       >
-        <div className="flex items-baseline justify-between gap-3">
-          <h2 id="leaderboard-results-heading" className="text-sm font-bold text-slate-200">
+        <div className="flex items-baseline justify-between gap-3 px-1">
+          <h2 id="leaderboard-results-heading" className="text-xs font-bold uppercase tracking-wider text-slate-500">
             {gameweekName ? `${gameweekName} standings` : "Season standings"}
           </h2>
           <p role="status" aria-live="polite" className="text-xs text-slate-400">
@@ -272,16 +272,16 @@ export default function LeaderboardPage() {
           resetKeys={[requestKey]}
         >
           <div
-            className={`overflow-hidden rounded-xl border border-slate-800 bg-slate-900/40 transition-opacity ${
+            className={`overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-sm transition-opacity ${
               isLoading && data ? "opacity-60" : ""
             }`}
           >
             {!data && isLoading ? (
-              <p className="p-8 text-center text-sm text-slate-400">Loading the leaderboard…</p>
+              <p className="p-8 text-center text-xs font-medium text-slate-400">Loading the leaderboard…</p>
             ) : data && data.entries.length > 0 ? (
               <LeaderboardTable entries={data.entries} caption={caption} pointsLabel={pointsLabel} />
             ) : data ? (
-              <p className="p-8 text-center text-sm text-slate-400">
+              <p className="p-8 text-center text-xs text-slate-400">
                 {search ? `No managers match “${search}”.` : "No managers have been ranked yet."}
               </p>
             ) : null}

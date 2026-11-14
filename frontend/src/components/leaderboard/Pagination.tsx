@@ -11,8 +11,8 @@ export interface PaginationProps {
 }
 
 const BUTTON =
-  "inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border px-3 text-sm font-semibold transition-colors " +
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400 disabled:cursor-not-allowed disabled:opacity-40";
+  "inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border px-3 text-xs font-bold transition-colors " +
+  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#37003c] disabled:cursor-not-allowed disabled:opacity-40";
 
 /**
  * Accessible pagination: a labelled <nav> with 44px touch targets. Small screens
@@ -32,10 +32,10 @@ export const Pagination: React.FC<PaginationProps> = ({
   };
 
   return (
-    <nav aria-label={label} className="flex items-center justify-between gap-2">
+    <nav aria-label={label} className="flex items-center justify-between gap-2 pt-2">
       <button
         type="button"
-        className={`${BUTTON} border-slate-700 text-slate-200 hover:bg-slate-800`}
+        className={`${BUTTON} border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs cursor-pointer`}
         onClick={() => go(page - 1)}
         disabled={disabled || page <= 1}
       >
@@ -45,7 +45,7 @@ export const Pagination: React.FC<PaginationProps> = ({
         </span>
       </button>
 
-      <p className="text-sm text-slate-300 sm:hidden">
+      <p className="text-xs text-slate-500 font-semibold sm:hidden">
         Page {page} of {totalPages}
       </p>
 
@@ -57,8 +57,8 @@ export const Pagination: React.FC<PaginationProps> = ({
                 type="button"
                 className={`${BUTTON} ${
                   item === page
-                    ? "border-emerald-500 bg-emerald-500/15 text-emerald-200"
-                    : "border-transparent text-slate-300 hover:bg-slate-800"
+                    ? "border-[#37003c] bg-[#37003c] text-white shadow-xs"
+                    : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs cursor-pointer"
                 }`}
                 aria-current={item === page ? "page" : undefined}
                 aria-label={`Page ${item}`}
@@ -69,7 +69,7 @@ export const Pagination: React.FC<PaginationProps> = ({
               </button>
             </li>
           ) : (
-            <li key={item} aria-hidden="true" className="px-1 text-slate-500">
+            <li key={item} aria-hidden="true" className="px-1 text-slate-400 font-mono">
               …
             </li>
           )
@@ -78,7 +78,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 
       <button
         type="button"
-        className={`${BUTTON} border-slate-700 text-slate-200 hover:bg-slate-800`}
+        className={`${BUTTON} border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs cursor-pointer`}
         onClick={() => go(page + 1)}
         disabled={disabled || page >= totalPages}
       >

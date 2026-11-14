@@ -36,31 +36,31 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({ entries, cap
         <col className="w-24 sm:w-36" />
       </colgroup>
       <thead>
-        <tr className="border-b border-slate-800 bg-slate-950/60 text-xs uppercase tracking-wider text-slate-400">
-          <th scope="col" className="px-3 py-3 font-semibold sm:px-4">
+        <tr className="border-b border-slate-200 bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+          <th scope="col" className="px-3 py-3 font-bold sm:px-4">
             Rank
           </th>
-          <th scope="col" className="px-3 py-3 font-semibold sm:px-4">
+          <th scope="col" className="px-3 py-3 font-bold sm:px-4">
             Manager
           </th>
-          <th scope="col" aria-sort="descending" className="px-3 py-3 text-right font-semibold sm:px-4">
+          <th scope="col" aria-sort="descending" className="px-3 py-3 text-right font-bold sm:px-4">
             {pointsLabel}
           </th>
         </tr>
       </thead>
-      <tbody className="divide-y divide-slate-800/70">
+      <tbody className="divide-y divide-slate-100">
         {entries.map((entry) => {
           const tied = (rankCounts.get(entry.rank) ?? 0) > 1;
           return (
             <tr
               key={entry.squadId}
               data-current-user={entry.isCurrentUser || undefined}
-              className={entry.isCurrentUser ? "bg-emerald-500/10" : "hover:bg-slate-900/50"}
+              className={entry.isCurrentUser ? "bg-purple-50/60" : "hover:bg-slate-50"}
             >
               <td className="px-3 py-3 align-middle sm:px-4">
                 <span
-                  className={`inline-flex h-8 min-w-8 items-center justify-center rounded-full px-1.5 font-mono text-xs font-black tabular-nums ${
-                    MEDAL_STYLES[entry.rank] ?? "text-slate-300"
+                  className={`inline-flex h-7 min-w-7 items-center justify-center rounded-full px-1.5 font-mono text-xs font-black tabular-nums ${
+                    MEDAL_STYLES[entry.rank] ?? "text-slate-500 font-bold"
                   }`}
                 >
                   <span className="sr-only">{tied ? `Joint ${ordinal(entry.rank)}` : ordinal(entry.rank)}</span>
@@ -74,20 +74,20 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({ entries, cap
                 <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                   <span
                     className={`break-words font-bold [overflow-wrap:anywhere] ${
-                      entry.isCurrentUser ? "text-emerald-300" : "text-white"
+                      entry.isCurrentUser ? "text-[#37003c]" : "text-slate-900"
                     }`}
                   >
                     {entry.squadName}
                   </span>
                   {entry.isCurrentUser && (
-                    <span className="rounded border border-emerald-400/40 bg-emerald-500/20 px-1.5 py-0.5 text-[11px] font-bold uppercase text-emerald-200">
+                    <span className="rounded-md border border-purple-200 bg-purple-100/80 px-1.5 py-0.5 text-[10px] font-bold uppercase text-[#37003c]">
                       You
                     </span>
                   )}
                 </div>
-                <div className="text-xs text-slate-400 [overflow-wrap:anywhere]">@{entry.username}</div>
+                <div className="text-xs text-slate-500 [overflow-wrap:anywhere]">@{entry.username}</div>
               </td>
-              <td className="px-3 py-3 text-right align-middle font-mono text-base font-black text-white tabular-nums sm:px-4">
+              <td className="px-3 py-3 text-right align-middle font-mono text-base font-black text-slate-900 tabular-nums sm:px-4">
                 {formatCount(entry.points)}
               </td>
             </tr>
