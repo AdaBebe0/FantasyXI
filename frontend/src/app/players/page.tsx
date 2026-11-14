@@ -308,52 +308,52 @@ export default function PlayersPage() {
         ) : players.length > 0 ? (
           <>
             <div className="sm:hidden">
-              <div className="divide-y divide-slate-800/60">
+              <div className="divide-y divide-slate-100">
                 {players.map((p) => (
-                  <div key={p.id} className="p-3">
+                  <div key={p.id} className="p-4 hover:bg-slate-50 transition-colors">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
-                        <div className="font-bold text-white text-sm leading-tight break-words">
+                        <div className="font-bold text-slate-900 text-sm leading-tight break-words">
                           {p.displayName || `${p.firstName} ${p.lastName}`}
                         </div>
-                        <div className="mt-0.5 text-[10px] text-slate-500 font-sans break-words">
+                        <div className="mt-0.5 text-[10px] text-slate-400 font-sans break-words">
                           {p.firstName} {p.lastName}
                         </div>
                       </div>
 
                       <div className="text-right shrink-0">
-                        <div className="font-mono font-black text-emerald-400 text-sm">
+                        <div className="font-mono font-black text-emerald-700 text-sm">
                           {p.totalPoints}
                         </div>
-                        <div className="text-[9px] text-slate-500 uppercase tracking-wide">pts</div>
+                        <div className="text-[9px] text-slate-400 uppercase tracking-wide">pts</div>
                       </div>
                     </div>
 
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       <PositionBadge position={p.position} />
-                      <span className="text-[10px] font-mono text-slate-300">
+                      <span className="text-[10px] font-mono text-slate-600">
                         {p.team?.shortName || `Team ${p.teamId}`}
                       </span>
                     </div>
 
-                    <div className="mt-3 grid grid-cols-4 gap-2 text-center text-[10px] text-slate-300">
-                      <div className="rounded-md bg-slate-950/60 px-1.5 py-1.5">
-                        <div className="text-slate-400 uppercase tracking-wide">£</div>
-                        <div className="font-mono font-bold text-white text-[11px] pt-0.5">
+                    <div className="mt-3 grid grid-cols-4 gap-2 text-center text-[10px] text-slate-600">
+                      <div className="rounded-xl bg-slate-50 border border-slate-200/80 px-2 py-1.5">
+                        <div className="text-slate-400 uppercase tracking-wide text-[9px] font-bold">£</div>
+                        <div className="font-mono font-bold text-slate-900 text-[11px] pt-0.5">
                           {(p.price / 10).toFixed(1)}m
                         </div>
                       </div>
-                      <div className="rounded-md bg-slate-950/60 px-1.5 py-1.5">
-                        <div className="text-slate-400 uppercase tracking-wide">G</div>
-                        <div className="font-mono font-bold text-white text-[11px] pt-0.5">{p.goalsScored}</div>
+                      <div className="rounded-xl bg-slate-50 border border-slate-200/80 px-2 py-1.5">
+                        <div className="text-slate-400 uppercase tracking-wide text-[9px] font-bold">G</div>
+                        <div className="font-mono font-bold text-slate-900 text-[11px] pt-0.5">{p.goalsScored}</div>
                       </div>
-                      <div className="rounded-md bg-slate-950/60 px-1.5 py-1.5">
-                        <div className="text-slate-400 uppercase tracking-wide">A</div>
-                        <div className="font-mono font-bold text-white text-[11px] pt-0.5">{p.assists}</div>
+                      <div className="rounded-xl bg-slate-50 border border-slate-200/80 px-2 py-1.5">
+                        <div className="text-slate-400 uppercase tracking-wide text-[9px] font-bold">A</div>
+                        <div className="font-mono font-bold text-slate-900 text-[11px] pt-0.5">{p.assists}</div>
                       </div>
-                      <div className="rounded-md bg-slate-950/60 px-1.5 py-1.5">
-                        <div className="text-slate-400 uppercase tracking-wide">CS</div>
-                        <div className="font-mono font-bold text-white text-[11px] pt-0.5">{p.cleanSheets}</div>
+                      <div className="rounded-xl bg-slate-50 border border-slate-200/80 px-2 py-1.5">
+                        <div className="text-slate-400 uppercase tracking-wide text-[9px] font-bold">CS</div>
+                        <div className="font-mono font-bold text-slate-900 text-[11px] pt-0.5">{p.cleanSheets}</div>
                       </div>
                     </div>
                   </div>
@@ -364,7 +364,7 @@ export default function PlayersPage() {
             <div className="hidden sm:block overflow-x-auto">
               <table className="w-full min-w-[760px] text-left border-collapse text-xs">
                 <thead>
-                  <tr className="border-b border-pitch-border text-slate-400 uppercase font-semibold text-[11px] bg-slate-950/70">
+                  <tr className="border-b border-slate-200 text-slate-500 uppercase font-bold text-[10px] bg-slate-50 tracking-wider">
                     <th className="py-3 px-4">Player</th>
                     <th className="py-3 px-3">Position</th>
                     <th className="py-3 px-3">Club</th>
@@ -377,15 +377,15 @@ export default function PlayersPage() {
                     <th className="py-3 px-3 text-right">Mins</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60 font-medium">
+                <tbody className="divide-y divide-slate-100 font-medium">
                   {players.map((p) => (
-                    <tr key={p.id} className="hover:bg-slate-900/40 transition-colors">
+                    <tr key={p.id} className="hover:bg-slate-50 transition-colors">
                       {/* Name */}
                       <td className="py-3 px-4">
-                        <div className="font-bold text-white text-sm">
+                        <div className="font-bold text-slate-900 text-sm">
                           {p.displayName || `${p.firstName} ${p.lastName}`}
                         </div>
-                        <div className="text-[10px] text-slate-500 font-sans">
+                        <div className="text-[10px] text-slate-400 font-sans">
                           {p.firstName} {p.lastName}
                         </div>
                       </td>
@@ -396,37 +396,37 @@ export default function PlayersPage() {
                       </td>
 
                       {/* Club */}
-                      <td className="py-3 px-3 font-mono font-medium text-slate-300">
+                      <td className="py-3 px-3 font-mono font-medium text-slate-600">
                         {p.team?.shortName || `Team ${p.teamId}`}
                       </td>
 
                       {/* Price */}
-                      <td className="py-3 px-3 text-right font-mono font-bold text-white">
+                      <td className="py-3 px-3 text-right font-mono font-bold text-slate-900">
                         £{(p.price / 10).toFixed(1)}m
                       </td>
 
                       {/* Points */}
-                      <td className="py-3 px-3 text-right font-mono font-black text-emerald-400 text-sm">
+                      <td className="py-3 px-3 text-right font-mono font-black text-emerald-700 text-sm">
                         {p.totalPoints}
                       </td>
 
                       {/* Form */}
-                      <td className="py-3 px-3 text-center font-mono text-slate-300">
+                      <td className="py-3 px-3 text-center font-mono text-slate-600">
                         {p.form ?? "—"}
                       </td>
 
                       {/* Goals */}
-                      <td className="py-3 px-3 text-center font-mono text-slate-300">
+                      <td className="py-3 px-3 text-center font-mono text-slate-600">
                         {p.goalsScored}
                       </td>
 
                       {/* Assists */}
-                      <td className="py-3 px-3 text-center font-mono text-slate-300">
+                      <td className="py-3 px-3 text-center font-mono text-slate-600">
                         {p.assists}
                       </td>
 
                       {/* Clean Sheets */}
-                      <td className="py-3 px-3 text-center font-mono text-slate-300">
+                      <td className="py-3 px-3 text-center font-mono text-slate-600">
                         {p.cleanSheets}
                       </td>
 
