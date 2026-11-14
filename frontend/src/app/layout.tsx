@@ -48,9 +48,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-white">
+      <body className="min-h-full flex flex-col bg-[#f8fafc] text-slate-800 font-sans selection:bg-[#37003c] selection:text-white">
         <AuthProvider>
           <WalletProvider>
             <ToastProvider>
