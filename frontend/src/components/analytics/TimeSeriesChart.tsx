@@ -135,11 +135,11 @@ export const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({
   return (
     <figure className="m-0 space-y-3" aria-labelledby={titleId}>
       <figcaption className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h3 id={titleId} className="text-sm font-bold text-slate-100">
+        <h3 id={titleId} className="text-sm font-black uppercase tracking-tight text-slate-900">
           {title}
         </h3>
         {series.length > 1 && (
-          <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-300" aria-label={`${title} legend`}>
+          <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600 font-medium" aria-label={`${title} legend`}>
             {series.map((s) => (
               <li key={s.id} className="flex items-center gap-1.5">
                 {s.kind === "line" ? (
@@ -156,7 +156,7 @@ export const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({
 
       <div
         ref={containerRef}
-        className="relative w-full rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+        className="relative w-full rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[#37003c]"
         tabIndex={count > 0 ? 0 : undefined}
         role="group"
         aria-roledescription="interactive chart"
@@ -173,8 +173,8 @@ export const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({
           {/* Gridlines and y-axis */}
           {ticks.map((tick) => (
             <g key={tick}>
-              <line x1={plotLeft} x2={plotRight} y1={y(tick)} y2={y(tick)} stroke={tick === 0 ? "#334155" : "#1e293b"} strokeWidth={1} />
-              <text x={plotLeft - 8} y={y(tick)} dy="0.32em" textAnchor="end" className="fill-slate-400 text-[11px] tabular-nums">
+              <line x1={plotLeft} x2={plotRight} y1={y(tick)} y2={y(tick)} stroke={tick === 0 ? "#cbd5e1" : "#f1f5f9"} strokeWidth={1} />
+              <text x={plotLeft - 8} y={y(tick)} dy="0.32em" textAnchor="end" className="fill-slate-400 text-[11px] font-mono tabular-nums">
                 {formatPoints(tick)}
               </text>
             </g>
@@ -189,7 +189,7 @@ export const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({
                 x={bandCenter(index)}
                 y={plotBottom + 18}
                 textAnchor="middle"
-                className="fill-slate-400 text-[11px]"
+                className="fill-slate-500 text-[11px] font-mono font-medium"
               >
                 {label}
               </text>
@@ -203,7 +203,7 @@ export const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({
               x2={bandCenter(activeIndex)}
               y1={plotTop}
               y2={plotBottom}
-              stroke="#64748b"
+              stroke="#94a3b8"
               strokeWidth={1}
             />
           )}
@@ -239,10 +239,10 @@ export const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({
                   strokeLinecap="round"
                 />
                 {lastIndex >= 0 && (
-                  <circle cx={bandCenter(lastIndex)} cy={y(s.values[lastIndex] as number)} r={4} fill={s.color} stroke="#0f172a" strokeWidth={2} />
+                  <circle cx={bandCenter(lastIndex)} cy={y(s.values[lastIndex] as number)} r={4} fill={s.color} stroke="#ffffff" strokeWidth={2} />
                 )}
                 {activeIndex !== null && s.values[activeIndex] !== null && (
-                  <circle cx={bandCenter(activeIndex)} cy={y(s.values[activeIndex] as number)} r={5} fill={s.color} stroke="#0f172a" strokeWidth={2} />
+                  <circle cx={bandCenter(activeIndex)} cy={y(s.values[activeIndex] as number)} r={5} fill={s.color} stroke="#ffffff" strokeWidth={2} />
                 )}
               </g>
             );
@@ -264,7 +264,7 @@ export const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({
 
         {activeIndex !== null && (
           <div
-            className="pointer-events-none absolute top-2 z-10 min-w-[10rem] rounded-lg border border-slate-700 bg-slate-950/95 px-3 py-2 text-xs shadow-xl"
+            className="pointer-events-none absolute top-2 z-10 min-w-[10rem] rounded-2xl border border-slate-200 bg-white/95 backdrop-blur-sm px-3.5 py-2.5 text-xs shadow-xl"
             style={
               tooltipOnLeft
                 ? { right: width - bandCenter(activeIndex) + 12 }
@@ -272,14 +272,14 @@ export const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({
             }
             aria-hidden="true"
           >
-            <p className="mb-1 font-semibold text-slate-300">{categories[activeIndex]}</p>
+            <p className="mb-1 font-bold text-slate-900">{categories[activeIndex]}</p>
             {series.map((s) => (
               <p key={s.id} className="flex items-center justify-between gap-4">
-                <span className="flex items-center gap-1.5 text-slate-400">
+                <span className="flex items-center gap-1.5 text-slate-500 font-medium">
                   <span className="inline-block h-0.5 w-3 rounded" style={{ backgroundColor: s.color }} />
                   {s.label}
                 </span>
-                <span className="font-mono font-bold text-white tabular-nums">
+                <span className="font-mono font-bold text-slate-900 tabular-nums">
                   {formatPoints(s.values[activeIndex])} {unit}
                 </span>
               </p>
@@ -292,33 +292,33 @@ export const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({
         </p>
       </div>
 
-      <details className="group text-xs text-slate-400">
-        <summary className="cursor-pointer select-none rounded font-semibold text-slate-400 hover:text-slate-200 focus-visible:outline-2 focus-visible:outline-emerald-400">
+      <details className="group text-xs text-slate-500">
+        <summary className="cursor-pointer select-none rounded font-bold text-slate-600 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-[#37003c]">
           View {title.toLowerCase()} as a table
         </summary>
-        <div className="mt-2 max-h-64 overflow-auto rounded-lg border border-slate-800">
+        <div className="mt-2 max-h-64 overflow-auto rounded-2xl border border-slate-200 shadow-sm">
           <table className="w-full text-left">
             <caption className="sr-only">{title}</caption>
-            <thead className="sticky top-0 bg-slate-950 text-slate-400">
+            <thead className="sticky top-0 bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-[10px] font-bold tracking-wider">
               <tr>
-                <th scope="col" className="px-3 py-2 font-semibold">
+                <th scope="col" className="px-4 py-2.5">
                   Gameweek
                 </th>
                 {series.map((s) => (
-                  <th key={s.id} scope="col" className="px-3 py-2 text-right font-semibold">
+                  <th key={s.id} scope="col" className="px-4 py-2.5 text-right">
                     {s.label}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/70">
+            <tbody className="divide-y divide-slate-100 bg-white">
               {categories.map((category, index) => (
-                <tr key={`${category}-${index}`}>
-                  <th scope="row" className="px-3 py-1.5 font-medium text-slate-300">
+                <tr key={`${category}-${index}`} className="hover:bg-slate-50 transition-colors">
+                  <th scope="row" className="px-4 py-2 font-bold text-slate-800">
                     {category}
                   </th>
                   {series.map((s) => (
-                    <td key={s.id} className="px-3 py-1.5 text-right font-mono tabular-nums text-slate-200">
+                    <td key={s.id} className="px-4 py-2 text-right font-mono tabular-nums text-slate-700 font-medium">
                       {formatPoints(s.values[index])}
                     </td>
                   ))}

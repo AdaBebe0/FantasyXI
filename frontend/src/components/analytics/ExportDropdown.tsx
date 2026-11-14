@@ -36,22 +36,22 @@ export function ExportDropdown({ analytics }: ExportDropdownProps) {
         aria-haspopup="menu"
         aria-expanded={isOpen}
         onClick={() => setIsOpen((open) => !open)}
-        className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-pitch-border bg-slate-900 px-3 py-2 text-sm font-semibold text-slate-100 hover:border-emerald-500/50 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-700 hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#37003c] shadow-sm"
       >
         Export data
-        <span aria-hidden="true">▾</span>
+        <span aria-hidden="true" className="text-slate-400">▾</span>
       </button>
       {isOpen && (
         <div
           role="menu"
           aria-label="Export performance data"
-          className="absolute right-0 z-10 mt-2 min-w-36 rounded-lg border border-pitch-border bg-slate-900 p-1 shadow-xl"
+          className="absolute right-0 z-10 mt-2 min-w-36 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl"
         >
           <button
             type="button"
             role="menuitem"
             onClick={() => download("csv")}
-            className="block w-full rounded-md px-3 py-2 text-left text-sm text-slate-200 hover:bg-slate-800 focus:bg-slate-800 focus:outline-none"
+            className="block w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 focus:bg-slate-50 focus:outline-none"
           >
             Export CSV
           </button>
@@ -59,7 +59,7 @@ export function ExportDropdown({ analytics }: ExportDropdownProps) {
             type="button"
             role="menuitem"
             onClick={() => download("json")}
-            className="block w-full rounded-md px-3 py-2 text-left text-sm text-slate-200 hover:bg-slate-800 focus:bg-slate-800 focus:outline-none"
+            className="block w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 focus:bg-slate-50 focus:outline-none"
           >
             Export JSON
           </button>

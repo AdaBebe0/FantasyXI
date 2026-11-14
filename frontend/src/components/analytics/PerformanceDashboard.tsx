@@ -25,10 +25,10 @@ interface StatTileProps {
 }
 
 export const StatTile: React.FC<StatTileProps> = ({ label, value, detail }) => (
-  <div className="rounded-xl border border-pitch-border bg-pitch-surface p-4 shadow-sm">
-    <dt className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{label}</dt>
-    <dd className="mt-1 font-mono text-2xl font-black text-white tabular-nums">{value}</dd>
-    {detail && <dd className="mt-0.5 text-xs text-slate-400">{detail}</dd>}
+  <div className="rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-6 shadow-sm">
+    <dt className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{label}</dt>
+    <dd className="mt-1 font-mono text-2xl font-black text-slate-900 tabular-nums">{value}</dd>
+    {detail && <dd className="mt-0.5 text-xs text-slate-400 font-medium">{detail}</dd>}
   </div>
 );
 
@@ -113,7 +113,7 @@ export const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({ anal
         </dl>
       </section>
 
-      <section className="rounded-xl border border-pitch-border bg-pitch-surface p-4 shadow-md sm:p-6">
+      <section className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-7">
         <TimeSeriesChart
           title="Points over time"
           summary={cumulativeSummary}
@@ -132,7 +132,7 @@ export const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({ anal
         />
       </section>
 
-      <section className="rounded-xl border border-pitch-border bg-pitch-surface p-4 shadow-md sm:p-6">
+      <section className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-7">
         <TimeSeriesChart
           title="Points per gameweek"
           summary={perGameweekSummary}
@@ -152,7 +152,7 @@ export const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({ anal
       </section>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <section className="rounded-xl border border-pitch-border bg-pitch-surface p-4 shadow-md sm:p-6 lg:col-span-2">
+        <section className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-7 lg:col-span-2">
           <TimeSeriesChart
             title="Points left on the bench and transfer hits"
             summary={leakageSummary}
@@ -168,9 +168,9 @@ export const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({ anal
 
         <section
           aria-labelledby="chips-heading"
-          className="rounded-xl border border-pitch-border bg-pitch-surface p-4 shadow-md sm:p-6"
+          className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-7"
         >
-          <h3 id="chips-heading" className="text-sm font-bold text-slate-100">
+          <h3 id="chips-heading" className="text-sm font-black uppercase tracking-tight text-slate-900">
             Chips played
           </h3>
           {chips.length === 0 ? (
@@ -182,14 +182,14 @@ export const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({ anal
                 return (
                   <li
                     key={`${chip.chipType}-${chip.gameweekId}`}
-                    className="flex items-center justify-between rounded-lg border border-pitch-border bg-slate-950/50 px-3 py-2 text-xs"
+                    className="flex items-center justify-between rounded-2xl border border-slate-200/80 bg-slate-50 px-3.5 py-2.5 text-xs"
                   >
                     <span>
-                      <span className="block font-semibold text-slate-100">{CHIP_LABELS[chip.chipType]}</span>
-                      <span className="text-slate-400">{chip.gameweekName}</span>
+                      <span className="block font-bold text-slate-900">{CHIP_LABELS[chip.chipType]}</span>
+                      <span className="text-[11px] text-slate-400 font-medium">{chip.gameweekName}</span>
                     </span>
                     {gameweek && (
-                      <span className="font-mono font-bold text-white tabular-nums">{formatPoints(gameweek.points)} pts</span>
+                      <span className="font-mono font-black text-emerald-700 tabular-nums text-sm">{formatPoints(gameweek.points)} pts</span>
                     )}
                   </li>
                 );

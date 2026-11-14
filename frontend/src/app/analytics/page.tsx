@@ -72,19 +72,21 @@ export default function AnalyticsPage() {
     <div className="mx-auto max-w-6xl space-y-6 pb-12">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-white">Performance analytics</h1>
-          <p className="mt-1 text-sm text-slate-400">
+          <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-slate-900 leading-tight">
+            Performance Analytics
+          </h1>
+          <p className="mt-1 text-xs sm:text-sm text-slate-500">
             Your season, gameweek by gameweek, compared with every manager on FantasyXI.
           </p>
         </div>
 
         {analytics && analytics.squads.length > 1 && (
-          <label className="flex items-center gap-2 text-xs text-slate-400">
+          <label className="flex items-center gap-2 text-xs text-slate-500 font-medium">
             <span>Squad</span>
             <select
               value={analytics.squadId ?? ""}
               onChange={(event) => handleSquadChange(event.target.value)}
-              className="rounded-lg border border-pitch-border bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-emerald-400"
+              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c]"
             >
               {analytics.squads.map((squad) => (
                 <option key={squad.id} value={squad.id}>
@@ -97,7 +99,7 @@ export default function AnalyticsPage() {
       </header>
 
       {error && (
-        <div role="alert" className="rounded-lg border border-rose-800 bg-rose-950/40 p-4 text-sm text-rose-200">
+        <div role="alert" className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-xs font-medium text-rose-900 shadow-sm">
           {error}
         </div>
       )}
