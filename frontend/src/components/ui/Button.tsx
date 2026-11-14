@@ -20,22 +20,22 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const sizeClasses = {
-    sm: "px-3 py-1.5 text-xs rounded-md gap-1.5",
-    md: "px-4 py-2.5 text-sm rounded-lg gap-2 font-semibold",
-    lg: "px-6 py-3 text-base rounded-xl gap-2.5 font-bold",
+    sm: "px-3 py-1.5 text-xs rounded-xl gap-1.5 font-semibold",
+    md: "px-4 py-2.5 text-xs rounded-xl gap-2 font-bold",
+    lg: "px-6 py-3 text-sm rounded-xl gap-2.5 font-bold",
   };
 
   const variantClasses = {
     primary:
-      "bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm hover:shadow active:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-400/50",
+      "bg-[#37003c] hover:bg-[#26002b] text-white shadow-xs hover:shadow active:bg-[#1a001c] focus-visible:ring-2 focus-visible:ring-[#37003c]/40",
     secondary:
-      "bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 active:bg-slate-800 focus-visible:ring-2 focus-visible:ring-slate-500/50",
+      "bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 shadow-2xs active:bg-slate-100 focus-visible:ring-2 focus-visible:ring-slate-300",
     outline:
-      "border border-slate-700 hover:border-slate-600 hover:bg-slate-800/60 text-slate-200 active:bg-slate-800 focus-visible:ring-2 focus-visible:ring-slate-500/50",
+      "border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 active:bg-slate-100 focus-visible:ring-2 focus-visible:ring-slate-300",
     ghost:
-      "text-slate-300 hover:text-white hover:bg-slate-800/70 active:bg-slate-800/90",
+      "text-slate-600 hover:text-slate-900 hover:bg-slate-100 active:bg-slate-200",
     danger:
-      "bg-rose-600 hover:bg-rose-500 text-white active:bg-rose-700 focus-visible:ring-2 focus-visible:ring-rose-400/50",
+      "bg-rose-600 hover:bg-rose-500 text-white shadow-xs active:bg-rose-700 focus-visible:ring-2 focus-visible:ring-rose-400/50",
   };
 
   return (

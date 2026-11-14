@@ -17,13 +17,13 @@ export const Badge: React.FC<BadgeProps> = ({
   const sizeClasses = size === "sm" ? "px-1.5 py-0.5 text-xs" : "px-2.5 py-1 text-xs font-semibold";
 
   const variantClasses: Record<string, string> = {
-    default: "bg-slate-800 text-slate-300 border border-slate-700",
-    primary: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/25",
-    accent: "bg-amber-500/10 text-amber-400 border border-amber-500/25",
-    success: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30",
-    warning: "bg-amber-500/15 text-amber-300 border border-amber-500/30",
-    danger: "bg-rose-500/15 text-rose-400 border border-rose-500/30",
-    neutral: "bg-slate-900 text-slate-400 border border-slate-800",
+    default: "bg-slate-100 text-slate-700 border border-slate-200",
+    primary: "bg-purple-50 text-[#37003c] border border-purple-200/80 font-bold",
+    accent: "bg-amber-50 text-amber-800 border border-amber-200/80 font-bold",
+    success: "bg-emerald-50 text-emerald-800 border border-emerald-200/80 font-bold",
+    warning: "bg-amber-50 text-amber-800 border border-amber-200/80 font-bold",
+    danger: "bg-rose-50 text-rose-700 border border-rose-200/80 font-bold",
+    neutral: "bg-slate-50 text-slate-600 border border-slate-200",
   };
 
   return (
