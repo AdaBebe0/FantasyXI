@@ -115,27 +115,27 @@ function RegisterForm() {
     <div className="w-full max-w-md mx-auto">
       {/* Brand Header */}
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mb-4 shadow-lg shadow-emerald-950/40">
-          <IconFootball className="w-7 h-7" />
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-purple-50 border border-purple-200/80 text-[#37003c] mb-4 shadow-sm">
+          <IconFootball className="w-7 h-7 text-[#37003c]" />
         </div>
-        <h1 className="text-2xl font-black tracking-tight text-white uppercase font-sans">
+        <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 uppercase font-sans">
           Register Manager Account
         </h1>
-        <p className="mt-1.5 text-sm text-slate-400">
+        <p className="mt-1.5 text-xs sm:text-sm text-slate-500 max-w-sm mx-auto leading-relaxed">
           Build your £100m squad, lead leagues, and play for verified USDC rewards.
         </p>
       </div>
 
       {/* Registration Card */}
-      <div className="bg-pitch-surface border border-pitch-border rounded-xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+      <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm relative overflow-hidden">
         {/* Pitch line accent */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-emerald-400 to-emerald-600" />
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#37003c] via-[#4d0c5a] to-[#00ff87]" />
 
         {/* Error Banner */}
         {errorMsg && (
-          <div className="mb-6 p-3.5 rounded-lg bg-red-950/40 border border-red-500/40 flex items-start gap-3 text-red-300 text-sm animate-shake">
-            <IconAlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-            <div className="flex-1 font-medium leading-snug">{errorMsg}</div>
+          <div className="mb-6 p-3.5 rounded-xl bg-rose-50 border border-rose-200 flex items-start gap-3 text-rose-700 text-xs font-semibold animate-shake">
+            <IconAlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1 leading-snug">{errorMsg}</div>
           </div>
         )}
 
@@ -143,19 +143,19 @@ function RegisterForm() {
         <button
           type="button"
           onClick={handleGoogleSignup}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-100 font-medium text-sm transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500/50 shadow-sm group"
+          className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition-all focus:outline-none focus:ring-2 focus:ring-[#37003c]/20 shadow-2xs group cursor-pointer"
         >
-          <IconGoogle className="w-5 h-5 flex-shrink-0 group-hover:scale-105 transition-transform" />
+          <IconGoogle className="w-4 h-4 flex-shrink-0 group-hover:scale-105 transition-transform" />
           <span>Continue with Google</span>
         </button>
 
         {/* Divider */}
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-800" />
+            <div className="w-full border-t border-slate-200" />
           </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-pitch-surface px-3 text-slate-500 font-bold tracking-wider">
+          <div className="relative flex justify-center text-[10px] uppercase">
+            <span className="bg-white px-3 text-slate-400 font-bold tracking-wider">
               Or fill manager details
             </span>
           </div>
@@ -166,9 +166,9 @@ function RegisterForm() {
           <div>
             <label
               htmlFor="name"
-              className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5"
+              className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5"
             >
-              Manager Name <span className="text-slate-500 font-normal lowercase">(optional)</span>
+              Manager Name <span className="text-slate-400 font-normal lowercase">(optional)</span>
             </label>
             <input
               id="name"
@@ -177,16 +177,16 @@ function RegisterForm() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Stanley Davis"
-              className="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-700/80 rounded-lg text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c] transition-colors"
             />
           </div>
 
           <div>
             <label
               htmlFor="username"
-              className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5"
+              className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5"
             >
-              Username <span className="text-red-400">*</span>
+              Username <span className="text-rose-500">*</span>
             </label>
             <input
               id="username"
@@ -196,9 +196,9 @@ function RegisterForm() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="stanley_xi"
-              className="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-700/80 rounded-lg text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors font-mono"
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c] transition-colors font-mono"
             />
-            <p className="mt-1 text-[11px] text-slate-500">
+            <p className="mt-1 text-[10px] text-slate-400">
               3-20 characters, letters, numbers, and underscores only.
             </p>
           </div>
@@ -206,9 +206,9 @@ function RegisterForm() {
           <div>
             <label
               htmlFor="email"
-              className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5"
+              className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5"
             >
-              Email Address <span className="text-red-400">*</span>
+              Email Address <span className="text-rose-500">*</span>
             </label>
             <input
               id="email"
@@ -218,7 +218,7 @@ function RegisterForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="manager@fantasyxi.com"
-              className="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-700/80 rounded-lg text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c] transition-colors"
             />
           </div>
 
@@ -226,14 +226,14 @@ function RegisterForm() {
             <div className="flex items-center justify-between mb-1.5">
               <label
                 htmlFor="password"
-                className="block text-xs font-semibold uppercase tracking-wider text-slate-300"
+                className="block text-[10px] font-bold uppercase tracking-wider text-slate-500"
               >
-                Password <span className="text-red-400">*</span>
+                Password <span className="text-rose-500">*</span>
               </label>
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="text-xs font-semibold text-slate-400 hover:text-slate-200 transition-colors"
+                className="text-xs font-bold text-slate-400 hover:text-slate-700 transition-colors"
               >
                 {showPassword ? "Hide" : "Show"}
               </button>
@@ -246,16 +246,16 @@ function RegisterForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Min. 8 characters"
-              className="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-700/80 rounded-lg text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c] transition-colors"
             />
           </div>
 
           <div>
             <label
               htmlFor="confirmPassword"
-              className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5"
+              className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5"
             >
-              Confirm Password <span className="text-red-400">*</span>
+              Confirm Password <span className="text-rose-500">*</span>
             </label>
             <input
               id="confirmPassword"
@@ -265,7 +265,7 @@ function RegisterForm() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Re-enter password"
-              className="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-700/80 rounded-lg text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c] transition-colors"
             />
           </div>
 
@@ -274,7 +274,7 @@ function RegisterForm() {
               type="submit"
               variant="primary"
               size="lg"
-              className="w-full justify-center text-sm font-bold tracking-wide uppercase"
+              className="w-full justify-center text-xs font-bold tracking-wide uppercase"
               isLoading={isSubmitting}
             >
               Create Account & Pick Squad
@@ -283,11 +283,11 @@ function RegisterForm() {
         </form>
 
         {/* Footer info */}
-        <div className="mt-6 text-center text-xs text-slate-400">
+        <div className="mt-6 text-center text-xs text-slate-500">
           Already have an account?{" "}
           <Link
             href={`/login${returnTo !== "/team" ? `?returnTo=${encodeURIComponent(returnTo)}` : ""}`}
-            className="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors"
+            className="text-[#37003c] hover:underline font-bold transition-colors"
           >
             Sign In
           </Link>
@@ -295,8 +295,8 @@ function RegisterForm() {
       </div>
 
       {/* Security note */}
-      <div className="mt-6 flex items-center justify-center gap-2 text-xs text-slate-500">
-        <IconCheck className="w-4 h-4 text-emerald-500" />
+      <div className="mt-6 flex items-center justify-center gap-2 text-xs text-slate-400">
+        <IconCheck className="w-3.5 h-3.5 text-emerald-600" />
         <span>Bcrypt encrypted &bull; Soroban escrow ready</span>
       </div>
     </div>

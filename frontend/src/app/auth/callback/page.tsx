@@ -54,14 +54,14 @@ function AuthCallbackContent() {
 
   if (error) {
     return (
-      <div className="w-full max-w-md mx-auto p-6 bg-pitch-surface border border-pitch-border rounded-xl shadow-2xl text-center">
-        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-950/40 border border-red-500/30 text-red-400 mb-4">
+      <div className="w-full max-w-md mx-auto p-6 sm:p-8 bg-white border border-slate-200/80 rounded-3xl shadow-sm text-center">
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 text-rose-600 mb-4">
           <IconAlertCircle className="w-6 h-6" />
         </div>
-        <h2 className="text-lg font-bold text-white mb-2">Authentication Failed</h2>
-        <p className="text-sm text-slate-400 mb-6">{error}</p>
+        <h2 className="text-xl font-black text-slate-900 tracking-tight mb-2">Authentication Failed</h2>
+        <p className="text-xs text-slate-500 leading-relaxed mb-6">{error}</p>
         <Link href="/login">
-          <Button variant="primary" className="w-full justify-center uppercase tracking-wide">
+          <Button variant="primary" className="w-full justify-center uppercase tracking-wide text-xs font-bold">
             Back to Sign In
           </Button>
         </Link>
@@ -70,12 +70,12 @@ function AuthCallbackContent() {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto p-8 bg-pitch-surface border border-pitch-border rounded-xl shadow-2xl text-center">
-      <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mb-4 animate-pulse">
+    <div className="w-full max-w-md mx-auto p-8 bg-white border border-slate-200/80 rounded-3xl shadow-sm text-center">
+      <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-purple-50 border border-purple-200/80 text-[#37003c] mb-4 animate-pulse">
         <IconFootball className="w-8 h-8 animate-spin" />
       </div>
-      <h2 className="text-lg font-bold text-white mb-1.5">Authenticating Manager...</h2>
-      <p className="text-sm text-slate-400">
+      <h2 className="text-xl font-black text-slate-900 tracking-tight mb-1.5">Authenticating Manager...</h2>
+      <p className="text-xs text-slate-500 leading-relaxed">
         Synchronizing profile and fantasy credentials. You will be redirected shortly.
       </p>
     </div>

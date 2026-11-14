@@ -160,40 +160,40 @@ function LoginForm() {
     <div className="w-full max-w-md mx-auto">
       {/* Brand Header */}
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mb-4 shadow-lg shadow-emerald-950/40">
-          <IconFootball className="w-7 h-7" />
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-purple-50 border border-purple-200/80 text-[#37003c] mb-4 shadow-sm">
+          <IconFootball className="w-7 h-7 text-[#37003c]" />
         </div>
-        <h1 className="text-2xl font-black tracking-tight text-white uppercase font-sans">
+        <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 uppercase font-sans">
           Manager Sign In
         </h1>
-        <p className="mt-1.5 text-sm text-slate-400">
+        <p className="mt-1.5 text-xs sm:text-sm text-slate-500 max-w-sm mx-auto leading-relaxed">
           Access your FantasyXI squad, enter leagues, and compete for USDC prizes.
         </p>
       </div>
 
       {/* Login Card */}
-      <div className="bg-pitch-surface border border-pitch-border rounded-xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-        {/* Subtle top pitch-line glow */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-emerald-400 to-emerald-600" />
+      <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm relative overflow-hidden">
+        {/* Subtle top brand accent */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#37003c] via-[#4d0c5a] to-[#00ff87]" />
 
         {/* Error Banner */}
         {errorMsg && (
-          <div className="mb-6 p-3.5 rounded-lg bg-red-950/40 border border-red-500/40 flex items-start gap-3 text-red-300 text-sm animate-shake">
-            <IconAlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-            <div className="flex-1 font-medium leading-snug">{errorMsg}</div>
+          <div className="mb-6 p-3.5 rounded-xl bg-rose-50 border border-rose-200 flex items-start gap-3 text-rose-700 text-xs font-semibold animate-shake">
+            <IconAlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1 leading-snug">{errorMsg}</div>
           </div>
         )}
 
         {challengeId ? (
           <form onSubmit={handleVerifyCode} className="space-y-4" data-testid="login-challenge">
-            <p className="text-sm text-slate-300 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
               We don&apos;t recognize this device. Enter the 6-digit code we just emailed to{" "}
-              <span className="font-semibold text-white">{email.trim()}</span> to finish signing in.
+              <span className="font-bold text-slate-900">{email.trim()}</span> to finish signing in.
             </p>
             <div>
               <label
                 htmlFor="code"
-                className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5"
+                className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5"
               >
                 Verification Code
               </label>
@@ -208,14 +208,14 @@ function LoginForm() {
                 // Strip before capping, so a pasted "123 456" keeps all six digits
                 onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
                 placeholder="123456"
-                className="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-700/80 rounded-lg text-slate-100 placeholder-slate-500 text-lg tracking-[0.5em] font-mono focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 text-lg tracking-[0.5em] font-mono focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c] transition-colors text-center"
               />
             </div>
             <Button
               type="submit"
               variant="primary"
               size="lg"
-              className="w-full justify-center text-sm font-bold tracking-wide uppercase"
+              className="w-full justify-center text-xs font-bold tracking-wide uppercase"
               isLoading={isSubmitting}
             >
               Verify &amp; Sign In
@@ -226,14 +226,14 @@ function LoginForm() {
                 setChallengeId(null);
                 setErrorMsg(null);
               }}
-              className="w-full text-xs text-slate-400 hover:text-slate-200 transition-colors"
+              className="w-full text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors"
             >
               Back to sign in
             </button>
           </form>
         ) : passkeyOptions ? (
           <div className="space-y-4" data-testid="login-passkey-challenge">
-            <p className="text-sm text-slate-300 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
               Your account is protected with a passkey. Confirm it&apos;s you with Face ID, Touch ID, Windows
               Hello or your security key to finish signing in.
             </p>
@@ -241,7 +241,7 @@ function LoginForm() {
               type="button"
               variant="primary"
               size="lg"
-              className="w-full justify-center text-sm font-bold tracking-wide uppercase"
+              className="w-full justify-center text-xs font-bold tracking-wide uppercase"
               isLoading={isSubmitting}
               onClick={() => handlePasskeySignIn(passkeyOptions)}
             >
@@ -253,7 +253,7 @@ function LoginForm() {
                 setPasskeyOptions(null);
                 setErrorMsg(null);
               }}
-              className="w-full text-xs text-slate-400 hover:text-slate-200 transition-colors"
+              className="w-full text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors"
             >
               Back to sign in
             </button>
@@ -266,9 +266,9 @@ function LoginForm() {
                 type="button"
                 onClick={() => handlePasskeySignIn()}
                 disabled={isSubmitting}
-                className="w-full flex items-center justify-center gap-3 px-4 py-3 mb-3 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-100 font-medium text-sm transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500/50 shadow-sm group disabled:opacity-60"
+                className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 mb-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition-all focus:outline-none focus:ring-2 focus:ring-[#37003c]/20 shadow-2xs group disabled:opacity-60 cursor-pointer"
               >
-                <IconShield className="w-5 h-5 flex-shrink-0 text-emerald-400 group-hover:scale-105 transition-transform" />
+                <IconShield className="w-4 h-4 flex-shrink-0 text-[#37003c] group-hover:scale-105 transition-transform" />
                 <span>Sign in with a passkey</span>
               </button>
             )}
@@ -277,19 +277,19 @@ function LoginForm() {
             <button
               type="button"
               onClick={handleGoogleLogin}
-              className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-100 font-medium text-sm transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500/50 shadow-sm group"
+              className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition-all focus:outline-none focus:ring-2 focus:ring-[#37003c]/20 shadow-2xs group cursor-pointer"
             >
-              <IconGoogle className="w-5 h-5 flex-shrink-0 group-hover:scale-105 transition-transform" />
+              <IconGoogle className="w-4 h-4 flex-shrink-0 group-hover:scale-105 transition-transform" />
               <span>Continue with Google</span>
             </button>
 
             {/* Tactical Divider */}
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-800" />
+                <div className="w-full border-t border-slate-200" />
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-pitch-surface px-3 text-slate-500 font-bold tracking-wider">
+              <div className="relative flex justify-center text-[10px] uppercase">
+                <span className="bg-white px-3 text-slate-400 font-bold tracking-wider">
                   Or with email
                 </span>
               </div>
@@ -300,7 +300,7 @@ function LoginForm() {
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5"
+                  className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5"
                 >
                   Email Address
                 </label>
@@ -312,7 +312,7 @@ function LoginForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="manager@fantasyxi.com"
-                  className="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-700/80 rounded-lg text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c] transition-colors"
                 />
               </div>
 
@@ -320,11 +320,11 @@ function LoginForm() {
                 <div className="flex items-center justify-between mb-1.5">
                   <label
                     htmlFor="password"
-                    className="block text-xs font-semibold uppercase tracking-wider text-slate-300"
+                    className="block text-[10px] font-bold uppercase tracking-wider text-slate-500"
                   >
                     Password
                   </label>
-                  <span className="text-xs text-slate-500">Min. 8 characters</span>
+                  <span className="text-[10px] text-slate-400">Min. 8 characters</span>
                 </div>
                 <div className="relative">
                   <input
@@ -335,12 +335,12 @@ function LoginForm() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full px-3.5 py-2.5 pr-10 bg-slate-950/70 border border-slate-700/80 rounded-lg text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+                    className="w-full px-3.5 py-2.5 pr-12 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c] transition-colors"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 hover:text-slate-200 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 hover:text-slate-700 transition-colors"
                   >
                     {showPassword ? "Hide" : "Show"}
                   </button>
@@ -352,7 +352,7 @@ function LoginForm() {
                   type="submit"
                   variant="primary"
                   size="lg"
-                  className="w-full justify-center text-sm font-bold tracking-wide uppercase"
+                  className="w-full justify-center text-xs font-bold tracking-wide uppercase"
                   isLoading={isSubmitting}
                 >
                   Sign In to Dugout
@@ -363,11 +363,11 @@ function LoginForm() {
         )}
 
         {/* Footer info */}
-        <div className="mt-6 text-center text-xs text-slate-400">
+        <div className="mt-6 text-center text-xs text-slate-500">
           New to FantasyXI?{" "}
           <Link
             href={`/register${returnTo !== "/" ? `?returnTo=${encodeURIComponent(returnTo)}` : ""}`}
-            className="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors"
+            className="text-[#37003c] hover:underline font-bold transition-colors"
           >
             Create Manager Account
           </Link>
@@ -375,8 +375,8 @@ function LoginForm() {
       </div>
 
       {/* Security note */}
-      <div className="mt-6 flex items-center justify-center gap-2 text-xs text-slate-500">
-        <IconCheck className="w-4 h-4 text-emerald-500" />
+      <div className="mt-6 flex items-center justify-center gap-2 text-xs text-slate-400">
+        <IconCheck className="w-3.5 h-3.5 text-emerald-600" />
         <span>JWT session secured &bull; Stellar USDC escrow enabled</span>
       </div>
     </div>
