@@ -4,10 +4,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Sidebar } from "./Sidebar";
 import { MobileNav } from "./MobileNav";
-import { GameweekBanner } from "./GameweekBanner";
 import { OfflineIndicator } from "./OfflineIndicator";
 import { PushNotificationPrompt } from "./PushNotificationPrompt";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { FantasyXILogo } from "@/components/ui/FantasyXILogo";
 import { IconSearch, IconBell, IconSun, IconWallet } from "@/components/ui/Icons";
 
@@ -46,17 +44,6 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 focus:bg-white border border-slate-200 rounded-xl focus:outline-hidden focus:ring-1 focus:ring-[#37003c]/20 focus:border-[#37003c] transition-all text-slate-700 placeholder:text-slate-400"
             />
-          </div>
-
-          {/* Top Center: Gameweek Status */}
-          <div className="hidden lg:flex items-center gap-3">
-            <ErrorBoundary
-              name="GameweekBanner"
-              fallbackTitle="Gameweek countdown unavailable"
-              compact
-            >
-              <GameweekBanner />
-            </ErrorBoundary>
           </div>
 
           {/* Top Right Quick Actions & Connect Wallet */}
