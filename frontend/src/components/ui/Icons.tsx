@@ -1,8 +1,9 @@
 import React from "react";
 
-interface IconProps extends React.SVGProps<SVGSVGElement> {
+export interface IconProps extends React.SVGAttributes<SVGSVGElement> {
   size?: number;
   className?: string;
+  title?: string;
 }
 
 export const FootballIcon: React.FC<IconProps> = ({ size = 20, className = "", ...props }) => (
@@ -599,13 +600,9 @@ export {
   MedalIcon as IconMedal,
   TrophyIcon as IconAward,
   StarIcon as IconStar,
-  StarIcon,
   CrownIcon as IconCrown,
-  CrownIcon,
   TrendingUpIcon as IconTrendingUp,
-  TrendingUpIcon,
   BellIcon as IconBell,
-  BellIcon,
   FootballIcon as IconSun,
 };
 
