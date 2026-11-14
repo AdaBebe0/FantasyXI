@@ -97,28 +97,28 @@ export default function FixturesPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-12">
       {/* Header */}
-      <div className="bg-pitch-surface border border-pitch-border rounded-xl p-6 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">
               Premier League Schedule
             </span>
-            <span className="text-xs text-slate-500 font-mono">&bull; FPL Official Data</span>
+            <span className="text-xs text-slate-400 font-mono">&bull; FPL Official Data</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight">
             Matchday Fixtures
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-xl leading-relaxed">
             Follow match schedules, kickoff dates, and live fantasy scoring.
           </p>
         </div>
 
         {selectedGw?.deadline && (
-          <div className="p-3 rounded-lg bg-slate-950/70 border border-slate-800 text-right self-start sm:self-auto font-mono">
-            <div className="text-[10px] text-slate-500 uppercase font-sans font-semibold">
+          <div className="p-3.5 rounded-2xl bg-purple-50/60 border border-purple-200/60 text-right self-start sm:self-auto font-mono">
+            <div className="text-[10px] text-slate-500 uppercase font-sans font-bold">
               Round Deadline
             </div>
-            <div className="text-xs font-bold text-white mt-0.5">
+            <div className="text-xs font-black text-slate-900 mt-0.5">
               {new Date(selectedGw.deadline).toLocaleDateString([], {
                 month: "short",
                 day: "numeric",
@@ -131,7 +131,7 @@ export default function FixturesPage() {
       </div>
 
       {/* Gameweek Switcher Bar */}
-      <div className="flex items-center justify-between bg-pitch-surface border border-pitch-border p-3 rounded-xl shadow-md">
+      <div className="flex items-center justify-between bg-white border border-slate-200/80 p-3.5 rounded-2xl shadow-sm">
         <Button
           type="button"
           variant="secondary"
@@ -148,7 +148,7 @@ export default function FixturesPage() {
           <select
             value={selectedGwId || ""}
             onChange={(e) => setSelectedGwId(parseInt(e.target.value, 10))}
-            className="px-4 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-white font-bold text-sm focus:outline-none focus:border-emerald-500 font-mono text-center"
+            className="px-4 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-bold text-xs focus:outline-none focus:border-[#37003c] font-mono text-center"
           >
             {gameweeks.map((g) => (
               <option key={g.id} value={g.id}>
@@ -158,7 +158,7 @@ export default function FixturesPage() {
           </select>
 
           {selectedGw?.isCurrent && (
-            <span className="text-xs font-semibold text-emerald-400">
+            <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
               Active round
             </span>
           )}
@@ -184,8 +184,8 @@ export default function FixturesPage() {
         resetKeys={[selectedGwId]}
       >
         {isLoadingFix ? (
-          <div className="py-24 text-center text-slate-400">
-            <div className="inline-block w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mb-3" />
+          <div className="py-24 text-center text-slate-500 text-xs font-semibold">
+            <div className="inline-block w-8 h-8 border-2 border-[#37003c] border-t-transparent rounded-full animate-spin mb-3" />
             <p className="text-xs">Loading Premier League fixtures...</p>
           </div>
         ) : fixtures.length > 0 ? (
@@ -193,8 +193,8 @@ export default function FixturesPage() {
             {Object.entries(fixturesByDate).map(([dateTitle, dateFixtures]) => (
               <div key={dateTitle} className="space-y-3">
                 {/* Date Header */}
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 px-1">
-                  <IconCalendar className="w-4 h-4 text-emerald-400" />
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 px-1">
+                  <IconCalendar className="w-4 h-4 text-[#37003c]" />
                   <span>{dateTitle}</span>
                 </div>
 
@@ -206,14 +206,14 @@ export default function FixturesPage() {
                     return (
                       <div
                         key={fix.id}
-                        className="bg-pitch-surface border border-pitch-border rounded-xl p-4 shadow-sm hover:border-slate-700 transition-colors flex items-center justify-between"
+                        className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm hover:border-slate-300 transition-colors flex items-center justify-between"
                       >
                         {/* Home Team */}
                         <div className="flex-1 flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center font-bold text-xs font-mono text-slate-200">
+                          <div className="w-8 h-8 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center font-bold text-xs font-mono text-[#37003c]">
                             {fix.homeTeam?.shortName || "PL"}
                           </div>
-                          <span className="font-bold text-sm text-white truncate">
+                          <span className="font-bold text-xs sm:text-sm text-slate-900 truncate">
                             {fix.homeTeam?.name || `Team ${fix.homeTeamId}`}
                           </span>
                         </div>
@@ -222,16 +222,16 @@ export default function FixturesPage() {
                         <div className="px-4 text-center">
                           {fix.started ? (
                             <div className="flex flex-col items-center">
-                              <span className="font-mono font-black text-base text-emerald-400 tabular-nums tracking-wider">
+                              <span className="font-mono font-black text-base text-slate-900 tabular-nums tracking-wider">
                                 {fix.homeScore ?? 0} - {fix.awayScore ?? 0}
                               </span>
-                              <span className="text-[10px] text-slate-500 font-mono mt-1 font-semibold uppercase">
+                              <span className="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-mono mt-1 font-bold uppercase">
                                 {fix.finished ? "Full Time" : `${fix.minutes}'`}
                               </span>
                             </div>
                           ) : (
                             <div className="flex flex-col items-center">
-                              <span className="font-mono font-bold text-xs text-slate-300">
+                              <span className="font-mono font-bold text-xs text-slate-900">
                                 {kickoff
                                   ? kickoff.toLocaleTimeString([], {
                                       hour: "2-digit",
@@ -239,17 +239,17 @@ export default function FixturesPage() {
                                     })
                                   : "TBD"}
                               </span>
-                              <span className="text-[10px] text-slate-500 mt-0.5">Kickoff</span>
+                              <span className="text-[10px] text-slate-400 mt-0.5">Kickoff</span>
                             </div>
                           )}
                         </div>
 
                         {/* Away Team */}
                         <div className="flex-1 flex items-center justify-end gap-3 text-right">
-                          <span className="font-bold text-sm text-white truncate">
+                          <span className="font-bold text-xs sm:text-sm text-slate-900 truncate">
                             {fix.awayTeam?.name || `Team ${fix.awayTeamId}`}
                           </span>
-                          <div className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center font-bold text-xs font-mono text-slate-200">
+                          <div className="w-8 h-8 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center font-bold text-xs font-mono text-[#37003c]">
                             {fix.awayTeam?.shortName || "PL"}
                           </div>
                         </div>
@@ -261,7 +261,7 @@ export default function FixturesPage() {
             ))}
           </div>
         ) : (
-          <div className="py-20 text-center bg-pitch-surface border border-pitch-border rounded-xl p-8 text-slate-500 text-xs">
+          <div className="py-20 text-center bg-white border border-slate-200/80 rounded-3xl p-8 text-slate-500 text-xs">
             No matches scheduled for {selectedGw ? selectedGw.name : "this gameweek"}.
           </div>
         )}
