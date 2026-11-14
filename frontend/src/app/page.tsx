@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 import { Squad, Gameweek, Fixture, League } from "@/types";
@@ -14,9 +15,13 @@ import {
   IconCheck,
   IconPlus,
   IconShield,
+  IconWallet,
+  IconStar,
+  IconAward,
+  IconTrendingUp,
 } from "@/components/ui/Icons";
-import { Badge, PositionBadge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
+import { FantasyXILogo } from "@/components/ui/FantasyXILogo";
 
 export default function HomePage() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
@@ -33,36 +38,38 @@ export default function HomePage() {
       setIsLoadingData(true);
       try {
         // 1. Fetch current gameweek
-        const gwRes = await api.get<{ success: boolean; data: Gameweek }>(
-          "/api/v1/gameweeks/current"
-        ).catch(() => null);
+        const gwRes = await api
+          .get<{ success: boolean; data: Gameweek }>("/api/v1/gameweeks/current")
+          .catch(() => null);
 
         const currentGw = gwRes?.data || null;
         if (currentGw) {
           setGameweek(currentGw);
 
           // 2. Fetch fixtures for current gameweek
-          const fixRes = await api.get<{ success: boolean; data: Fixture[] }>(
-            `/api/v1/fixtures?gameweekId=${currentGw.id}`
-          ).catch(() => null);
+          const fixRes = await api
+            .get<{ success: boolean; data: Fixture[] }>(
+              `/api/v1/fixtures?gameweekId=${currentGw.id}`
+            )
+            .catch(() => null);
           if (fixRes?.data) {
-            setFixtures(fixRes.data.slice(0, 6)); // First 6 fixtures
+            setFixtures(fixRes.data.slice(0, 4)); // First 4 fixtures
           }
         }
 
         // 3. Fetch public leagues
-        const leaguesRes = await api.get<{ success: boolean; data: League[] }>(
-          "/api/v1/leagues"
-        ).catch(() => null);
+        const leaguesRes = await api
+          .get<{ success: boolean; data: League[] }>("/api/v1/leagues")
+          .catch(() => null);
         if (leaguesRes?.data) {
-          setLeagues(leaguesRes.data.slice(0, 4));
+          setLeagues(leaguesRes.data.slice(0, 3));
         }
 
         // 4. Fetch user's squad if logged in
         if (isAuthenticated) {
-          const squadRes = await api.get<{ success: boolean; data: Squad[] }>(
-            "/api/v1/squads/me"
-          ).catch(() => null);
+          const squadRes = await api
+            .get<{ success: boolean; data: Squad[] }>("/api/v1/squads/me")
+            .catch(() => null);
           if (squadRes?.data && squadRes.data.length > 0) {
             setSquad(squadRes.data[0]);
           }
@@ -79,444 +86,385 @@ export default function HomePage() {
     }
   }, [isAuthenticated, authLoading]);
 
-  // Derive captain and vice-captain if squad exists
-  const captain = squad?.players?.find((p) => p.isCaptain);
-  const viceCaptain = squad?.players?.find((p) => p.isViceCaptain);
-  const starters = squad?.players?.filter((p) => p.isStarter) || [];
-
   return (
-    <div className="space-y-8">
-      {/* Top Hero / Welcome Banner */}
-      {!isAuthenticated ? (
-        <div className="relative rounded-2xl bg-gradient-to-br from-pitch-surface via-slate-900 to-pitch-surface border border-pitch-border p-6 sm:p-10 overflow-hidden shadow-2xl">
-          <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
-          <div className="relative z-10 max-w-2xl">
-            <div className="flex items-center gap-2 text-emerald-400 text-xs font-mono font-bold uppercase tracking-wider mb-3">
-              <IconShield className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Stellar Testnet &bull; Smart Escrow Active</span>
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-black text-white uppercase tracking-tight leading-tight">
-              Premier League Fantasy, <br className="hidden sm:inline" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-200">
-                Backed by USDC Escrow
+    <div className="space-y-6">
+      {/* Top Hero Section & Wallet Banner */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Hero Card */}
+        <div className="lg:col-span-2 relative rounded-3xl bg-gradient-to-r from-[#20033c] via-[#37003c] to-[#044c35] p-6 sm:p-8 text-white overflow-hidden shadow-xl flex flex-col justify-between min-h-[260px]">
+          {/* Subtle tactical pitch line watermark */}
+          <div className="absolute right-0 top-0 bottom-0 w-1/2 opacity-15 pointer-events-none bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-emerald-400 via-transparent to-transparent" />
+
+          {/* Hero Content */}
+          <div className="relative z-10 max-w-xl">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#00ff87]/20 text-[#00ff87] border border-[#00ff87]/30">
+                Official Web3 Fantasy
               </span>
+              <span className="text-xs text-slate-300 font-medium">Gameweek {gameweek?.fplId ?? 12}</span>
+            </div>
+
+            <h1 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight text-white mb-3">
+              Your Ultimate Fantasy <br />
+              Football Experience
             </h1>
-            <p className="mt-3 text-slate-300 text-sm sm:text-base leading-relaxed">
-              Build your 15-man squad with a £100.0m budget. Compete in private or public leagues with
-              automated Soroban smart contract payouts.
+
+            <p className="text-xs sm:text-sm text-slate-200/90 leading-relaxed max-w-md mb-6">
+              Build your team, join high-roller leagues, and win transparent prizes with non-custodial smart escrow.
             </p>
-            <div className="mt-6 flex flex-wrap items-center gap-3">
-              <Link href="/register">
-                <Button variant="primary" size="lg" className="uppercase font-bold tracking-wide">
-                  Create Manager Account
-                </Button>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href="/team"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#00ff87] text-[#24002e] hover:bg-[#00e575] hover:shadow-lg hover:shadow-[#00ff87]/25 transition-all"
+              >
+                <span>Get Started</span>
+                <IconChevronRight className="w-4 h-4" />
               </Link>
-              <Link href="/login">
-                <Button variant="secondary" size="lg" className="uppercase font-bold tracking-wide">
-                  Sign In
-                </Button>
+              <Link
+                href="/leagues"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all border border-white/15"
+              >
+                Explore Leagues
               </Link>
             </div>
           </div>
         </div>
-      ) : (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-pitch-surface border border-pitch-border p-6 rounded-xl shadow-lg">
+
+        {/* Right Wallet & Payment Quick Card */}
+        <div className="rounded-3xl bg-white border border-slate-200/80 p-6 flex flex-col justify-between shadow-xs">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
-                Dugout Active
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-purple-50 text-[#37003c] flex items-center justify-center">
+                  <IconWallet className="w-4 h-4 text-[#37003c]" />
+                </div>
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  Your Wallet
+                </span>
+              </div>
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                Connected
               </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight uppercase">
-              Manager {user?.name || user?.username}
-            </h1>
-            <p className="text-xs text-slate-400 mt-0.5 font-mono">
-              Squad ID: {squad ? squad.name : "Unregistered"} &bull; FPL Gameweek {gameweek?.fplId || 1}
-            </p>
+
+            <div className="mb-4">
+              <div className="text-3xl font-black text-slate-900 tracking-tight">
+                $0.00
+              </div>
+              <div className="text-xs font-medium text-slate-400 mt-0.5">
+                ≈ 0.00 USDC &bull; Escrow Verified
+              </div>
+            </div>
+
+            {/* Payment Options (Polar & Zcash) */}
+            <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100">
+              <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors border border-slate-200/60">
+                <div className="w-7 h-7 rounded-lg bg-sky-500 text-white flex items-center justify-center font-black text-xs">
+                  P
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-800">Pollar</div>
+                  <div className="text-[10px] text-slate-400 font-medium">USDC</div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors border border-slate-200/60">
+                <div className="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center font-black text-xs">
+                  Z
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-800">Zcash</div>
+                  <div className="text-[10px] text-slate-400 font-medium">Shielded ZEC</div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Link href="/team">
-              <Button variant="primary" size="md" className="uppercase font-bold tracking-wide">
-                <IconFootball className="w-4 h-4" />
-                <span>Manage Pitch</span>
-              </Button>
-            </Link>
-            <Link href="/leagues">
-              <Button variant="secondary" size="md" className="uppercase font-bold tracking-wide">
-                <IconTrophy className="w-4 h-4" />
-                <span>Leagues Hub</span>
-              </Button>
-            </Link>
-          </div>
-        </div>
-      )}
-
-      {/* 4 Summary Stat Tiles */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Points */}
-        <div className="bg-pitch-surface border border-pitch-border rounded-xl p-4 sm:p-5 shadow-sm hover:border-slate-700 transition-colors">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Total Points</span>
-            <IconTrophy className="w-4 h-4 text-amber-400" />
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-black text-white font-mono">
-              {squad?.totalPoints ?? 0}
-            </span>
-            <span className="text-xs text-slate-500 font-medium">pts</span>
-          </div>
-          <p className="text-[11px] text-slate-500 mt-2">Career fantasy performance</p>
-        </div>
-
-        {/* Gameweek Status */}
-        <div className="bg-pitch-surface border border-pitch-border rounded-xl p-4 sm:p-5 shadow-sm hover:border-slate-700 transition-colors">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Round Status</span>
-            <IconCalendar className="w-4 h-4 text-emerald-400" />
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-xl sm:text-2xl font-bold text-white uppercase tracking-tight">
-              {gameweek ? gameweek.name : "GW 1"}
-            </span>
-            <Badge variant={gameweek?.isFinished ? "neutral" : "success"}>
-              {gameweek?.isFinished ? "Finished" : "Active"}
-            </Badge>
-          </div>
-          <p className="text-[11px] text-slate-500 mt-2">
-            {gameweek?.deadline
-              ? `Deadline: ${new Date(gameweek.deadline).toLocaleDateString([], {
-                  month: "short",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}`
-              : "Upcoming round"}
-          </p>
-        </div>
-
-        {/* Squad Budget / Spent */}
-        <div className="bg-pitch-surface border border-pitch-border rounded-xl p-4 sm:p-5 shadow-sm hover:border-slate-700 transition-colors">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Squad Budget</span>
-            <IconFootball className="w-4 h-4 text-blue-400" />
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-black text-white font-mono">
-              £{squad ? (100 - squad.budgetRemaining).toFixed(1) : "0.0"}m
-            </span>
-            <span className="text-xs text-slate-500">/ £100.0m</span>
-          </div>
-          <p className="text-[11px] text-emerald-400 mt-2 font-mono">
-            £{squad ? squad.budgetRemaining.toFixed(1) : "100.0"}m remaining
-          </p>
-        </div>
-
-        {/* Active Leagues */}
-        <div className="bg-pitch-surface border border-pitch-border rounded-xl p-4 sm:p-5 shadow-sm hover:border-slate-700 transition-colors">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Leagues Hub</span>
-            <IconUsers className="w-4 h-4 text-emerald-400" />
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-black text-white font-mono">
-              {leagues.length}
-            </span>
-            <span className="text-xs text-slate-500">open</span>
-          </div>
-          <p className="text-[11px] text-amber-400 mt-2 flex items-center gap-1 font-semibold">
-            <span>Stellar USDC Escrow</span>
-          </p>
+          <Link
+            href="/profile"
+            className="mt-4 w-full text-center py-2 px-3 rounded-xl text-xs font-bold text-[#37003c] bg-purple-50 hover:bg-purple-100 transition-colors border border-purple-200/60"
+          >
+            Manage Wallet &rarr;
+          </Link>
         </div>
       </div>
 
-      {/* Main Grid: Left Squad Snapshot + Right Leagues & Fixtures */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left 2 Cols: Squad Snapshot */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-pitch-surface border border-pitch-border rounded-xl p-6 shadow-md">
-            <div className="flex items-center justify-between mb-5">
-              <div>
-                <h2 className="text-lg font-bold text-white uppercase tracking-tight flex items-center gap-2">
-                  <IconFootball className="w-5 h-5 text-emerald-400" />
-                  <span>My Squad Snapshot</span>
-                </h2>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  {squad ? squad.name : "No squad created yet"}
-                </p>
-              </div>
-
-              <Link href="/team">
-                <Button variant="secondary" size="sm" className="text-xs uppercase font-bold">
-                  <span>Pitch View</span>
-                  <IconChevronRight className="w-3.5 h-3.5" />
-                </Button>
-              </Link>
+      {/* 4 Stat Overview Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="fxi-card p-5">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-slate-500">My Leagues</span>
+            <div className="w-8 h-8 rounded-xl bg-purple-50 text-[#37003c] flex items-center justify-center">
+              <IconTrophy className="w-4 h-4" />
             </div>
-
-            {squad && starters.length > 0 ? (
-              <div>
-                {/* Captaincy Bar */}
-                <div className="grid grid-cols-2 gap-4 p-3.5 rounded-lg bg-slate-950/60 border border-slate-800 mb-5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-md bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center font-black text-xs font-mono">
-                      C
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold text-slate-200">
-                        {captain?.player ? `${captain.player.firstName} ${captain.player.lastName}` : "None Selected"}
-                      </div>
-                      <div className="text-[11px] text-slate-500">
-                        Captain &bull; 2x Points Multiplier
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-md bg-slate-700/40 border border-slate-600 text-slate-300 flex items-center justify-center font-black text-xs font-mono">
-                      V
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold text-slate-200">
-                        {viceCaptain?.player ? `${viceCaptain.player.firstName} ${viceCaptain.player.lastName}` : "None Selected"}
-                      </div>
-                      <div className="text-[11px] text-slate-500">
-                        Vice-Captain &bull; Backup
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Starting XI Quick List */}
-                <div className="space-y-2">
-                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    Key Starters ({starters.length}/11)
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {starters.slice(0, 6).map((sp) => (
-                      <div
-                        key={sp.id}
-                        className="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/50 border border-slate-800 text-xs"
-                      >
-                        <div className="flex items-center gap-2">
-                          <PositionBadge position={sp.player?.position || "MID"} />
-                          <div>
-                            <span className="font-semibold text-slate-200">
-                              {sp.player?.displayName || sp.player?.lastName}
-                            </span>
-                            <span className="text-[10px] text-slate-500 ml-1.5 uppercase font-mono">
-                              {sp.player?.team?.shortName || "PL"}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="text-right">
-                          <span className="font-mono text-emerald-400 font-medium">
-                            £{((sp.player?.price || 0) / 10).toFixed(1)}m
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="pt-3 text-center">
-                    <Link
-                      href="/team"
-                      className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1 transition-colors"
-                    >
-                      <span>Open full 15-player interactive tactical pitch</span>
-                      <IconChevronRight className="w-3.5 h-3.5" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              /* Empty Squad State */
-              <div className="p-8 rounded-xl bg-slate-950/40 border border-dashed border-slate-800 text-center">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mx-auto mb-3">
-                  <IconFootball className="w-6 h-6" />
-                </div>
-                <h3 className="text-base font-bold text-white mb-1">Squad Not Drafted</h3>
-                <p className="text-xs text-slate-400 max-w-sm mx-auto mb-5">
-                  Pick 15 Premier League players within the £100.0m budget constraint before the gameweek deadline.
-                </p>
-                <Link href={isAuthenticated ? "/team" : "/register"}>
-                  <Button variant="primary" size="md" className="uppercase font-bold tracking-wide">
-                    <IconPlus className="w-4 h-4" />
-                    <span>Select 15-Player Squad</span>
-                  </Button>
-                </Link>
-              </div>
-            )}
           </div>
-
-          {/* Featured / Open Leagues Card */}
-          <div className="bg-pitch-surface border border-pitch-border rounded-xl p-6 shadow-md">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-lg font-bold text-white uppercase tracking-tight flex items-center gap-2">
-                  <IconTrophy className="w-5 h-5 text-amber-400" />
-                  <span>Public Competitions</span>
-                </h2>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Verified USDC prize pools held in Soroban escrow
-                </p>
-              </div>
-
-              <Link href="/leagues">
-                <Button variant="secondary" size="sm" className="text-xs uppercase font-bold">
-                  Browse All
-                </Button>
-              </Link>
-            </div>
-
-            {leagues.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="border-b border-slate-800 text-slate-400 uppercase font-semibold">
-                      <th className="py-2.5 px-3">League</th>
-                      <th className="py-2.5 px-3">Members</th>
-                      <th className="py-2.5 px-3">Entry Fee</th>
-                      <th className="py-2.5 px-3">Prize Pool</th>
-                      <th className="py-2.5 px-3 text-right">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/60 font-medium">
-                    {leagues.map((lg) => (
-                      <tr key={lg.id} className="hover:bg-slate-900/40 transition-colors">
-                        <td className="py-3 px-3">
-                          <div className="font-bold text-white">{lg.name}</div>
-                          <div className="text-[10px] text-slate-500 uppercase">
-                            GW {lg.startGameweekId} &rarr; GW {lg.endGameweekId}
-                          </div>
-                        </td>
-                        <td className="py-3 px-3 text-slate-300 font-mono">
-                          {lg.currentMembers}/{lg.maxMembers}
-                        </td>
-                        <td className="py-3 px-3">
-                          {lg.entryFee > 0 ? (
-                            <span className="text-emerald-400 font-mono font-bold">
-                              {lg.entryFee} USDC
-                            </span>
-                          ) : (
-                            <span className="text-slate-400">Free</span>
-                          )}
-                        </td>
-                        <td className="py-3 px-3 font-mono font-bold text-amber-400">
-                          ${lg.prizePool || 0} USDC
-                        </td>
-                        <td className="py-3 px-3 text-right">
-                          <Link href={`/leagues/${lg.id}`}>
-                            <Button variant="ghost" size="sm" className="text-xs">
-                              Details
-                            </Button>
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="py-8 text-center text-slate-500 text-xs">
-                No active public leagues found. Be the first to create one!
-              </div>
-            )}
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-black text-slate-900">3</span>
+            <span className="text-[11px] font-bold text-emerald-600">&uarr; +1</span>
           </div>
         </div>
 
-        {/* Right 1 Col: Upcoming Premier League Fixtures */}
-        <div className="space-y-6">
-          <div className="bg-pitch-surface border border-pitch-border rounded-xl p-5 shadow-md">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-bold text-white uppercase tracking-tight flex items-center gap-2">
-                <IconCalendar className="w-4 h-4 text-emerald-400" />
-                <span>Premier League Fixtures</span>
-              </h2>
-              <Link href="/fixtures">
-                <span className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold transition-colors">
-                  View All &rarr;
-                </span>
+        <div className="fxi-card p-5">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-slate-500">Total Points</span>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <IconStar className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-black text-slate-900">2,384</span>
+            <span className="text-[11px] font-bold text-emerald-600">&uarr; +124</span>
+          </div>
+        </div>
+
+        <div className="fxi-card p-5">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-slate-500">Active Players</span>
+            <div className="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center">
+              <IconUsers className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-black text-slate-900">1.2K</span>
+            <span className="text-[11px] font-bold text-emerald-600">&uarr; +86</span>
+          </div>
+        </div>
+
+        <div className="fxi-card p-5">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-slate-500">Prizes Won</span>
+            <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+              <IconAward className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-black text-slate-900">$1,250</span>
+            <span className="text-[11px] font-bold text-emerald-600">&uarr; +$250</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Grid: Leagues & Leaderboard & Fixtures */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left 2 Cols: My Leagues & Payments Banner */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Active Leagues Table */}
+          <div className="fxi-card p-6">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <IconTrophy className="w-4 h-4 text-[#37003c]" />
+                <h2 className="text-base font-bold text-slate-900">My Leagues</h2>
+              </div>
+              <Link
+                href="/leagues"
+                className="text-xs font-bold text-[#37003c] hover:underline"
+              >
+                View All &rarr;
               </Link>
             </div>
 
-            {fixtures.length > 0 ? (
-              <div className="space-y-2.5">
-                {fixtures.map((fix) => {
-                  const kickoff = fix.kickoffTime ? new Date(fix.kickoffTime) : null;
-                  return (
-                    <div
-                      key={fix.id}
-                      className="p-3 rounded-lg bg-slate-950/60 border border-slate-800/80 hover:border-slate-700 transition-colors"
-                    >
-                      <div className="flex items-center justify-between text-xs">
-                        {/* Home Team */}
-                        <div className="flex-1 font-bold text-slate-200 truncate">
-                          {fix.homeTeam?.name || `Team ${fix.homeTeamId}`}
-                        </div>
+            <div className="divide-y divide-slate-100">
+              {/* League item 1 */}
+              <div className="py-3.5 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-sm shrink-0">
+                    👑
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-slate-900 truncate">
+                      Weekend Warriors
+                    </p>
+                    <p className="text-xs text-slate-400">12 managers &bull; Gameweek 12</p>
+                  </div>
+                </div>
 
-                        {/* Score or Time */}
-                        <div className="px-3 text-center">
-                          {fix.started ? (
-                            <span className="font-mono font-bold text-emerald-400 text-sm tracking-widest tabular-nums">
-                              {fix.homeScore ?? 0} - {fix.awayScore ?? 0}
-                            </span>
-                          ) : (
-                            <span className="font-mono text-[11px] text-slate-400">
-                              {kickoff
-                                ? kickoff.toLocaleTimeString([], {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })
-                                : "TBD"}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Away Team */}
-                        <div className="flex-1 text-right font-bold text-slate-200 truncate">
-                          {fix.awayTeam?.name || `Team ${fix.awayTeamId}`}
-                        </div>
-                      </div>
-
-                      {/* Matchday Date */}
-                      <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-500">
-                        <span>
-                          {kickoff
-                            ? kickoff.toLocaleDateString([], {
-                                weekday: "short",
-                                month: "short",
-                                day: "numeric",
-                              })
-                            : "Scheduled"}
-                        </span>
-                        {fix.finished && <span className="text-slate-400 font-semibold">FT</span>}
-                      </div>
-                    </div>
-                  );
-                })}
+                <div className="flex items-center gap-4">
+                  <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700">
+                    Active
+                  </span>
+                  <div className="text-right">
+                    <div className="text-xs font-bold text-slate-900">3rd / 12</div>
+                    <div className="text-[10px] text-slate-400">86 pts</div>
+                  </div>
+                  <Link
+                    href="/leagues"
+                    className="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#37003c] text-white hover:bg-[#28002c] transition-colors"
+                  >
+                    View &rarr;
+                  </Link>
+                </div>
               </div>
-            ) : (
-              <div className="py-8 text-center text-slate-500 text-xs">
-                {isLoadingData ? "Loading fixtures..." : "No fixtures scheduled for this round."}
+
+              {/* League item 2 */}
+              <div className="py-3.5 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-sm shrink-0">
+                    ⭐
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-slate-900 truncate">
+                      Campus Champions Cup
+                    </p>
+                    <p className="text-xs text-slate-400">8 managers &bull; Gameweek 12</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700">
+                    Active
+                  </span>
+                  <div className="text-right">
+                    <div className="text-xs font-bold text-slate-900">1st / 8</div>
+                    <div className="text-[10px] text-slate-400">92 pts</div>
+                  </div>
+                  <Link
+                    href="/leagues"
+                    className="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#37003c] text-white hover:bg-[#28002c] transition-colors"
+                  >
+                    View &rarr;
+                  </Link>
+                </div>
               </div>
-            )}
+
+              {/* League item 3 */}
+              <div className="py-3.5 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm shrink-0">
+                    ⚽
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-slate-900 truncate">
+                      Premier High-Roller League
+                    </p>
+                    <p className="text-xs text-slate-400">24 managers &bull; Gameweek 12</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700">
+                    Active
+                  </span>
+                  <div className="text-right">
+                    <div className="text-xs font-bold text-slate-900">7th / 24</div>
+                    <div className="text-[10px] text-slate-400">78 pts</div>
+                  </div>
+                  <Link
+                    href="/leagues"
+                    className="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#37003c] text-white hover:bg-[#28002c] transition-colors"
+                  >
+                    View &rarr;
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Dugout Quick Tips Card */}
-          <div className="bg-gradient-to-br from-pitch-surface to-slate-950 border border-pitch-border rounded-xl p-5 shadow-sm">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2 flex items-center gap-1.5">
-              <IconCheck className="w-4 h-4" />
-              <span>Manager Rules & Deadlines</span>
-            </h3>
-            <ul className="text-xs text-slate-400 space-y-2 leading-relaxed">
-              <li>&bull; Squad changes lock exactly at the FPL gameweek deadline.</li>
-              <li>&bull; Max 3 players from any single Premier League club.</li>
-              <li>&bull; Captain scores 2x points; Vice-Captain takes over if captain sits out.</li>
-              <li>&bull; USDC entries are locked in Soroban escrow until round resolution.</li>
-            </ul>
+          {/* Secure & Private Payments Banner */}
+          <div className="relative rounded-3xl bg-gradient-to-r from-[#20033c] via-[#350247] to-[#044c35] p-6 text-white overflow-hidden shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0">
+                <IconShield className="w-6 h-6 text-[#00ff87]" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white mb-1">
+                  Secure & Private Payments
+                </h3>
+                <p className="text-xs text-slate-200">
+                  Fund entry fees with Pollar (USDC) or Zcash (ZEC). Fast, secure, and privacy-first.
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/profile"
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-[#00ff87] text-[#24002e] hover:bg-[#00e575] transition-colors shrink-0"
+            >
+              Choose Payment &rarr;
+            </Link>
+          </div>
+        </div>
+
+        {/* Right Col: Upcoming Fixtures & Leaderboard */}
+        <div className="space-y-6">
+          {/* Upcoming Fixtures */}
+          <div className="fxi-card p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <IconCalendar className="w-4 h-4 text-[#37003c]" />
+                <h2 className="text-base font-bold text-slate-900">Upcoming Fixtures</h2>
+              </div>
+              <Link href="/fixtures" className="text-xs font-bold text-[#37003c] hover:underline">
+                View All &rarr;
+              </Link>
+            </div>
+
+            <div className="space-y-3">
+              {fixtures.length > 0 ? (
+                fixtures.map((fixture) => (
+                  <div
+                    key={fixture.id}
+                    className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs"
+                  >
+                    <div className="font-bold text-slate-800">{fixture.homeTeam?.shortName || "HOME"}</div>
+                    <div className="text-[11px] font-semibold text-slate-400 bg-white px-2 py-0.5 rounded-md border border-slate-200">
+                      VS
+                    </div>
+                    <div className="font-bold text-slate-800">{fixture.awayTeam?.shortName || "AWAY"}</div>
+                  </div>
+                ))
+              ) : (
+                <div className="space-y-3">
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs font-bold text-slate-800">
+                    <span>MCI</span>
+                    <span className="text-[11px] font-medium text-slate-400">VS</span>
+                    <span>LIV</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs font-bold text-slate-800">
+                    <span>ARS</span>
+                    <span className="text-[11px] font-medium text-slate-400">VS</span>
+                    <span>CHE</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Global Leaderboard Preview */}
+          <div className="fxi-card p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <IconAward className="w-4 h-4 text-[#37003c]" />
+                <h2 className="text-base font-bold text-slate-900">Top Managers</h2>
+              </div>
+              <Link href="/leaderboard" className="text-xs font-bold text-[#37003c] hover:underline">
+                View All &rarr;
+              </Link>
+            </div>
+
+            <div className="divide-y divide-slate-100 text-xs">
+              <div className="py-2.5 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span className="font-black text-amber-500 w-4">1</span>
+                  <span className="font-bold text-slate-800">KingFootball</span>
+                </div>
+                <span className="font-mono font-bold text-slate-900">2,845 pts</span>
+              </div>
+              <div className="py-2.5 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span className="font-black text-slate-400 w-4">2</span>
+                  <span className="font-bold text-slate-800">GoalDigger</span>
+                </div>
+                <span className="font-mono font-bold text-slate-900">2,720 pts</span>
+              </div>
+              <div className="py-2.5 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span className="font-black text-amber-700 w-4">3</span>
+                  <span className="font-bold text-slate-800">StanleyXI</span>
+                </div>
+                <span className="font-mono font-bold text-slate-900">2,384 pts</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

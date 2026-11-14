@@ -527,6 +527,11 @@ export {
   AlertTriangleIcon as IconAlertTriangle,
   ChartIcon as IconChart,
   MedalIcon as IconMedal,
+  TrophyIcon as IconAward,
+  MedalIcon as IconStar,
+  RefreshIcon as IconTrendingUp,
+  AlertCircleIcon as IconBell,
+  FootballIcon as IconSun,
 };
 
 

@@ -1,21 +1,35 @@
 @import "tailwindcss";
 
 :root {
-  --background: #090d16;
-  --foreground: #f8fafc;
-  --surface: #0f172a;
-  --surface-hover: #1e293b;
-  --surface-active: #334155;
-  --border: #1e293b;
-  --border-subtle: #172033;
-  --primary: #10b981;
-  --primary-hover: #059669;
-  --primary-subtle: rgba(16, 185, 129, 0.12);
-  --accent: #f59e0b;
-  --accent-subtle: rgba(245, 158, 11, 0.12);
-  --pitch-grass-1: #064e3b;
+  /* Primary Theme Palette — Light SaaS / Football Hybrid */
+  --background: #f8fafc;
+  --foreground: #1e1338;
+  --surface: #ffffff;
+  --surface-hover: #f1f5f9;
+  --surface-active: #e2e8f0;
+  --surface-card: #ffffff;
+  --border: #e2e8f0;
+  --border-subtle: #f1f5f9;
+
+  /* FantasyXI Brand Colors */
+  --primary: #37003c; /* Premier League / FantasyXI Royal Purple */
+  --primary-hover: #26002b;
+  --primary-subtle: rgba(55, 0, 60, 0.08);
+  --primary-glow: rgba(55, 0, 60, 0.15);
+
+  --secondary: #00ff87; /* Vibrant Football Pitch Neon Green */
+  --secondary-hover: #00e074;
+  --secondary-subtle: rgba(0, 255, 135, 0.14);
+  --secondary-border: rgba(0, 255, 135, 0.35);
+
+  --accent-purple: #48126e;
+  --accent-blue: #0284c7;
+  --accent-amber: #f59e0b;
+
+  /* Football pitch colors */
+  --pitch-grass-1: #065f46;
   --pitch-grass-2: #047857;
-  --pitch-line: rgba(255, 255, 255, 0.22);
+  --pitch-line: rgba(255, 255, 255, 0.28);
 }
 
 @theme inline {
@@ -29,16 +43,15 @@
   --color-primary-custom: var(--primary);
   --color-primary-hover: var(--primary-hover);
   --color-primary-subtle: var(--primary-subtle);
-  --color-accent-custom: var(--accent);
-  --color-accent-subtle: var(--accent-subtle);
-  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-mono: var(--font-geist-mono), monospace;
+  --color-secondary-custom: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   min-height: 100vh;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -56,14 +69,14 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #090d16;
+  background: #f1f5f9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #cbd5e1;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #94a3b8;
 }
 
 /* Tactical Football Pitch Background */
@@ -72,99 +85,48 @@ body {
   background-size: 100% 100%;
   position: relative;
   overflow: hidden;
-  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.5);
-  border: 2px solid rgba(255, 255, 255, 0.25);
-  border-radius: 12px;
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.35);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
 }
 
 /* Lawn grass mowing stripes */
 .pitch-stripes {
-  background-image: repeating-linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.03) 0px,
-    rgba(255, 255, 255, 0.03) 48px,
-    transparent 48px,
-    transparent 96px
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.04) 0px,
+    rgba(255, 255, 255, 0.04) 40px,
+    transparent 40px,
+    transparent 80px
   );
 }
 
-/* Pitch Line Markings */
-.pitch-lines {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
+/* Cards & Elevated Containers */
+.fxi-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.pitch-center-circle {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 110px;
-  height: 110px;
-  border: 2px solid var(--pitch-line);
-  border-radius: 50%;
+.fxi-card:hover {
+  box-shadow: 0 4px 12px 0 rgba(55, 0, 60, 0.06);
 }
 
-.pitch-half-line {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background-color: var(--pitch-line);
+/* Special Gradients */
+.bg-fxi-purple {
+  background: linear-gradient(135deg, #37003c 0%, #200028 100%);
 }
 
-.pitch-penalty-top {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 52%;
-  height: 16%;
-  border-left: 2px solid var(--pitch-line);
-  border-right: 2px solid var(--pitch-line);
-  border-bottom: 2px solid var(--pitch-line);
-  border-bottom-left-radius: 6px;
-  border-bottom-right-radius: 6px;
+.bg-fxi-hero {
+  background: linear-gradient(105deg, #1b0235 0%, #2c0552 45%, #054832 100%);
 }
 
-.pitch-penalty-bottom {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 52%;
-  height: 16%;
-  border-left: 2px solid var(--pitch-line);
-  border-right: 2px solid var(--pitch-line);
-  border-top: 2px solid var(--pitch-line);
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
+.text-fxi-purple {
+  color: #37003c;
 }
 
-/* Toast Animations */
-@keyframes toast-slide-in {
-  from {
-    opacity: 0;
-    transform: translate3d(100%, 0, 0) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
+.text-fxi-green {
+  color: #00d26a;
 }
-
-@keyframes toast-progress {
-  from {
-    transform: scaleX(1);
-  }
-  to {
-    transform: scaleX(0);
-  }
-}
-
-.animate-toast-in {
-  animation: toast-slide-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-

@@ -239,27 +239,27 @@ export default function LeaguesPage() {
   };
 
   const inputClass =
-    "w-full px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-emerald-500";
-  const labelClass = "block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1";
+    "w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c]";
+  const labelClass = "block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1";
 
   return (
     <div className="space-y-6 pb-12">
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-pitch-surface border border-pitch-border p-6 rounded-xl shadow-lg">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-slate-200/80 p-6 sm:p-8 rounded-3xl shadow-sm">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="text-xs font-black uppercase tracking-wider text-[#37003c] bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">
               Fantasy Competitions
             </span>
-            <span className="text-xs text-slate-500 font-mono">&bull; On-Chain Escrow</span>
+            <span className="text-xs text-slate-400 font-medium">&bull; Smart Escrow Verified</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             Leagues Hub
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Compete in classic fantasy leagues. Prize pools are secured in Stellar Soroban escrow.
+          <p className="text-xs text-slate-500 mt-1 max-w-xl leading-relaxed">
+            Compete in classic fantasy leagues. Prize pools are secured in non-custodial smart escrow with Pollar & Zcash integration.
           </p>
-          <Link href="/leaderboard" className="mt-2 inline-block text-xs font-semibold text-emerald-400 hover:text-emerald-300">
+          <Link href="/leaderboard" className="mt-2 inline-block text-xs font-bold text-[#37003c] hover:underline">
             See the global leaderboard &rarr;
           </Link>
         </div>
@@ -269,7 +269,7 @@ export default function LeaguesPage() {
             variant="secondary"
             size="md"
             onClick={() => setShowJoinModal(true)}
-            className="uppercase font-bold tracking-wide text-xs"
+            className="font-bold text-xs rounded-xl"
           >
             <span>Join with Code</span>
           </Button>
@@ -278,9 +278,9 @@ export default function LeaguesPage() {
             <Button
               variant="primary"
               size="md"
-              className="uppercase font-bold tracking-wide text-xs"
+              className="font-bold text-xs bg-[#37003c] hover:bg-[#28002c] text-white rounded-xl shadow-sm"
             >
-              <IconPlus className="w-4 h-4" />
+              <IconPlus className="w-4 h-4 text-[#00ff87]" />
               <span>Create League</span>
             </Button>
           </Link>
@@ -290,14 +290,14 @@ export default function LeaguesPage() {
       {/* Tabs & Search Filter Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         {/* Tabs */}
-        <div className="flex items-center gap-2 border-b border-pitch-border pb-1">
+        <div className="flex items-center gap-2 border-b border-slate-200 pb-1">
           <button
             type="button"
             onClick={() => switchTab("all")}
-            className={`px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 ${
+            className={`px-4 py-2 text-xs font-bold tracking-wide transition-colors border-b-2 ${
               activeTab === "all"
-                ? "border-emerald-500 text-emerald-400"
-                : "border-transparent text-slate-400 hover:text-slate-200"
+                ? "border-[#37003c] text-[#37003c]"
+                : "border-transparent text-slate-400 hover:text-slate-700"
             }`}
           >
             Explore Public Leagues{activeTab === "all" && meta ? ` (${meta.total})` : ""}
@@ -307,10 +307,10 @@ export default function LeaguesPage() {
             <button
               type="button"
               onClick={() => switchTab("my")}
-              className={`px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 ${
+              className={`px-4 py-2 text-xs font-bold tracking-wide transition-colors border-b-2 ${
                 activeTab === "my"
-                  ? "border-emerald-500 text-emerald-400"
-                  : "border-transparent text-slate-400 hover:text-slate-200"
+                  ? "border-[#37003c] text-[#37003c]"
+                  : "border-transparent text-slate-400 hover:text-slate-700"
               }`}
             >
               My Leagues
@@ -321,7 +321,7 @@ export default function LeaguesPage() {
         {/* Search & Quick Status Filter */}
         <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           <div className="relative flex-1 sm:w-64">
-            <IconSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+            <IconSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
               value={search}
@@ -329,7 +329,7 @@ export default function LeaguesPage() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search leagues by name..."
               aria-label="Search leagues by name"
-              className="w-full pl-9 pr-3 py-1.5 bg-pitch-surface border border-pitch-border rounded-lg text-slate-200 placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500"
+              className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-xs focus:outline-none focus:border-[#37003c] focus:ring-1 focus:ring-[#37003c]"
             />
           </div>
 
@@ -337,7 +337,7 @@ export default function LeaguesPage() {
             value={filters.status}
             onChange={(e) => updateFilter("status", e.target.value as LeagueStatus | "")}
             aria-label="Filter leagues by status"
-            className="px-2.5 py-1.5 bg-pitch-surface border border-pitch-border rounded-lg text-slate-200 text-xs focus:outline-none focus:border-emerald-500"
+            className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-700 text-xs focus:outline-none focus:border-[#37003c]"
           >
             {STATUS_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -361,7 +361,7 @@ export default function LeaguesPage() {
 
       {/* Advanced filters */}
       {showFilters && (
-        <div className="bg-pitch-surface border border-pitch-border rounded-xl p-4 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 items-end">
+        <div className="bg-white border border-slate-200 rounded-2xl p-4 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 items-end shadow-sm">
           <div>
             <label className={labelClass}>Min fee (USDC)</label>
             <input
@@ -467,7 +467,7 @@ export default function LeaguesPage() {
       {/* Leagues Grid */}
       {isLoading ? (
         <div className="py-24 text-center text-slate-400">
-          <div className="inline-block w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mb-3" />
+          <div className="inline-block w-8 h-8 border-2 border-[#37003c] border-t-transparent rounded-full animate-spin mb-3" />
           <p className="text-xs">Loading fantasy leagues...</p>
         </div>
       ) : leagues.length > 0 ? (
@@ -475,15 +475,15 @@ export default function LeaguesPage() {
           {leagues.map((lg) => (
             <div
               key={lg.id}
-              className="bg-pitch-surface border border-pitch-border rounded-xl p-5 shadow-md flex flex-col justify-between hover:border-slate-700 transition-colors group"
+              className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs flex flex-col justify-between hover:shadow-md hover:border-purple-200 transition-all group"
             >
               <div>
                 <div className="flex items-start justify-between gap-2 mb-3">
                   <div className="flex-1">
-                    <h3 className="font-bold text-base text-white group-hover:text-emerald-400 transition-colors">
+                    <h3 className="font-bold text-base text-slate-900 group-hover:text-[#37003c] transition-colors">
                       {lg.name}
                     </h3>
-                    <p className="text-[11px] text-slate-400 line-clamp-2 mt-1">
+                    <p className="text-[11px] text-slate-500 line-clamp-2 mt-1">
                       {lg.description || "Official FantasyXI competition."}
                     </p>
                   </div>
@@ -491,39 +491,39 @@ export default function LeaguesPage() {
                     <LeagueStatusBadge status={lg.status} />
                     {lg.isPrivate && (
                       <span className="inline-flex items-center gap-1 text-xs text-slate-400">
-                        <IconShield className="w-3 h-3" />
-                        <span>Private</span>
+                        <IconShield className="w-3 h-3 text-purple-600" />
+                        <span className="text-[10px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">Private</span>
                       </span>
                     )}
                   </div>
                 </div>
 
                 {/* Metrics */}
-                <div className="grid grid-cols-2 gap-2 p-3 rounded-lg bg-slate-950/60 border border-slate-800/80 mb-4 font-mono text-xs">
+                <div className="grid grid-cols-2 gap-2 p-3 rounded-xl bg-slate-50 border border-slate-100 mb-4 font-mono text-xs">
                   <div>
-                    <span className="text-[10px] text-slate-500 uppercase font-sans">Entry Fee</span>
-                    <div className="font-bold text-slate-200 mt-0.5">
+                    <span className="text-[10px] text-slate-400 font-sans font-semibold">Entry Fee</span>
+                    <div className="font-bold text-slate-800 mt-0.5">
                       {Number(lg.entryFee) > 0 ? `${lg.entryFee} USDC` : "Free"}
                     </div>
                   </div>
 
                   <div>
-                    <span className="text-[10px] text-slate-500 uppercase font-sans">Prize Pool</span>
-                    <div className="font-bold text-amber-400 mt-0.5">
+                    <span className="text-[10px] text-slate-400 font-sans font-semibold">Prize Pool</span>
+                    <div className="font-bold text-emerald-700 mt-0.5">
                       ${lg.prizePool || 0} USDC
                     </div>
                   </div>
 
                   <div>
-                    <span className="text-[10px] text-slate-500 uppercase font-sans">Members</span>
-                    <div className="font-bold text-slate-200 mt-0.5">
+                    <span className="text-[10px] text-slate-400 font-sans font-semibold">Members</span>
+                    <div className="font-bold text-slate-800 mt-0.5">
                       {lg.currentMembers} / {lg.maxMembers}
                     </div>
                   </div>
 
                   <div>
-                    <span className="text-[10px] text-slate-500 uppercase font-sans">Duration</span>
-                    <div className="font-bold text-slate-200 mt-0.5">
+                    <span className="text-[10px] text-slate-400 font-sans font-semibold">Duration</span>
+                    <div className="font-bold text-slate-800 mt-0.5">
                       GW {lg.startGameweekId} &rarr; {lg.endGameweekId}
                     </div>
                   </div>
@@ -531,13 +531,13 @@ export default function LeaguesPage() {
               </div>
 
               {/* Action */}
-              <div className="pt-2 border-t border-slate-800/60 flex items-center justify-between">
-                <span className="text-[10px] text-slate-500 uppercase font-mono">
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                <span className="text-[10px] text-slate-400 font-mono">
                   {lg.inviteCode ? `Code: ${lg.inviteCode}` : "Invite only"}
                 </span>
 
                 <Link href={`/leagues/${lg.id}`}>
-                  <Button variant="primary" size="sm" className="text-xs uppercase font-bold">
+                  <Button variant="primary" size="sm" className="text-xs font-bold bg-[#37003c] hover:bg-[#28002c] text-white rounded-lg">
                     View League &rarr;
                   </Button>
                 </Link>
