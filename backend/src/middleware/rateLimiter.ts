@@ -1,4 +1,4 @@
-import { createHash, randomUUID, timingSafeEqual } from "node:crypto";
+import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 import { Request, RequestHandler, Response } from "express";
 import { Redis } from "ioredis";
 import rateLimit, { RateLimitRequestHandler } from "express-rate-limit";
@@ -237,7 +237,8 @@ function getRedisStore(): SlidingWindowStore | undefined {
 }
 
 function hashKey(value: string): string {
-  return createHash("sha256").update(value).digest("hex");
+  const key = process.env.RATE_LIMIT_KEY_SECRET || process.env.JWT_SECRET || "fantasyxi-development-rate-limit-key";
+  return createHmac("sha256", key).update(value).digest("hex");
 }
 
 function constantTimeSecretEqual(left: string, right: string): boolean {
