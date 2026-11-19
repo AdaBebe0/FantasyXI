@@ -240,13 +240,22 @@ function hashKey(value: string): string {
   return createHash("sha256").update(value).digest("hex");
 }
 
+function constantTimeSecretEqual(left: string, right: string): boolean {
+  const leftBytes = Buffer.from(left);
+  const rightBytes = Buffer.from(right);
+  const paddedLength = Math.max(leftBytes.length, rightBytes.length, 1);
+  const paddedLeft = Buffer.alloc(paddedLength);
+  const paddedRight = Buffer.alloc(paddedLength);
+  leftBytes.copy(paddedLeft);
+  rightBytes.copy(paddedRight);
+  return leftBytes.length === rightBytes.length && timingSafeEqual(paddedLeft, paddedRight);
+}
+
 function hasVerifiedWebhookSecret(req: Request): boolean {
   const configuredSecret = process.env.WEBHOOK_RATE_LIMIT_SECRET;
   const suppliedSecret = req.header("x-webhook-secret");
   if (!configuredSecret || !suppliedSecret) return false;
-  const expected = Buffer.from(configuredSecret);
-  const actual = Buffer.from(suppliedSecret);
-  return expected.length === actual.length && timingSafeEqual(expected, actual);
+  return constantTimeSecretEqual(configuredSecret, suppliedSecret);
 }
 
 function verifiedApiKey(req: Request): string | null {
@@ -256,10 +265,8 @@ function verifiedApiKey(req: Request): string | null {
     .split(",")
     .map((value) => value.trim())
     .filter(Boolean);
-  const suppliedDigest = Buffer.from(hashKey(supplied), "hex");
-  for (const candidate of configured) {
-    const candidateDigest = Buffer.from(hashKey(candidate), "hex");
-    if (timingSafeEqual(suppliedDigest, candidateDigest)) return supplied;
+  for (let index = 0; index < configured.length; index++) {
+    if (constantTimeSecretEqual(supplied, configured[index])) return `key-${index + 1}`;
   }
   return null;
 }
