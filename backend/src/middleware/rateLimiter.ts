@@ -1,4 +1,4 @@
-import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
+import { randomUUID, timingSafeEqual } from "node:crypto";
 import { Request, RequestHandler, Response } from "express";
 import { Redis } from "ioredis";
 import rateLimit, { RateLimitRequestHandler } from "express-rate-limit";
@@ -236,9 +236,8 @@ function getRedisStore(): SlidingWindowStore | undefined {
   return new RedisSlidingWindowStore(redisClient);
 }
 
-function hashKey(value: string): string {
-  const key = process.env.RATE_LIMIT_KEY_SECRET || process.env.JWT_SECRET || "fantasyxi-development-rate-limit-key";
-  return createHmac("sha256", key).update(value).digest("hex");
+function encodeBucketIdentity(value: string): string {
+  return Buffer.from(value, "utf8").toString("base64url");
 }
 
 function constantTimeSecretEqual(left: string, right: string): boolean {
@@ -359,7 +358,7 @@ function getBuckets(
     tier === "webhook"
       ? `webhook:${ip}`
       : identity;
-  const bucketKey = apiKey ?? hashKey(bucketIdentity);
+  const bucketKey = apiKey ?? encodeBucketIdentity(bucketIdentity);
   const buckets = [
     {
       key: `fantasyxi:rate:{${group.name}}:${tier}:${bucketKey}`,
@@ -369,7 +368,7 @@ function getBuckets(
 
   if (authenticated || apiKey) {
     buckets.push({
-      key: `fantasyxi:rate:{${group.name}}:ip:${hashKey(ip)}`,
+      key: `fantasyxi:rate:{${group.name}}:ip:${encodeBucketIdentity(ip)}`,
       limit: adjustedLimit(tierConfig.ipLimit ?? tierConfig.limit),
     });
   }
@@ -377,7 +376,7 @@ function getBuckets(
   return {
     buckets,
     windowMs: tierConfig.windowMs,
-    penaltyKey: `fantasyxi:rate:adaptive:${apiKey ?? hashKey(identity)}`,
+    penaltyKey: `fantasyxi:rate:adaptive:${apiKey ?? encodeBucketIdentity(identity)}`,
   };
 }
 
@@ -424,7 +423,7 @@ export function createSlidingWindowRateLimiter(
       ) ?? routeGroups[routeGroups.length - 1];
     let adaptiveStore = options.adaptiveStore ?? getRedisAdaptiveStore() ?? fallbackAdaptiveStore;
     const { identity, apiKey } = requestIdentity(req);
-    const provisionalPenaltyKey = `fantasyxi:rate:adaptive:${apiKey ?? hashKey(identity)}`;
+    const provisionalPenaltyKey = `fantasyxi:rate:adaptive:${apiKey ?? encodeBucketIdentity(identity)}`;
     let penaltyLevel: 0 | 1 | 2 = 0;
     try {
       penaltyLevel = await adaptiveStore.getLevel(provisionalPenaltyKey);
@@ -651,7 +650,7 @@ export class RedisWalletScanGuardStore implements WalletScanGuardStore {
   constructor(private readonly redis: Redis) {}
 
   private keys(wallet: string): [string, string] {
-    const id = hashKey(wallet);
+    const id = encodeBucketIdentity(wallet);
     return [`fantasyxi:scan:{${id}}:misses`, `fantasyxi:scan:{${id}}:lock`];
   }
 
@@ -786,17 +785,17 @@ export function createWalletRateLimiter(options: WalletRateLimiterOptions = {}):
       }
 
       const buckets: RateLimitBucket[] = [
-        { key: `fantasyxi:rate:{deposit-verify}:ip:${hashKey(ip)}`, limit: ipLimit },
+        { key: `fantasyxi:rate:{deposit-verify}:ip:${encodeBucketIdentity(ip)}`, limit: ipLimit },
       ];
       if (wallet) {
         buckets.push({
-          key: `fantasyxi:rate:{deposit-verify}:wallet:${hashKey(wallet)}`,
+          key: `fantasyxi:rate:{deposit-verify}:wallet:${encodeBucketIdentity(wallet)}`,
           limit: walletLimit,
         });
       }
       if (req.user?.id) {
         buckets.push({
-          key: `fantasyxi:rate:{deposit-verify}:user:${hashKey(req.user.id)}`,
+          key: `fantasyxi:rate:{deposit-verify}:user:${encodeBucketIdentity(req.user.id)}`,
           limit: userLimit,
         });
       }
