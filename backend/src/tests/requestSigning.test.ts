@@ -2,6 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import express from "express";
+import rateLimit from "express-rate-limit";
 import request from "supertest";
 import {
   API_SIGNING_TOLERANCE_SECONDS,
@@ -22,6 +23,14 @@ import {
   isPublicSignedPath,
 } from "../middleware/requestSigning.js";
 import { createApiSigningClient, signApiRequest } from "../sdk/apiSigning.js";
+
+/**
+ * Generous rate limiter mounted ahead of the signing middleware in every test
+ * app, mirroring production ordering in app.ts (rate limit before HMAC checks).
+ */
+function testRateLimiter() {
+  return rateLimit({ windowMs: 60_000, limit: 10_000, standardHeaders: false, legacyHeaders: false });
+}
 
 /**
  * Tests for API request signing (issue #455): canonical string generation,
@@ -75,6 +84,7 @@ function buildApp(
   const store = options.nonceStore ?? new MemoryApiNonceStore(() => NOW_MS);
   const app = express();
   app.use(express.json());
+  app.use(testRateLimiter());
   app.use(
     createRequestSigning({
       enabled: options.enabled ?? true,
@@ -523,6 +533,7 @@ describe("createRequestSigning middleware", () => {
     try {
       const app = express();
       app.use(express.json());
+      app.use(testRateLimiter());
       app.use(
         createRequestSigning({
           enabled: true,
@@ -550,6 +561,7 @@ describe("createRequestSigning middleware", () => {
     };
     const app = express();
     app.use(express.json());
+    app.use(testRateLimiter());
     app.use(
       createRequestSigning({
         enabled: true,
