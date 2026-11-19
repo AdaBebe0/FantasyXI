@@ -358,9 +358,10 @@ function getBuckets(
     tier === "webhook"
       ? `webhook:${ip}`
       : identity;
+  const bucketKey = apiKey ?? hashKey(bucketIdentity);
   const buckets = [
     {
-      key: `fantasyxi:rate:{${group.name}}:${tier}:${hashKey(bucketIdentity)}`,
+      key: `fantasyxi:rate:{${group.name}}:${tier}:${bucketKey}`,
       limit: adjustedLimit(tierConfig.limit),
     },
   ];
@@ -375,7 +376,7 @@ function getBuckets(
   return {
     buckets,
     windowMs: tierConfig.windowMs,
-    penaltyKey: `fantasyxi:rate:adaptive:${hashKey(identity)}`,
+    penaltyKey: `fantasyxi:rate:adaptive:${apiKey ?? hashKey(identity)}`,
   };
 }
 
@@ -421,8 +422,8 @@ export function createSlidingWindowRateLimiter(
           )
       ) ?? routeGroups[routeGroups.length - 1];
     let adaptiveStore = options.adaptiveStore ?? getRedisAdaptiveStore() ?? fallbackAdaptiveStore;
-    const identity = requestIdentity(req).identity;
-    const provisionalPenaltyKey = `fantasyxi:rate:adaptive:${hashKey(identity)}`;
+    const { identity, apiKey } = requestIdentity(req);
+    const provisionalPenaltyKey = `fantasyxi:rate:adaptive:${apiKey ?? hashKey(identity)}`;
     let penaltyLevel: 0 | 1 | 2 = 0;
     try {
       penaltyLevel = await adaptiveStore.getLevel(provisionalPenaltyKey);
