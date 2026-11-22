@@ -375,6 +375,8 @@ This project is licensed under the **ISC License**. See the `LICENSE` file for d
 
 ## Stellar Testnet Setup
 
+For a full walkthrough of the contract architecture, local and Testnet setup, building and testing, and the client-side signing flow, see the [Stellar and Soroban Development and Testing Guide](docs/STELLAR_SOROBAN_GUIDE.md).
+
 This section helps contributors configure the Stellar Testnet environment locally to interact with Soroban contracts and the USDC Stellar Asset used by FantasyXI.
 
 - **Network & endpoints**:
