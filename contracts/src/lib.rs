@@ -2,9 +2,9 @@
 #![allow(clippy::too_many_arguments)]
 
 #[cfg(test)]
-extern crate std;
-#[cfg(test)]
 extern crate self as fantasyxi_escrow;
+#[cfg(test)]
+extern crate std;
 use soroban_sdk::xdr::ToXdr;
 use soroban_sdk::{
     contract, contracterror, contractimpl, contracttype, symbol_short, token, Address, Bytes,
@@ -59,8 +59,8 @@ pub enum EscrowError {
     ProposalExecuted = 30,
     UpgradeNotProposed = 31,
     InvalidFederationPeer = 32,
-    PauseProposalNotFound = 31,
-    AlreadyProposed = 32,
+    PauseProposalNotFound = 41,
+    AlreadyProposed = 42,
     LeagueFrozen = 33,
     DisputeActive = 34,
     DisputeWindowOpen = 35,
@@ -125,6 +125,8 @@ pub struct UpgradeProposal {
     pub wasm_hash: BytesN<32>,
     pub proposer: Address,
     pub unlock_ledger: u32,
+}
+
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 #[contracttype]
 #[repr(u32)]
@@ -219,6 +221,8 @@ impl FantasyXIEscrow {
             .set(&DataKey::EmergencyUnpauseAfter, &unpause_after);
         env.events()
             .publish((Symbol::new(env, "EmergencyPause"),), unpause_after);
+    }
+
     fn is_league_frozen_internal(env: &Env, league_id: u64) -> bool {
         env.storage()
             .persistent()
@@ -1658,10 +1662,8 @@ impl FantasyXIEscrow {
         let token_client = token::Client::new(&env, &league.asset);
         token_client.transfer(&env.current_contract_address(), &winner, &amount);
 
-        env.events().publish(
-            (symbol_short!("m_claimed"), league_id),
-            (winner, amount),
-        );
+        env.events()
+            .publish((symbol_short!("m_claimed"), league_id), (winner, amount));
 
         Ok(())
     }
@@ -1702,10 +1704,8 @@ impl FantasyXIEscrow {
             PERSISTENT_BUMP_AMOUNT,
         );
 
-        env.events().publish(
-            (Symbol::new(&env, "LeagueFrozen"), league_id),
-            reason_hash,
-        );
+        env.events()
+            .publish((Symbol::new(&env, "LeagueFrozen"), league_id), reason_hash);
 
         Ok(())
     }
@@ -1762,7 +1762,14 @@ impl FantasyXIEscrow {
         env.storage()
             .persistent()
             .remove(&DataKey::DisputeReason(league_id));
-        Self::settle(env, admin, league_id, winners, platform_treasury, platform_fee)
+        Self::settle(
+            env,
+            admin,
+            league_id,
+            winners,
+            platform_treasury,
+            platform_fee,
+        )
     }
 
     /// Resolves dispute with decreed proportional refund, unfreezing contract atomically.
@@ -2101,7 +2108,11 @@ impl FantasyXIEscrow {
         );
 
         env.events().publish(
-            (Symbol::new(&env, "PauseActionProposed"), proposal_id, action as u32),
+            (
+                Symbol::new(&env, "PauseActionProposed"),
+                proposal_id,
+                action as u32,
+            ),
             (caller, reason_hash),
         );
 
@@ -2186,12 +2197,6 @@ impl FantasyXIEscrow {
             return Err(EscrowError::ProposalExecuted);
         }
 
-        if env.ledger().sequence() < proposal.unlock_ledger {
-            return Err(EscrowError::TimelockActive);
-        }
-
-        Self::ensure_operational(&env)?;
-
         let required_threshold = if config.signers.len() >= 2 && config.threshold < 2 {
             2
         } else {
@@ -2199,7 +2204,6 @@ impl FantasyXIEscrow {
         };
 
         if proposal.approvals.len() < required_threshold {
-        if proposal.approvals.len() < config.threshold {
             return Err(EscrowError::InvalidMultisig);
         }
 
@@ -3454,7 +3458,6 @@ mod test {
         let league = client.get_league(&702).unwrap();
         assert_eq!(league.status, LeagueStatus::Upcoming);
         assert_eq!(client.get_settlement_hash(&702), None);
-
     }
 
     #[test]
@@ -3629,12 +3632,7 @@ mod test {
         assert_eq!(premature_unpause_propose, Err(Ok(EscrowError::NotPaused)));
 
         // 3. Valid pause proposal by Signer 1
-        client.propose_pause_action(
-            &signer_one,
-            &proposal_id,
-            &PauseAction::Pause,
-            &reason_hash,
-        );
+        client.propose_pause_action(&signer_one, &proposal_id, &PauseAction::Pause, &reason_hash);
 
         let prop = client.get_pause_proposal(&proposal_id).unwrap();
         assert_eq!(prop.id, proposal_id);
